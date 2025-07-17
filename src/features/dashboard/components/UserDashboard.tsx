@@ -1,50 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import mqtt from 'mqtt';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { useState, useEffect, useMemo } from 'react';
+import type { Device } from '../types';
 import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Waves, 
-  Droplets, 
-  Zap, 
-  Fish, 
-  Thermometer,
-  Wifi,
-  WifiOff,
-  Activity,
-  RefreshCw,
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  Sparkles
-} from 'lucide-react';
-
+import DashboardHeader from './dashboard/DashboardHeader';
+import SystemStatusBar from './status/SystemStatusBar';
+import DeviceList from './devices/DeviceList';
+import NoDevicesFallback from './devices/NoDevicesFallback';
 import CalibrationModal from './calibration/CalibrationModal';
-import DeviceCard from './DeviceCard';
 import OffsetModal from './calibration/OffsetModal';
-import { cn } from '@/lib/utils';
-
-// Types
-interface Sensor {
-  label: string;
-  value: number | string;
-  unit: string;
-  status: 'GOOD' | 'BAD';
-  raw?: number;
-  voltage?: number;
-  calibrated?: number;
-  calibrated_ok?: boolean;
-}
-
-interface Device {
-  id: string;
-  nama: string;
-  status: string;
-  online: boolean;
-  lastOnline: string;
-  lastData: string;
-  sensors: Sensor[];
-}
+import { useDevices } from '../hooks/useDevices';
+import { determineDeviceStatus, parseSensorData, updateDeviceData } from './utils/dashboardUtils';
+import { toast } from 'sonner';
+import { useNavigate } from '@tanstack/react-router';
+import { useWebSocket } from '../hooks/useWebSocket';
+import { useAuth } from '@/features/authentication/hooks/useAuth';
+import { apiClient } from '@/utils/apiClient';
+import { getBrowserFingerprint, decryptToken } from '@/utils/fingerprint';
+import type { UserRole } from '@/features/users/types';
 
 interface CalibrationModalState {
   open: boolean;
@@ -58,448 +29,325 @@ interface OffsetModalState {
 }
 
 const UserDashboard: React.FC = () => {
-  // State Management
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
   const [devices, setDevices] = useState<Record<string, Device>>({});
-  const [mqttClient, setMqttClient] = useState<mqtt.MqttClient | null>(null);
-  const [connectionStatus, setConnectionStatus] = useState<'connecting' | 'connected' | 'disconnected'>('disconnected');
   const [lastUpdate, setLastUpdate] = useState<string>('');
+  const [hasInitialData, setHasInitialData] = useState(false);
+  const [isWebSocketReady, setIsWebSocketReady] = useState(false);
+  const [decryptedToken, setDecryptedToken] = useState<string | null>(null);
+  const [tokenReady, setTokenReady] = useState(false);
   const [calibrationModal, setCalibrationModal] = useState<CalibrationModalState>({
     open: false,
     deviceId: '',
-    sensorType: ''
+    sensorType: '',
   });
   const [offsetModal, setOffsetModal] = useState<OffsetModalState>({
     open: false,
-    deviceId: ''
+    deviceId: '',
   });
 
-  // MQTT Configuration
-  const MQTT_CONFIG = {
-    url: 'wss://mqtt-ws.elsaiot.web.id',
-    options: {
-      username: 'elsa-user',
-      password: '3lsaTekom.',
-      clientId: `simonair_dashboard_${Math.random().toString(36).substring(7)}`,
-      reconnectPeriod: 5000,
-      connectTimeout: 30000,
-      clean: true,
-    }
-  };
-
-  // Utility Functions
-  const getGreeting = (): string => {
-    const hour = new Date().getHours();
-    if (hour < 10) return 'Selamat Pagi';
-    if (hour < 15) return 'Selamat Siang';
-    if (hour < 18) return 'Selamat Sore';
-    return 'Selamat Malam';
-  };
-
-  const parseSensorData = (payload: any): Sensor[] => {
-    const sensors: Sensor[] = [];
-    
-    // pH Sensor
-    if (payload.ph) {
-      sensors.push({
-        label: 'pH',
-        value: typeof payload.ph.calibrated === 'number' 
-          ? payload.ph.calibrated.toFixed(2) 
-          : typeof payload.ph.raw === 'number'
-          ? payload.ph.raw.toFixed(2)
-          : '-',
-        unit: '',
-        status: payload.ph.status === 'GOOD' ? 'GOOD' : 'BAD',
-        raw: payload.ph.raw,
-        voltage: payload.ph.voltage,
-        calibrated: payload.ph.calibrated,
-        calibrated_ok: payload.ph.calibrated_ok
-      });
-    }
-
-    // TDS Sensor
-    if (payload.tds) {
-      sensors.push({
-        label: 'TDS',
-        value: typeof payload.tds.calibrated === 'number' 
-          ? payload.tds.calibrated.toFixed(1) 
-          : typeof payload.tds.raw === 'number'
-          ? payload.tds.raw.toFixed(1)
-          : '-',
-        unit: 'ppm',
-        status: payload.tds.status === 'GOOD' ? 'GOOD' : 'BAD',
-        raw: payload.tds.raw,
-        voltage: payload.tds.voltage,
-        calibrated: payload.tds.calibrated,
-        calibrated_ok: payload.tds.calibrated_ok
-      });
-    }
-
-    // DO Sensor
-    if (payload.do) {
-      sensors.push({
-        label: 'DO',
-        value: typeof payload.do.calibrated === 'number' 
-          ? payload.do.calibrated.toFixed(2) 
-          : typeof payload.do.raw === 'number'
-          ? payload.do.raw.toFixed(2)
-          : '-',
-        unit: 'mg/L',
-        status: payload.do.status === 'GOOD' ? 'GOOD' : 'BAD',
-        raw: payload.do.raw,
-        voltage: payload.do.voltage,
-        calibrated: payload.do.calibrated,
-        calibrated_ok: payload.do.calibrated_ok
-      });
-    }
-
-    // Temperature Sensor
-    if (payload.temperature) {
-      sensors.push({
-        label: 'Suhu',
-        value: typeof payload.temperature.value === 'number' 
-          ? payload.temperature.value.toFixed(1) 
-          : '-',
-        unit: '°C',
-        status: payload.temperature.status === 'GOOD' ? 'GOOD' : 'BAD'
-      });
-    }
-
-    return sensors;
-  };
-
-  const updateDeviceData = (deviceId: string, payload: any) => {
-    const sensors = parseSensorData(payload);
-    const currentTime = new Date().toLocaleTimeString('id-ID', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    });
-
-    setDevices(prevDevices => ({
-      ...prevDevices,
-      [deviceId]: {
-        id: deviceId,
-        nama: prevDevices[deviceId]?.nama || `SIMONAIR ${deviceId}`,
-        status: determineDeviceStatus(sensors),
-        online: true,
-        lastOnline: currentTime,
-        lastData: currentTime,
-        sensors
-      }
-    }));
-
-    setLastUpdate(currentTime);
-  };
-
-  const determineDeviceStatus = (sensors: Sensor[]): string => {
-    if (sensors.length === 0) return 'Tidak Ada Data';
-    
-    const badSensors = sensors.filter(s => s.status === 'BAD').length;
-    const goodSensors = sensors.filter(s => s.status === 'GOOD').length;
-    
-    if (badSensors > 0) return 'Bermasalah';
-    if (goodSensors > 0) return 'Normal';
-    return 'Tidak Ada Data';
-  };
-
-  // MQTT Connection Effect
   useEffect(() => {
-    console.log('🔄 Menginisialisasi koneksi MQTT SIMONAIR...');
-    setConnectionStatus('connecting');
-    
-    const client = mqtt.connect(MQTT_CONFIG.url, MQTT_CONFIG.options);
-    
-    client.on('connect', () => {
-      console.log('✅ MQTT Terhubung ke SIMONAIR');
-      setConnectionStatus('connected');
-      client.subscribe('simonair/+/data', { qos: 1 }, (err) => {
-        if (err) {
-          console.error('❌ Gagal berlangganan:', err);
-        } else {
-          console.log('📡 Berlangganan ke simonair/+/data');
-        }
-      });
-    });
+    if (!isAuthenticated) {
+      navigate({ to: '/login', replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
-    client.on('message', (topic, message) => {
+  // Step 1: Get devices and sensor data via HTTP
+  const { devices: initialDevices, loading: devicesLoading } = useDevices();
+
+  // Step 2: Get decrypted token (only once)
+  useEffect(() => {
+    if (tokenReady) return; // Prevent multiple calls
+
+    const getToken = async () => {
       try {
-        const payload = JSON.parse(message.toString());
-        const topicMatch = topic.match(/^simonair\/(.+?)\/data$/);
-        
-        if (topicMatch) {
-          const deviceId = topicMatch[1];
-          console.log(`📨 Data diterima dari ${deviceId}:`, payload);
-          updateDeviceData(deviceId, payload);
+        const encrypted = localStorage.getItem('simonairToken');
+        if (!encrypted) {
+          console.log('🔑 No token found in storage');
+          setTokenReady(true);
+          return;
         }
+
+        const fingerprint = await getBrowserFingerprint();
+        const decrypted = await decryptToken(encrypted, fingerprint);
+        console.log('🔑 Token decrypted successfully');
+        setDecryptedToken(decrypted);
       } catch (error) {
-        console.error('❌ Error parsing pesan MQTT:', error);
-      }
-    });
-
-    client.on('error', (error) => {
-      console.error('❌ Error Koneksi MQTT:', error);
-      setConnectionStatus('disconnected');
-    });
-
-    client.on('reconnect', () => {
-      console.log('🔄 MQTT Menyambung Ulang...');
-      setConnectionStatus('connecting');
-    });
-
-    client.on('offline', () => {
-      console.log('📴 MQTT Offline');
-      setConnectionStatus('disconnected');
-    });
-
-    client.on('close', () => {
-      console.log('🔌 Koneksi MQTT Ditutup');
-      setConnectionStatus('disconnected');
-    });
-
-    setMqttClient(client);
-
-    // Cleanup on unmount
-    return () => {
-      console.log('🧹 Membersihkan koneksi MQTT...');
-      if (client && client.connected) {
-        client.unsubscribe('simonair/+/data');
-        client.end(false);
+        console.error('🔑 Failed to decrypt token:', error);
+      } finally {
+        setTokenReady(true);
       }
     };
+
+    getToken();
   }, []);
 
-  // Device offline detection effect
+  // Step 3: Process initial devices and sensor data
   useEffect(() => {
-    const interval = setInterval(() => {
-      const now = Date.now();
-      setDevices(prevDevices => {
-        const updatedDevices = { ...prevDevices };
-        let hasChanges = false;
+    if (initialDevices && initialDevices.length > 0 && !hasInitialData) {
+      console.log('📱 Step 3: Processing initial devices with sensor data');
 
-        Object.keys(updatedDevices).forEach(deviceId => {
-          const device = updatedDevices[deviceId];
-          if (!device.lastData) return;
+      const devicesMap = initialDevices.reduce((acc, device) => {
+        const deviceData: Device = {
+          id: device.id,
+          device_id: device.device_id,
+          device_name: device.device_name,
+          nama: device.device_name,
+          status: 'Menunggu Data',
+          fish_count: device.fish_count || 0,
+          location: device.location || 'Tidak Diketahui',
+          aquarium_size: device.aquarium_size || 'Tidak Diketahui',
+          glass_type: device.glass_type || 'Tidak Diketahui',
+          online: device.online,
+          lastOnline: device.last_seen
+            ? new Date(device.last_seen).toLocaleDateString('id-ID', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZoneName: 'short',
+              })
+            : '-',
+          lastData: '',
+          sensors: [],
+        };
 
-          // Parse timestamp format
-          const [time] = device.lastData.split(' ');
-          const [hours, minutes, seconds] = time.split(':').map(Number);
-          const today = new Date();
-          const lastDataTime = new Date(
-            today.getFullYear(),
-            today.getMonth(), 
-            today.getDate(),
-            hours, 
-            minutes, 
-            seconds || 0
-          ).getTime();
+        if (device.latestSensorData) {
+          const sensorData = device.latestSensorData;
+          deviceData.sensors = parseSensorData(sensorData);
+          deviceData.status = determineDeviceStatus(deviceData.sensors);
+          deviceData.lastData = new Date(sensorData.timestamp).toLocaleDateString('id-ID', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            timeZoneName: 'short',
+          });
 
-          const isOffline = now - lastDataTime > 120000; // 2 minutes timeout
-          
-          if (isOffline && device.online) {
-            updatedDevices[deviceId] = {
-              ...device,
-              online: false
-            };
-            hasChanges = true;
-            console.log(`📴 Perangkat ${deviceId} offline`);
+          if (!lastUpdate) {
+            setLastUpdate(
+              new Date(sensorData.timestamp).toLocaleDateString('id-ID', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZoneName: 'short',
+              }),
+            );
           }
-        });
+        }
 
-        return hasChanges ? updatedDevices : prevDevices;
+        acc[device.device_id] = deviceData;
+        return acc;
+      }, {} as Record<string, Device>);
+
+      setDevices(devicesMap);
+      setHasInitialData(true);
+      console.log('📱 Step 3: Initial devices processed, hasInitialData set to true');
+    }
+  }, [initialDevices, hasInitialData]);
+
+  // Step 4: Enable WebSocket when both conditions are met
+  useEffect(() => {
+    if (hasInitialData && tokenReady && decryptedToken && !isWebSocketReady) {
+      console.log('🔌 Step 4: All prerequisites met, enabling WebSocket in 1 second...');
+      const timer = setTimeout(() => {
+        setIsWebSocketReady(true);
+        console.log('🔌 Step 4: WebSocket ready flag set to true');
+      }, 1000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [hasInitialData, tokenReady, decryptedToken, isWebSocketReady]);
+
+  // Step 5: Connect WebSocket with stable dependencies
+  const webSocketEnabled = isWebSocketReady && 
+                           tokenReady && 
+                           !devicesLoading && 
+                           !!decryptedToken && 
+                           hasInitialData && 
+                           (initialDevices?.length ?? 0) > 0;
+
+  console.log('🔌 WebSocket conditions:', {
+    isWebSocketReady,
+    tokenReady,
+    devicesLoading,
+    hasToken: !!decryptedToken,
+    hasInitialData,
+    deviceCount: initialDevices?.length ?? 0,
+    enabled: webSocketEnabled
+  });
+
+  const { isConnected, sensorData, calibrationAck, thresholdAck } = useWebSocket({
+    token: decryptedToken,
+    devices: initialDevices || [],
+    role: user?.role as UserRole | undefined,
+    enabled: webSocketEnabled,
+  });
+
+  // Step 6: Handle real-time WebSocket updates
+  useEffect(() => {
+    if (sensorData && hasInitialData && isConnected) {
+      console.log('🔄 Step 6: Processing WebSocket real-time updates');
+      Object.values(sensorData).forEach((data) => {
+        updateDeviceData(
+          data.device_id,
+          data,
+          setDevices,
+          setLastUpdate,
+          parseSensorData,
+          determineDeviceStatus,
+        );
       });
-    }, 30000); // Check every 30 seconds
+    }
+  }, [sensorData, hasInitialData, isConnected]);
 
-    return () => clearInterval(interval);
-  }, []);
+  useEffect(() => {
+    if (calibrationAck) {
+      toast.success(`Calibration: ${calibrationAck.message}`);
+    }
+    if (thresholdAck) {
+      toast.success(`Threshold: ${thresholdAck.message}`);
+    }
+  }, [calibrationAck, thresholdAck]);
 
-  // Event Handlers
   const handleCalibrateClick = (deviceId: string) => {
-    console.log(`🔧 Membuka modal kalibrasi untuk perangkat: ${deviceId}`);
-    setCalibrationModal({
-      open: true,
-      deviceId,
-      sensorType: ''
-    });
+    setCalibrationModal({ open: true, deviceId, sensorType: '' });
   };
 
   const handleOffsetClick = (deviceId: string) => {
-    console.log(`⚙️ Membuka modal offset untuk perangkat: ${deviceId}`);
-    setOffsetModal({
-      open: true,
-      deviceId
-    });
+    setOffsetModal({ open: true, deviceId });
   };
 
   const handleModalClose = () => {
-    setCalibrationModal({
-      open: false,
-      deviceId: '',
-      sensorType: ''
-    });
+    setCalibrationModal({ open: false, deviceId: '', sensorType: '' });
   };
 
   const handleOffsetModalClose = () => {
-    setOffsetModal({
-      open: false,
-      deviceId: ''
-    });
+    setOffsetModal({ open: false, deviceId: '' });
   };
 
-  const handleSensorSelect = (sensorType: 'ph' | 'tds' | 'do') => {
-    setCalibrationModal(prev => ({
-      ...prev,
-      sensorType
-    }));
+  const handleSensorSelect = (sensorType: '' | 'ph' | 'tds' | 'do') => {
+    setCalibrationModal((prev) => ({ ...prev, sensorType }));
   };
 
-  // Derived state
-  const deviceList = Object.values(devices);
-  const onlineDevices = deviceList.filter(device => device.online).length;
+  const handleCalibrationSubmit = async (calibrationData: any) => {
+    try {
+      await apiClient.post(`/devices/${calibrationModal.deviceId}/calibrations`, calibrationData);
+      toast.success('Calibration submitted successfully');
+    } catch (error) {
+      console.error('Failed to submit calibration:', error);
+      toast.error('Failed to submit calibration');
+      throw error;
+    }
+  };
+
+  const handleOffsetSubmit = async (thresholds: any) => {
+    try {
+      await apiClient.post(`/devices/${offsetModal.deviceId}/thresholds`, {
+        threshold: thresholds,
+      });
+      toast.success('Offset submitted successfully');
+    } catch (error) {
+      console.error('Failed to submit offset:', error);
+      toast.error('Failed to submit offset');
+      throw error;
+    }
+  };
+
+  const deviceList = useMemo(() => Object.values(devices), [devices]);
+  const onlineDevices = useMemo(
+    () => deviceList.filter((device) => device.online).length,
+    [deviceList],
+  );
   const totalDevices = deviceList.length;
 
-  // Connection status component
-  const ConnectionStatus = () => (
-    <div className="flex items-center gap-2">
-      <div className={cn(
-        "w-2.5 h-2.5 rounded-full transition-all duration-300",
-        connectionStatus === 'connected' ? 'bg-emerald-500 animate-pulse shadow-lg shadow-emerald-500/50' :
-        connectionStatus === 'connecting' ? 'bg-amber-500 animate-pulse shadow-lg shadow-amber-500/50' :
-        'bg-red-500 shadow-lg shadow-red-500/50'
-      )} />
-      <span className={cn(
-        "text-sm font-semibold",
-        connectionStatus === 'connected' ? 'text-emerald-600' :
-        connectionStatus === 'connecting' ? 'text-amber-600' :
-        'text-red-600'
-      )}>
-        {connectionStatus === 'connected' ? 'Terhubung' :
-         connectionStatus === 'connecting' ? 'Menghubungkan...' :
-         'Terputus'}
-      </span>
-    </div>
-  );
+  // Show loading until we have initial data
+  if (!user || devicesLoading || !tokenReady || !hasInitialData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-white to-cyan-50/30 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">
+            {!user ? 'Authenticating...' : 
+             devicesLoading ? 'Loading devices...' :
+             !tokenReady ? 'Preparing connection...' :
+             'Loading sensor data...'}
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-white to-cyan-50/30">
       <div className="max-w-7xl mx-auto space-y-8 p-6">
-        {/* Header Section */}
-        <div className="text-center py-12 relative">
-          <div className="flex items-center justify-center gap-6 mb-8 relative">
-            <div className="relative">
-              <Fish className="h-16 w-16 text-blue-600 drop-shadow-2xl animate-float" />
-              <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-pulse shadow-lg" />
-            </div>
-            <Waves className="h-12 w-12 text-cyan-500 animate-wave drop-shadow-lg" />
-            <Sparkles className="h-10 w-10 text-blue-400 animate-pulse drop-shadow-lg" />
-          </div>
+        <DashboardHeader />
 
-          <h1 className="text-5xl font-bold mb-6 tracking-tight">
-            <span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-emerald-600 bg-clip-text text-transparent">
-              {getGreeting()} 
-            </span>
-            <span className="text-gray-700 ml-4">🌊</span>
-          </h1>
-          
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed font-medium">
-            Sistem Monitoring Kualitas Air (SIMONAIR 4.0)
-          </p>
-        </div>
-
-        {/* System Status Bar */}
-        <Card className="bg-white/80 backdrop-blur-sm border-2 border-white/60 shadow-xl">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Connection Status */}
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-xl shadow-md">
-                  <Wifi className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-600 mb-1">Koneksi</p>
-                  <ConnectionStatus />
-                </div>
-              </div>
-
-              {/* Active Devices */}
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-gradient-to-br from-emerald-100 to-green-100 rounded-xl shadow-md">
-                  <Activity className="h-6 w-6 text-emerald-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-600 mb-1">Perangkat Online</p>
-                  <p className="text-lg font-bold text-gray-800">
-                    {onlineDevices}/{totalDevices}
-                  </p>
-                </div>
-              </div>
-
-              {/* Last Update */}
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-gradient-to-br from-purple-100 to-indigo-100 rounded-xl shadow-md">
-                  <Clock className="h-6 w-6 text-purple-600" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-600 mb-1">Pembaruan Terakhir</p>
-                  <p className="text-lg font-bold text-gray-800">{lastUpdate || 'Menunggu...'}</p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <SystemStatusBar
+          isConnected={isConnected}
+          onlineDevices={onlineDevices}
+          totalDevices={totalDevices}
+          lastUpdate={lastUpdate}
+        />
 
         <Separator className="my-8 bg-gradient-to-r from-transparent via-blue-300/50 to-transparent" />
 
-        {/* Devices Section */}
         <div className="space-y-8">
-          
           {deviceList.length === 0 ? (
-            <Card className="bg-white/80 backdrop-blur-sm border-2 border-white/60 shadow-xl">
-              <CardContent className="p-16 text-center">
-                <div className="flex items-center justify-center gap-6 text-6xl mb-8">
-                  <Fish className="h-24 w-24 text-blue-300 animate-float" />
-                  <Waves className="h-20 w-20 text-cyan-300 animate-wave" />
-                </div>
-                <h3 className="text-3xl font-bold text-gray-700 mb-4">
-                  Menunggu Perangkat SIMONAIR
-                </h3>
-                <p className="text-gray-500 text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
-                  Perangkat akan muncul otomatis ketika mulai mengirim data sensor ke sistem monitoring
-                </p>
-                
-                <div className="space-y-4">
-                  <div className="flex items-center justify-center gap-4 text-base">
-                    <span className="text-gray-500 font-semibold">Status MQTT:</span>
-                    <ConnectionStatus />
-                  </div>
-                  
-                  <div className="text-sm text-gray-400 bg-white/30 rounded-full px-4 py-2 inline-block">
-                    Mendengarkan topik: simonair/+/data
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <NoDevicesFallback isConnected={isConnected} />
           ) : (
-            <div className="space-y-8">
-              {deviceList.map((device) => (
-                <DeviceCard
-                  key={device.id}
-                  device={device}
-                  onCalibrateClick={() => handleCalibrateClick(device.id)}
-                  onOffsetClick={() => handleOffsetClick(device.id)}
-                />
-              ))}
-            </div>
+            <DeviceList
+              devices={deviceList}
+              onCalibrateClick={handleCalibrateClick}
+              onOffsetClick={handleOffsetClick}
+            />
           )}
         </div>
+
+        {hasInitialData && !isWebSocketReady && (
+          <div className="fixed bottom-4 right-4 bg-blue-100 border border-blue-300 rounded-lg p-3 shadow-lg">
+            <div className="flex items-center gap-2">
+              <div className="animate-pulse rounded-full h-4 w-4 bg-blue-600"></div>
+              <span className="text-sm text-blue-800">Mempersiapkan koneksi real-time...</span>
+            </div>
+          </div>
+        )}
+
+        {isWebSocketReady && !isConnected && (
+          <div className="fixed bottom-4 right-4 bg-yellow-100 border border-yellow-300 rounded-lg p-3 shadow-lg">
+            <div className="flex items-center gap-2">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-600"></div>
+              <span className="text-sm text-yellow-800">Menghubungkan ke data real-time...</span>
+            </div>
+          </div>
+        )}
+
+        {isConnected && (
+          <div className="fixed bottom-4 right-4 bg-green-100 border border-green-300 rounded-lg p-3 shadow-lg">
+            <div className="flex items-center gap-2">
+              <div className="rounded-full h-4 w-4 bg-green-600"></div>
+              <span className="text-sm text-green-800">Data real-time aktif</span>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Modals */}
       <CalibrationModal
         open={calibrationModal.open}
         deviceId={calibrationModal.deviceId}
         sensorType={calibrationModal.sensorType}
         onClose={handleModalClose}
         onSensorSelect={handleSensorSelect}
+        onSubmit={handleCalibrationSubmit}
         currentDeviceData={devices[calibrationModal.deviceId]}
       />
 
@@ -507,6 +355,7 @@ const UserDashboard: React.FC = () => {
         open={offsetModal.open}
         deviceId={offsetModal.deviceId}
         onClose={handleOffsetModalClose}
+        onSubmit={handleOffsetSubmit}
         currentDeviceData={devices[offsetModal.deviceId]}
       />
     </div>

@@ -1,15 +1,16 @@
-import type { UserRole } from '@/features/authentication/types';
+import type { UserRole } from '@/features/users/types';
 import { type NavigationGroup } from '@/types/navigation';
 import {
   Home,
   Users,
-  Bell,
   Wrench,
   Settings,
   Fish,
   Calendar,
-  Activity,
   ChefHat,
+  Thermometer,
+  Database,
+  AlertTriangle,
 } from 'lucide-react';
 
 export const roleConfigs: Record<UserRole, { title: string }> = {
@@ -31,42 +32,24 @@ export const defaultNavigation: NavigationGroup[] = [
     ],
   },
   {
-    groupName: 'Alat Simonair',
+    groupName: 'Monitoring',
     items: [
       {
-        title: 'Perangkat',
-        path: '/devices',
-        icon: Wrench,
+        title: 'Monitoring',
+        path: '/monitoring',
+        icon: Thermometer,
         roles: ['superuser', 'admin', 'user'],
         children: [
           {
-            title: 'Kelola Alat',
-            path: '/devices/manage',
-            icon: Settings,
-            roles: ['superuser', 'admin', 'user'],
-          },
-          {
-            title: 'Pakan Ikan',
-            path: '/devices/feeder',
-            icon: ChefHat,
+            title: 'Perangkat',
+            path: '/devices',
+            icon: Wrench,
             roles: ['superuser', 'admin', 'user'],
           },
           {
             title: 'Data Sensor',
-            path: '/devices/sensors',
-            icon: Activity,
-            roles: ['superuser', 'admin', 'user'],
-          },
-          {
-            title: 'Jadwal Pemberian',
-            path: '/devices/schedule',
-            icon: Calendar,
-            roles: ['superuser', 'admin', 'user'],
-          },
-          {
-            title: 'Data Ikan',
-            path: '/devices/fish-data',
-            icon: Fish,
+            path: '/sensor-data',
+            icon: Thermometer,
             roles: ['superuser', 'admin', 'user'],
           },
         ],
@@ -74,26 +57,83 @@ export const defaultNavigation: NavigationGroup[] = [
     ],
   },
   {
-    groupName: 'Notifications',
+    groupName: 'Manajemen Alat',
     items: [
       {
-        title: 'Notifikasi',
-        path: '/notifications',
-        icon: Bell,
-        roles: ['superuser', 'admin', 'user'],
-        exact: true,
+        title: 'Alat',
+        path: '/alat',
+        icon: Settings,
+        roles: ['superuser', 'admin'],
+        children: [
+          {
+            title: 'Kelola Alat',
+            path: '/manage-devices',
+            icon: Settings,
+            roles: ['superuser', 'admin'],
+          },
+          {
+            title: 'Data Manual',
+            path: '/manual-data',
+            icon: ChefHat,
+            roles: ['superuser', 'admin', 'user'],
+          },
+        ],
       },
     ],
   },
   {
-    groupName: 'User Management',
+    groupName: 'Data Budidaya',
     items: [
       {
-        title: 'Pengguna',
-        path: '/users',
+        title: 'Budidaya',
+        path: '/fish-farming',
+        icon: Fish,
+        roles: ['superuser', 'admin', 'user'],
+        children: [
+          {
+            title: 'Pertumbuhan',
+            path: '/fish-growth',
+            icon: Fish,
+            roles: ['superuser', 'admin', 'user'],
+          },
+          {
+            title: 'Pakan',
+            path: '/feeds',
+            icon: Database,
+            roles: ['superuser', 'admin', 'user'],
+          },
+          {
+            title: 'Kematian Ikan',
+            path: '/fish-mortality',
+            icon: AlertTriangle,
+            roles: ['superuser', 'admin', 'user'],
+          },
+          {
+            title: 'Log Kualitas Air',
+            path: '/water-events',
+            icon: Calendar,
+            roles: ['superuser', 'admin', 'user'],
+          },
+        ],
+      },
+    ],
+  },
+  {
+    groupName: 'Admin Panel',
+    items: [
+      {
+        title: 'Admin',
+        path: '/admin',
         icon: Users,
         roles: ['superuser'],
-        exact: true,
+        children: [
+          {
+            title: 'Data User',
+            path: '/users',
+            icon: Users,
+            roles: ['superuser'],
+          },
+        ],
       },
     ],
   },

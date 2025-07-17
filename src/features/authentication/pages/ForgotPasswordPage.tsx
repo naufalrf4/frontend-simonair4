@@ -22,7 +22,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Mail, ArrowRight } from 'lucide-react';
-import { useAuth } from '@/features/authentication/context/AuthContext';
+import { toast } from 'sonner';
+import { useAuth } from '../hooks/useAuth';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email({ message: 'Format email tidak valid' }),
@@ -30,7 +31,7 @@ const forgotPasswordSchema = z.object({
 type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
 
 export function ForgotPasswordPage() {
-  const { forgotPassword } = useAuth();
+  const { forgotPassword } = useAuth(); 
   const [emailSent, setEmailSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -46,14 +47,16 @@ export function ForgotPasswordPage() {
     try {
       await forgotPassword(values.email);
       setEmailSent(true);
-    } catch (error: any) {
+      toast.success('Link reset password telah dikirim ke email jika terdaftar.');
+    } catch (error) {
       form.setError('root', {
-        message: error?.response?.data?.message || 'Terjadi kesalahan, coba lagi.',
+        message: 'Terjadi kesalahan, coba lagi.',
       });
     } finally {
       setIsLoading(false);
     }
   };
+
 
   return (
     <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto my-4 sm:my-8">

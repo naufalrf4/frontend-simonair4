@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
 import compression from 'vite-plugin-compression'
-import path, { resolve } from 'node:path'
+import { resolve } from 'node:path'
 
 // https://vitejs.dev/config/
 export default defineConfig({

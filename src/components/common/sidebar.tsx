@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { useAuth } from '@/features/authentication/context/AuthContext';
 import { type SidebarProps } from '@/types/navigation';
 import { filterNavigationByRole } from '@/utils/role';
 import { cn } from '@/lib/utils';
@@ -9,17 +8,17 @@ import { Link, useMatches } from '@tanstack/react-router';
 import { ChevronDown, ChevronUp, Menu, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import BottomNav from './bottom-nav';
+import { useAuth } from '@/features/authentication/hooks/useAuth';
 
 export function Sidebar({
   isInsideSheet = false,
   onCollapsedChange,
   defaultCollapsed = false,
 }: SidebarProps) {
-  // ALL HOOKS MUST BE CALLED FIRST - BEFORE ANY CONDITIONAL RETURNS
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const matches = useMatches();
-  const { user, isLoading } = useAuth();
+  const { user } = useAuth();
 
   const userRole = user?.role || 'user';
 

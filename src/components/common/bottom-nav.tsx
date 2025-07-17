@@ -1,19 +1,39 @@
 import { Link, useMatches } from '@tanstack/react-router';
-import { useMemo } from 'react';
-import { useAuth } from '@/features/authentication/context/AuthContext';
+import { useMemo, useState, useEffect } from 'react';
 import { filterNavigationByRole } from '@/utils/role';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/features/authentication/hooks/useAuth';
 
 export function BottomNav() {
-  // ALL HOOKS CALLED FIRST
   const matches = useMatches();
   const { user } = useAuth();
-  
   const userRole = user?.role || 'user';
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   const filteredNavigation = useMemo(() => {
     return filterNavigationByRole(userRole).flatMap((group) => group.items);
   }, [userRole]);
+
+  // Scroll behavior
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY > lastScrollY + 10) {
+        // Scrolling down - hide the navigation
+        setIsVisible(false);
+      } else if (currentScrollY < lastScrollY - 5) {
+        // Scrolling up - show the navigation
+        setIsVisible(true);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [lastScrollY]);
 
   // HELPER FUNCTIONS AFTER HOOKS
   const isActive = (path: string) =>
@@ -21,7 +41,10 @@ export function BottomNav() {
 
   // RENDER - NO EARLY RETURNS IN THIS COMPONENT
   return (
-    <nav className="fixed bottom-0 left-0 w-full z-50 bg-gradient-to-t from-background/95 to-background/80 border-t border-border flex justify-around shadow-2xl md:hidden backdrop-blur-lg transition-all duration-200">
+    <nav className={cn(
+      "fixed bottom-0 left-0 w-full z-50 bg-gradient-to-t from-background/95 to-background/80 border-t border-border flex justify-around shadow-2xl md:hidden backdrop-blur-lg transition-all duration-200",
+      isVisible ? "translate-y-0" : "translate-y-full"
+    )}>
       {filteredNavigation.map((item) => {
         const active = isActive(item.path);
         const Icon = item.icon;

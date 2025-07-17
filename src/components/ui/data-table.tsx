@@ -1,17 +1,17 @@
 import {
-  ColumnDef,
+  type ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
   getPaginationRowModel,
-  SortingState,
   getSortedRowModel,
-  ColumnFiltersState,
+  type ColumnFiltersState,
   getFilteredRowModel,
-  PaginationState,
-  OnChangeFn,
-  RowSelectionState,
-} from "@tanstack/react-table";
+  type PaginationState,
+  type OnChangeFn,
+  type RowSelectionState,
+  type SortingState,
+} from '@tanstack/react-table';
 import {
   Table,
   TableBody,
@@ -19,11 +19,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Search } from "lucide-react";
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useState, useEffect } from 'react';
+import { ChevronLeft, ChevronRight, Search } from 'lucide-react';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -49,7 +49,7 @@ export function DataTable<TData, TValue>({
   columns,
   data,
   searchColumn,
-  searchPlaceholder = "Cari...",
+  searchPlaceholder = 'Cari...',
   searchValue,
   onSearchChange,
   pagination,
@@ -59,8 +59,8 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [localSearchValue, setLocalSearchValue] = useState(searchValue || "");
-  
+  const [localSearchValue, setLocalSearchValue] = useState(searchValue || '');
+
   // Sync external search value to local state
   useEffect(() => {
     if (searchValue !== undefined) {
@@ -74,12 +74,12 @@ export function DataTable<TData, TValue>({
       table.getColumn(searchColumn)?.setFilterValue(localSearchValue);
     }
   }, [localSearchValue, searchColumn]);
-  
+
   const defaultPagination: PaginationState = {
     pageIndex: 0,
     pageSize: 10,
   };
-  
+
   const [paginationState, setPaginationState] = useState<PaginationState>({
     pageIndex: pagination?.pageIndex ?? defaultPagination.pageIndex,
     pageSize: pagination?.pageSize ?? defaultPagination.pageSize,
@@ -97,15 +97,15 @@ export function DataTable<TData, TValue>({
     state: {
       sorting,
       columnFilters,
-      ...(pagination 
-        ? { pagination: { pageIndex: pagination.pageIndex, pageSize: pagination.pageSize } } 
+      ...(pagination
+        ? { pagination: { pageIndex: pagination.pageIndex, pageSize: pagination.pageSize } }
         : { pagination: paginationState }),
       rowSelection: state.rowSelection || {},
     },
-    ...(pagination 
-      ? { manualPagination: true, pageCount: pagination.pageCount } 
+    ...(pagination
+      ? { manualPagination: true, pageCount: pagination.pageCount }
       : { getPaginationRowModel: getPaginationRowModel() }),
-    onPaginationChange: pagination 
+    onPaginationChange: pagination
       ? (updater) => {
           if (typeof updater === 'function') {
             const newState = updater({
@@ -124,7 +124,7 @@ export function DataTable<TData, TValue>({
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setLocalSearchValue(value);
-    
+
     if (onSearchChange) {
       onSearchChange(value);
     }
@@ -153,10 +153,7 @@ export function DataTable<TData, TValue>({
                     <TableHead key={header.id}>
                       {header.isPlaceholder
                         ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
+                        : flexRender(header.column.columnDef.header, header.getContext())}
                     </TableHead>
                   );
                 })}
@@ -166,10 +163,7 @@ export function DataTable<TData, TValue>({
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   <div className="flex justify-center items-center h-full">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
                     <span className="ml-2">Memuat data...</span>
@@ -180,25 +174,19 @@ export function DataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  className={row.getIsSelected() ? "bg-primary/5" : ""}
+                  data-state={row.getIsSelected() && 'selected'}
+                  className={row.getIsSelected() ? 'bg-primary/5' : ''}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
+                <TableCell colSpan={columns.length} className="h-24 text-center">
                   Tidak ada data
                 </TableCell>
               </TableRow>
@@ -210,28 +198,26 @@ export function DataTable<TData, TValue>({
         <div className="text-sm text-muted-foreground">
           {table.getFilteredRowModel().rows.length > 0 && (
             <>
-              Menampilkan{" "}
+              Menampilkan{' '}
               <span className="font-medium">
-                {table.getState().pagination.pageIndex *
-                  table.getState().pagination.pageSize +
-                  1}
-              </span>{" "}
-              -{" "}
+                {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}
+              </span>{' '}
+              -{' '}
               <span className="font-medium">
                 {Math.min(
                   (table.getState().pagination.pageIndex + 1) *
                     table.getState().pagination.pageSize,
                   pagination
                     ? pagination.pageCount * pagination.pageSize
-                    : table.getFilteredRowModel().rows.length
+                    : table.getFilteredRowModel().rows.length,
                 )}
-              </span>{" "}
-              dari{" "}
+              </span>{' '}
+              dari{' '}
               <span className="font-medium">
                 {pagination
                   ? pagination.pageCount * pagination.pageSize
                   : table.getFilteredRowModel().rows.length}
-              </span>{" "}
+              </span>{' '}
               data
             </>
           )}
@@ -248,10 +234,8 @@ export function DataTable<TData, TValue>({
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <div className="text-sm font-medium">
-            Halaman {table.getState().pagination.pageIndex + 1} dari{" "}
-            {pagination
-              ? pagination.pageCount
-              : table.getPageCount()}
+            Halaman {table.getState().pagination.pageIndex + 1} dari{' '}
+            {pagination ? pagination.pageCount : table.getPageCount()}
           </div>
           <Button
             variant="outline"
@@ -267,4 +251,4 @@ export function DataTable<TData, TValue>({
       </div>
     </div>
   );
-} 
+}

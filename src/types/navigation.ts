@@ -1,4 +1,4 @@
-import type { UserRole } from "@/features/authentication/types";
+import type { UserRole } from "@/features/users/types";
 
 export interface SidebarProps {
   userRole?: UserRole;

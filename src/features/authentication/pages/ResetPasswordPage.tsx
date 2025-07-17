@@ -21,9 +21,9 @@ import {
   FormItem,
   FormMessage,
 } from '@/components/ui/form';
-// import { toast } from 'sonner'; // Not currently used
 import { Lock, ArrowRight, CheckCircle, AlertCircle } from 'lucide-react';
-import { useAuth } from '@/features/authentication/context/AuthContext';
+import { toast } from 'sonner';
+import { useAuth } from '../hooks/useAuth';
 
 const resetPasswordSchema = z
   .object({
@@ -43,9 +43,9 @@ const resetPasswordSchema = z
 type ResetPasswordValues = z.infer<typeof resetPasswordSchema>;
 
 export function ResetPasswordPage() {
+  const { validateResetToken, resetPassword } = useAuth();
   const navigate = useNavigate();
   const { token } = useParams({ strict: false });
-  const { resetPassword, validateResetToken } = useAuth();
   const [isTokenValid, setIsTokenValid] = useState<boolean | null>(null);
 
   const form = useForm<ResetPasswordValues>({
@@ -64,15 +64,19 @@ export function ResetPasswordPage() {
       }
 
       try {
-        const isValid = await validateResetToken(token);
-        setIsTokenValid(isValid);
-      } catch (error) {
+        const valid = await validateResetToken(token); // Panggil dari context
+        setIsTokenValid(valid);
+        if (!valid) {
+          toast.error('Token tidak valid atau kadaluarsa');
+          navigate({ to: '/forgot-password', replace: true });
+        }
+      } catch {
         setIsTokenValid(false);
       }
     };
 
     checkToken();
-  }, [token, validateResetToken]);
+  }, [token, validateResetToken, navigate]);
 
   const onSubmit = async (values: ResetPasswordValues) => {
     if (!token) {
@@ -82,9 +86,9 @@ export function ResetPasswordPage() {
       return;
     }
     try {
-      await resetPassword(token, values.password, values.confirmPassword);
-      form.reset();
-      navigate({ to: '/login' });
+      await resetPassword(token, values.password, values.confirmPassword); // Panggil dari context
+      toast.success('Password berhasil diubah. Silakan login.');
+      navigate({ to: '/login', replace: true });
     } catch (error: any) {
       form.setError('root', {
         message: error?.response?.data?.message || 'Gagal reset password. Coba lagi.',

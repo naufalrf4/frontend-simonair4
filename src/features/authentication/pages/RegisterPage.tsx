@@ -1,8 +1,7 @@
-import { Link, getRouteApi, useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate, useSearch } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-// import { useState } from 'react'; // Not currently used
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,7 +21,8 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { ArrowRight, Info, User, Mail, Lock, CheckCircle } from 'lucide-react';
-import { useAuth } from '@/features/authentication/context/AuthContext';
+import { useState } from 'react';
+import { useAuth } from '../hooks/useAuth';
 
 const registerSchema = z
   .object({
@@ -38,12 +38,11 @@ const registerSchema = z
 
 type RegisterValues = z.infer<typeof registerSchema>;
 
-const registerRoute = getRouteApi('/_auth/register');
-
 export function RegisterPage() {
-  const { register, isRegistering } = useAuth();
+  const { register } = useAuth();
+  const [isRegistering, setIsRegistering] = useState(false);
   const navigate = useNavigate();
-  const search = registerRoute.useSearch();
+  const search = useSearch({ strict: false });
 
   const form = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
@@ -56,20 +55,21 @@ export function RegisterPage() {
   });
 
   const onSubmit = async (values: RegisterValues) => {
+    setIsRegistering(true);
     try {
-      await register(values.fullName, values.email, values.password);
+      await register({ fullName: values.fullName, email: values.email, password: values.password });
       form.reset();
-      const redirectTo = search.redirect || '/dashboard';
+      const redirectTo = (search as any)?.redirect || '/dashboard';
       navigate({ to: redirectTo, replace: true });
     } catch (error: any) {
       form.setError('root', {
-        message:
-          error?.response?.data?.message || 'Registrasi gagal. Coba lagi atau gunakan email lain.',
+        message: error?.response?.data?.message || error?.message || 'Registrasi gagal. Coba lagi.',
       });
+    } finally {
+      setIsRegistering(false);
     }
   };
 
-  // Tooltip wrapper
   const Tooltip = ({ children, message }: { children: React.ReactNode; message: string }) => (
     <span className="group relative inline-flex items-center">
       {children}

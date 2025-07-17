@@ -2,7 +2,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 import { Sidebar } from "@/components/common/sidebar";
-import { useAuth } from "@/features/authentication/context/AuthContext";
+import { useAuth } from "@/features/authentication/hooks/useAuth";
 
 export function MobileSidebar() {
   const { isLoading } = useAuth();

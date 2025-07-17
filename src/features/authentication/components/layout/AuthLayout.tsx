@@ -1,13 +1,8 @@
 import { Outlet } from '@tanstack/react-router';
 import AnimatedBubbles from './AnimatedBubbles';
 import AuthSidebar from './AuthSidebar';
-import { useAuth } from '../../context/AuthContext';
 
 export default function AuthLayout() {
-  const auth = useAuth(); 
-
-  if (auth.isAuthenticated) return null;
-
   return (
     <div className="flex min-h-screen w-full relative overflow-hidden bg-gradient-to-tr from-[#0c2139] via-[#105372] to-[#2db5cd]">
       <AnimatedBubbles />

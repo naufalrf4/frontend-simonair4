@@ -24,13 +24,12 @@ import {
   Settings,
   TrendingUp
 } from 'lucide-react';
-import mqtt from 'mqtt';
-
 interface OffsetModalProps {
   open: boolean;
   deviceId: string;
   onClose: () => void;
   currentDeviceData?: any;
+  onSubmit: (thresholds: ThresholdValues) => Promise<void>;
 }
 
 interface ThresholdValues {
@@ -92,7 +91,8 @@ const OffsetModal: React.FC<OffsetModalProps> = ({
   open,
   deviceId,
   onClose,
-  currentDeviceData
+  currentDeviceData,
+  onSubmit
 }) => {
   const [thresholds, setThresholds] = useState<ThresholdValues>({
     ph_min: '',
@@ -256,107 +256,21 @@ const OffsetModal: React.FC<OffsetModalProps> = ({
     if (!validateForm()) return;
     
     setIsSubmitting(true);
-    setMqttStatus('connecting');
     setError(null);
     
     try {
-      const threshold: Record<string, number> = {};
-      
-      const fieldMapping = {
-        ph_min: 'ph_good',
-        ph_max: 'ph_bad',
-        tds_min: 'tds_good', 
-        tds_max: 'tds_bad',
-        do_min: 'do_good',
-        do_max: 'do_bad',
-        temp_min: 'temp_low',
-        temp_max: 'temp_high'
-      } as const;
-
-      Object.entries(thresholds).forEach(([key, value]) => {
-        if (value !== '') {
-          const num = parseFloat(value);
-          if (!isNaN(num)) {
-            const backendKey = fieldMapping[key as keyof typeof fieldMapping];
-            if (backendKey) {
-              threshold[backendKey] = num;
-            }
-          }
-        }
-      });
-
-      const client = mqtt.connect('wss://mqtt-ws.elsaiot.web.id', {
-        username: 'elsa-user',
-        password: '3lsaTekom.',
-        clientId: `offset_${deviceId}_${Date.now()}`,
-        connectTimeout: 10000,
-        reconnectPeriod: 0
-      });
-
-      const cleanup = () => {
-        try {
-          client.end(true);
-        } catch (e) {
-          console.warn('MQTT cleanup error:', e);
-        }
-      };
-
-      client.on('connect', () => {
-        console.log('✅ MQTT Connected for offset configuration');
-        setMqttStatus('connected');
-        
-        const topic = `simonair/${deviceId}/offset`;
-        const payload = JSON.stringify({ threshold });
-        
-        client.publish(topic, payload, { qos: 1 }, (error) => {
-          if (error) {
-            console.error('❌ Failed to publish threshold:', error);
-            setError('Gagal mengirim konfigurasi threshold');
-            setMqttStatus('disconnected');
-            setIsSubmitting(false);
-          } else {
-            console.log(`✅ Threshold sent to ${topic}:`, payload);
-            setSuccess(true);
-            setTimeout(() => {
-              setIsSubmitting(false);
-              setMqttStatus('disconnected');
-              onClose();
-            }, 2500);
-          }
-          cleanup();
-        });
-      });
-
-      client.on('error', (error) => {
-        console.error('❌ MQTT Connection Error:', error);
-        setError('Koneksi MQTT gagal. Periksa jaringan internet.');
+      await onSubmit(thresholds);
+      setSuccess(true);
+      setTimeout(() => {
         setIsSubmitting(false);
-        setMqttStatus('disconnected');
-        cleanup();
-      });
-
-      // Timeout handling
-      const timeoutId = setTimeout(() => {
-        if (isSubmitting && !success) {
-          setError('Timeout: Gagal terhubung ke MQTT broker');
-          setIsSubmitting(false);
-          setMqttStatus('disconnected');
-          cleanup();
-        }
-      }, 15000);
-
-      return () => {
-        clearTimeout(timeoutId);
-        cleanup();
-      };
-
+        onClose();
+      }, 2500);
     } catch (error) {
       console.error('❌ Error in threshold submission:', error);
       setError('Terjadi kesalahan sistem');
       setIsSubmitting(false);
-      setMqttStatus('disconnected');
     }
-  }, [validateForm, thresholds, deviceId, success, isSubmitting, onClose]);
+  }, [validateForm, thresholds, onSubmit, onClose]);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

@@ -22,8 +22,7 @@ import { Mail, Lock, ArrowRight, Eye, EyeOff, Info, HelpCircle } from 'lucide-re
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { useGoogleAuth } from '@/features/authentication/hooks/useGoogleAuth';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 const loginFormSchema = z.object({
   email: z
@@ -36,11 +35,11 @@ const loginFormSchema = z.object({
 type LoginFormValues = z.infer<typeof loginFormSchema>;
 
 export function LoginPage() {
-  const { login, isLoggingIn } = useAuth();
+  const { login } = useAuth();
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
   const navigate = useNavigate();
   const search = useSearch({ strict: false });
   const [showPassword, setShowPassword] = useState(false);
-  const { handleGoogleLogin, googleLoading } = useGoogleAuth();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginFormSchema),
@@ -51,8 +50,9 @@ export function LoginPage() {
   });
 
   const onSubmit = async (values: LoginFormValues) => {
+    setIsLoggingIn(true);
     try {
-      await login(values.email, values.password);
+      await login({ email: values.email, password: values.password });
       form.reset();
       const redirectTo = (search as any)?.redirect || '/dashboard';
       navigate({ to: redirectTo, replace: true });
@@ -64,16 +64,8 @@ export function LoginPage() {
       form.setError('root', {
         message: errorMessage,
       });
-    }
-  };
-
-  const handleGoogleLoginClick = async () => {
-    try {
-      await handleGoogleLogin();
-    } catch (error) {
-      form.setError('root', {
-        message: 'Login dengan Google gagal. Silakan coba lagi.',
-      });
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
@@ -94,9 +86,9 @@ export function LoginPage() {
       <CardHeader className="space-y-4 pb-6 pt-6">
         <div className="flex flex-col items-center gap-2">
           <img
-            src="/images/elsaiot-icon.png"
-            alt="ElsaIoT"
-            className="w-20 h-20 block sm:hidden mx-auto mb-1"
+            src="/images/simonair.png"
+            alt="Simonair Logo"
+            className="h-20 block sm:hidden mx-auto mb-1"
             draggable={false}
             loading="lazy"
           />
@@ -210,7 +202,8 @@ export function LoginPage() {
             <Button
               type="submit"
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 py-5 text-base font-semibold rounded-md shadow-sm hover:shadow mt-6 flex items-center justify-center gap-2 focus:ring-2 focus:ring-primary/30"
-              disabled={isLoggingIn || googleLoading}
+              disabled={isLoggingIn}
+              // || googleLoading
               aria-label="Masuk ke akun"
             >
               {isLoggingIn ? (
@@ -252,7 +245,7 @@ export function LoginPage() {
               <div className="flex-grow border-t border-muted"></div>
             </div>
 
-            <Button
+            {/* <Button
               type="button"
               variant="outline"
               className={`w-full flex items-center justify-center gap-3 py-5 text-base font-semibold rounded-lg border border-primary
@@ -296,7 +289,7 @@ export function LoginPage() {
                 />
                 <span className="ml-1">Masuk dengan Google</span>
               </span>
-            </Button>
+            </Button> */}
           </form>
         </Form>
       </CardContent>

@@ -1,5 +1,3 @@
-import { Card, CardContent } from "@/components/ui/card";
-
 export function LoadingPage() {
   return (
     <div className="fixed top-0 left-0 right-0 z-50">

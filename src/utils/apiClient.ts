@@ -1,214 +1,219 @@
-import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
-import { getBrowserFingerprint } from './fingerprint';
+import axios from 'axios';
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { eventBus } from './eventBus';
+import { getBrowserFingerprint, decryptToken, encryptToken } from './fingerprint';
+import { jwtDecode } from 'jwt-decode';
+import { API_BASE_URL } from './constants';
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
+class ApiClient {
+  private client: AxiosInstance;
+  private isRefreshing = false;
+  private failedQueue: Array<{
+    resolve: (value?: any) => void;
+    reject: (error?: any) => void;
+    config: AxiosRequestConfig;
+  }> = [];
 
-const apiClient = axios.create({
-  baseURL: BASE_URL,
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-apiClient.interceptors.request.use(
-  (config) => {
-    console.log(`🚀 [${config.method?.toUpperCase()}] ${config.url}`);
-    return config;
-  },
-  (error) => {
-    console.error('❌ Request error:', error);
-    return Promise.reject(error);
-  },
-);
-
-apiClient.interceptors.response.use(
-  (response) => {
-    console.log(`📥 Response [${response.status}] from ${response.config.url}`);
-    return response;
-  },
-  (error) => {
-    console.error('❌ Response error:', error.response || error);
-    return Promise.reject(error);
-  },
-);
-
-function parseJwt(token: string): { exp?: number } {
-  try {
-    return JSON.parse(atob(token.split('.')[1]));
-  } catch {
-    return {};
-  }
-}
-
-function encryptData(data: string, fingerprint: string): string {
-  let encrypted = '';
-  for (let i = 0; i < data.length; i++) {
-    const charCode = data.charCodeAt(i) ^ fingerprint.charCodeAt(i % fingerprint.length);
-    encrypted += String.fromCharCode(charCode);
-  }
-  return btoa(encrypted);
-}
-
-function decryptData(encryptedData: string, fingerprint: string): string {
-  try {
-    const data = atob(encryptedData);
-    let decrypted = '';
-    for (let i = 0; i < data.length; i++) {
-      const charCode = data.charCodeAt(i) ^ fingerprint.charCodeAt(i % fingerprint.length);
-      decrypted += String.fromCharCode(charCode);
-    }
-    return decrypted;
-  } catch {
-    return '';
-  }
-}
-
-export async function setSecureItem(key: string, value: string): Promise<void> {
-  const fingerprint = await getBrowserFingerprint();
-  const encrypted = encryptData(value, fingerprint);
-  localStorage.setItem(`${key}_${fingerprint}`, encrypted);
-}
-
-export async function getSecureItem(key: string): Promise<string | null> {
-  try {
-    const fingerprint = await getBrowserFingerprint();
-    const encrypted = localStorage.getItem(`${key}_${fingerprint}`);
-    if (!encrypted) return null;
-    return decryptData(encrypted, fingerprint);
-  } catch {
-    return null;
-  }
-}
-
-export async function removeSecureItem(key: string): Promise<void> {
-  try {
-    const fingerprint = await getBrowserFingerprint();
-    localStorage.removeItem(`${key}_${fingerprint}`);
-  } catch {
-    localStorage.removeItem(key);
-  }
-}
-
-export async function clearAuthData(): Promise<void> {
-  await removeSecureItem('access_token');
-  await removeSecureItem('user_data');
-}
-
-export function hasTokenSync(): boolean {
-  return !!localStorage.getItem('access_token');
-}
-
-export async function hasToken(): Promise<boolean> {
-  const token = await getSecureItem('access_token');
-  return !!token;
-}
-
-apiClient.interceptors.request.use(async (config) => {
-  const token = await getSecureItem('access_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-let isRefreshing = false;
-let refreshSubscribers: ((token: string) => void)[] = [];
-
-function subscribeTokenRefresh(cb: (token: string) => void) {
-  refreshSubscribers.push(cb);
-}
-
-function onRefreshed(token: string) {
-  refreshSubscribers.forEach((cb) => cb(token));
-  refreshSubscribers = [];
-}
-
-export async function refreshAccessToken(): Promise<string> {
-  try {
-    const response = await apiClient.post('/auth/refresh', undefined, {
+  constructor(baseURL: string) {
+    this.client = axios.create({
+      baseURL,
+      timeout: 10000,
       withCredentials: true,
     });
 
-    const token = response.data?.data?.access_token;
-    if (!token) throw new Error('No token');
+    this.setupInterceptors();
+    this.setupEventListeners();
+  }
 
-    const decoded = parseJwt(token);
-    if (!decoded?.exp || isNaN(decoded.exp)) throw new Error('Invalid token');
+  private setupEventListeners(): void {
+    eventBus.on('profile-fetch-required', () => {
+      this.fetchProfile();
+    });
+  }
 
-    await setSecureItem('access_token', token);
-    console.info('Access token refreshed');
-    window.dispatchEvent(new Event('auth:refresh'));
-    return token;
-  } catch (err) {
-    console.warn('Token refresh failed', err);
-    throw err;
+  private async fetchProfile(): Promise<void> {
+    try {
+      const response = await this.client.get('/auth/profile');
+
+      const user = response.data.data;
+
+      if (!user) {
+        throw new Error('User data missing in profile response');
+      }
+
+      eventBus.emit('profile-updated', { user });
+    } catch (error: any) {
+      let errorType:
+        | 'refresh_failed'
+        | 'network_error'
+        | 'invalid_token'
+        | 'fetch_failed'
+        | 'unauthorized' = 'fetch_failed';
+      if (error.response?.status === 401) {
+        errorType = 'unauthorized';
+        eventBus.emit('logout-required', {});
+      }
+      eventBus.emit('auth-error', { error, type: errorType });
+    }
+  }
+
+  private setupInterceptors(): void {
+    // Request interceptor
+    this.client.interceptors.request.use(
+      async (config) => {
+        const token = await this.getTokenFromStorage();
+        if (token) {
+          // Check if token is expired before making request
+          if (this.isTokenExpired(token)) {
+            console.log('🚨 Token expired in request interceptor');
+            eventBus.emit('token-expired', {});
+            // Continue with expired token, let response interceptor handle refresh
+          }
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+      (error) => Promise.reject(error),
+    );
+
+    // Response interceptor
+    this.client.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+
+        // Don't retry refresh endpoint
+        if (originalRequest.url?.includes('/auth/refresh')) {
+          return Promise.reject(error);
+        }
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          if (this.isRefreshing) {
+            console.log('🔄 Refresh in progress, queuing request');
+            return new Promise((resolve, reject) => {
+              this.failedQueue.push({ resolve, reject, config: originalRequest });
+            });
+          }
+
+          originalRequest._retry = true;
+          this.isRefreshing = true;
+
+          try {
+            console.log('🔄 Attempting token refresh from interceptor');
+            const response = await this.client.post('/auth/refresh');
+            const newToken = response.data.data.accessToken;
+
+            console.log('✅ Token refreshed successfully in interceptor');
+
+            // Update storage immediately
+            await this.saveTokenToStorage(newToken);
+
+            // Emit event for context to handle
+            eventBus.emit('token-refreshed', { token: newToken });
+
+            // Update original request with new token
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+
+            // Process queued requests
+            this.processQueue(null, newToken);
+
+            // Retry original request
+            return this.client(originalRequest);
+          } catch (refreshError: any) {
+            console.error('❌ Token refresh failed in interceptor:', refreshError);
+
+            // Process queued requests with error
+            this.processQueue(refreshError);
+
+            // Emit auth error event
+            eventBus.emit('auth-error', {
+              error: refreshError,
+              type: 'refresh_failed',
+            });
+
+            if (refreshError.response?.status === 401) {
+              eventBus.emit('logout-required', {});
+            }
+
+            return Promise.reject(refreshError);
+          } finally {
+            this.isRefreshing = false;
+          }
+        }
+
+        return Promise.reject(error);
+      },
+    );
+  }
+
+  private async getTokenFromStorage(): Promise<string | null> {
+    try {
+      const encrypted = localStorage.getItem('simonairToken');
+      if (!encrypted) return null;
+
+      const fingerprint = await getBrowserFingerprint();
+      return await decryptToken(encrypted, fingerprint);
+    } catch (error) {
+      console.error('Failed to get token from storage:', error);
+      return null;
+    }
+  }
+
+  private async saveTokenToStorage(token: string): Promise<void> {
+    try {
+      const fingerprint = await getBrowserFingerprint();
+      const encrypted = await encryptToken(token, fingerprint);
+      localStorage.setItem('simonairToken', encrypted);
+    } catch (error) {
+      console.error('Failed to save token to storage:', error);
+    }
+  }
+
+  private isTokenExpired(token: string): boolean {
+    try {
+      const decoded: { exp: number } = jwtDecode(token);
+      return Date.now() >= decoded.exp * 1000 - 30000;
+    } catch (error) {
+      return true;
+    }
+  }
+
+  private processQueue(error: any, token?: string): void {
+    this.failedQueue.forEach(({ resolve, reject, config }) => {
+      if (error) {
+        reject(error);
+      } else {
+        if (!config.headers) {
+          config.headers = {};
+        }
+        config.headers.Authorization = `Bearer ${token}`;
+        resolve(this.client(config));
+      }
+    });
+
+    this.failedQueue = [];
+  }
+
+  get(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse> {
+    return this.client.get(url, config);
+  }
+
+  post(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse> {
+    return this.client.post(url, data, config);
+  }
+
+  put(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse> {
+    return this.client.put(url, data, config);
+  }
+
+  delete(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse> {
+    return this.client.delete(url, config);
+  }
+
+  destroy(): void {
+    this.client.defaults.timeout = 1;
+    this.failedQueue = [];
   }
 }
 
-apiClient.interceptors.response.use(
-  (response) => response,
-  async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      if (!isRefreshing) {
-        isRefreshing = true;
-        try {
-          const newToken = await refreshAccessToken();
-          isRefreshing = false;
-          onRefreshed(newToken);
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          return apiClient(originalRequest);
-        } catch (refreshError) {
-          isRefreshing = false;
-          await clearAuthData();
-          window.dispatchEvent(new Event('auth:logout'));
-          return Promise.reject(refreshError);
-        }
-      }
-
-      return new Promise((resolve, reject) => {
-        subscribeTokenRefresh((token: string) => {
-          if (!token) {
-            reject(error);
-            return;
-          }
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          resolve(apiClient(originalRequest));
-        });
-      });
-    }
-    return Promise.reject(error);
-  },
-);
-
-export async function getProfile(): Promise<any> {
-  const response = await apiClient.get('/auth/profile');
-  return response.data?.data;
-}
-
-export const loginUser = async (email: string, password: string) => {
-  const response = await apiClient.post('/auth/login', { email, password });
-  const token = response.data?.data?.access_token;
-  if (!token) throw new Error('No access token returned');
-
-  await setSecureItem('access_token', token);
-
-  const user = response.data?.data?.user;
-  if (!user) throw new Error('No user data returned');
-  const userData = {
-    id: user.id,
-    email: user.email,
-    name: user.fullName,
-    user_type: user.role,
-  };
-  await setSecureItem('user_data', JSON.stringify(userData));
-
-  window.dispatchEvent(new CustomEvent('auth:login', { detail: { user: userData } }));
-
-  return response.data.data;
-};
-
-export default apiClient;
+export const apiClient = new ApiClient(API_BASE_URL || 'http://localhost:8000/');

@@ -10,15 +10,15 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { roleConfigs } from '@/constants/navigation';
-import { useAuth } from '@/features/authentication/context/AuthContext';
 import { cn } from '@/lib/utils';
-import { Link, useMatches } from '@tanstack/react-router';
+import { useMatches } from '@tanstack/react-router';
 import { ChevronDown, LogOut, Settings, Loader2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Notifications } from './notification-bar';
 import { filterNavigationByRole } from '@/utils/role';
 import { useNavigate } from '@tanstack/react-router';
-import type { UserRole } from '@/features/authentication/types';
+import type { UserRole } from '@/features/users/types';
+import { useAuth } from '@/features/authentication/hooks/useAuth';
 
 function getInitials(name?: string): string {
   if (!name) return 'U';
@@ -31,14 +31,14 @@ function getInitials(name?: string): string {
 }
 
 export function Navbar() {
-  const { user, logout, isAuthenticated, isLoggingOut } = useAuth();
+  const { user, logout, isAuthenticated } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const matches = useMatches();
   const navigate = useNavigate();
 
   const userRole = user?.role?.toLowerCase() as UserRole | undefined;
   const roleConfig = userRole ? roleConfigs[userRole] || { title: userRole } : { title: '' };
-  const userName = user?.fullName || user?.name || 'Unknown User';
+  const userName = user?.fullName || 'Unknown User';
   const userEmail = user?.email || '';
 
   const filteredNavigation = useMemo(() => {
@@ -69,7 +69,7 @@ export function Navbar() {
           <Button
             variant="ghost"
             className="relative pl-2 pr-0 hover:bg-primary/10 focus:bg-primary/10 transition-colors duration-200 group"
-            disabled={isLoggingOut}
+            disabled={!user}
           >
             <div className="relative">
               <Avatar className="h-10 w-10 mr-2 border border-border ring-2 ring-primary/20">
@@ -114,9 +114,9 @@ export function Navbar() {
           <DropdownMenuItem
             onClick={handleLogout}
             className="flex items-center py-2.5 text-destructive hover:text-destructive focus:text-destructive hover:bg-destructive/10 focus:bg-destructive/10 cursor-pointer transition-colors duration-200 rounded-md"
-            disabled={isLoggingOut}
+            disabled={!user}
           >
-            {isLoggingOut ? (
+            {!user ? (
               <>
                 <Loader2 className="mr-3 h-4 w-4 animate-spin" />
                 <span className="font-medium">Logging out...</span>
@@ -137,12 +137,11 @@ export function Navbar() {
       {/* DESKTOP */}
       <header
         className={cn(
-          'hidden md:flex sticky top-0 z-50 w-full px-4 lg:px-6 border-b border-border bg-background transition-all duration-200',
+          'hidden md:flex sticky top-0 z-50 w-full px-4 lg:px-6 border-b border-border bg-background transition-all duration-200 min-h-[4.5rem]',
           scrolled ? 'shadow-sm bg-background/80 backdrop-blur-sm' : 'bg-background',
         )}
-        style={{ minHeight: '4.5rem' }}
       >
-        <div className="flex w-full items-center justify-between" style={{ height: '4.5rem' }}>
+        <div className="flex w-full items-center justify-between h-[4.5rem]">
           <div className="flex items-center gap-4">
             <span className="text-lg font-semibold text-primary">{currentTitle}</span>
           </div>
