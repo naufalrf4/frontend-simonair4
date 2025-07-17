@@ -58,16 +58,13 @@ class ApiClient {
   }
 
   private setupInterceptors(): void {
-    // Request interceptor
     this.client.interceptors.request.use(
       async (config) => {
         const token = await this.getTokenFromStorage();
         if (token) {
-          // Check if token is expired before making request
           if (this.isTokenExpired(token)) {
             console.log('🚨 Token expired in request interceptor');
             eventBus.emit('token-expired', {});
-            // Continue with expired token, let response interceptor handle refresh
           }
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -76,13 +73,11 @@ class ApiClient {
       (error) => Promise.reject(error),
     );
 
-    // Response interceptor
     this.client.interceptors.response.use(
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
 
-        // Don't retry refresh endpoint
         if (originalRequest.url?.includes('/auth/refresh')) {
           return Promise.reject(error);
         }
@@ -208,6 +203,10 @@ class ApiClient {
 
   delete(url: string, config?: AxiosRequestConfig): Promise<AxiosResponse> {
     return this.client.delete(url, config);
+  }
+
+  patch(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse> {
+    return this.client.patch(url, data, config);
   }
 
   destroy(): void {

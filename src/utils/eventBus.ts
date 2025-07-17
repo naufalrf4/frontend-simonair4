@@ -37,7 +37,6 @@ class EventBus {
       });
     }
 
-    // Enhanced logging for auth events
     if (process.env.NODE_ENV === 'development') {
       if (event === 'token-refreshed') {
         console.log(`🔄 [EventBus] Token refreshed successfully`);
