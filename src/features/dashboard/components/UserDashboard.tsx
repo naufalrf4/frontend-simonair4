@@ -57,9 +57,8 @@ const UserDashboard: React.FC = () => {
   // Step 1: Get devices and sensor data via HTTP
   const { devices: initialDevices, loading: devicesLoading } = useDevices();
 
-  // Step 2: Get decrypted token (only once)
   useEffect(() => {
-    if (tokenReady) return; // Prevent multiple calls
+    if (tokenReady) return;
 
     const getToken = async () => {
       try {

@@ -6,7 +6,6 @@ import { toast } from 'sonner';
 import { decryptToken, encryptToken, getBrowserFingerprint } from '@/utils/fingerprint';
 import { eventBus } from '@/utils/eventBus';
 import { apiClient } from '@/utils/apiClient';
-import { TOKEN_EXPIRY_MINUTES, REFRESH_CHECK_INTERVAL } from '@/utils/constants';
 import type { User } from '@/features/users/types';
 
 interface AuthContextType {
