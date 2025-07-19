@@ -4,7 +4,6 @@ import {
   Home,
   Users,
   Wrench,
-  Settings,
   Fish,
   Calendar,
   ChefHat,
