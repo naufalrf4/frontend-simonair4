@@ -32,48 +32,29 @@ export const defaultNavigation: NavigationGroup[] = [
     ],
   },
   {
-    groupName: 'Monitoring',
+    groupName: 'Perangkat',
     items: [
       {
-        title: 'Monitoring',
-        path: '/monitoring',
+        title: 'Perangkat',
+        path: '/devices',
         icon: Thermometer,
         roles: ['superuser', 'admin', 'user'],
         children: [
           {
-            title: 'Perangkat',
-            path: '/devices',
+            title: 'Kelola Perangkat',
+            path: '/devices/manage',
             icon: Wrench,
             roles: ['superuser', 'admin', 'user'],
           },
           {
             title: 'Data Sensor',
-            path: '/sensor-data',
+            path: '/devices/sensor-data',
             icon: Thermometer,
             roles: ['superuser', 'admin', 'user'],
           },
-        ],
-      },
-    ],
-  },
-  {
-    groupName: 'Manajemen Alat',
-    items: [
-      {
-        title: 'Alat',
-        path: '/alat',
-        icon: Settings,
-        roles: ['superuser', 'admin'],
-        children: [
-          {
-            title: 'Kelola Alat',
-            path: '/manage-devices',
-            icon: Settings,
-            roles: ['superuser', 'admin'],
-          },
           {
             title: 'Data Manual',
-            path: '/manual-data',
+            path: '/devices/manual-data',
             icon: ChefHat,
             roles: ['superuser', 'admin', 'user'],
           },
@@ -97,7 +78,7 @@ export const defaultNavigation: NavigationGroup[] = [
             roles: ['superuser', 'admin', 'user'],
           },
           {
-            title: 'Pakan',
+            title: 'Pakan Ikan',
             path: '/feeds',
             icon: Database,
             roles: ['superuser', 'admin', 'user'],

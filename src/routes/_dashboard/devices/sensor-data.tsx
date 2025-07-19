@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { SensorDataPage, SensorDataErrorBoundary } from '@/features/sensor-data/components';
 
-export const Route = createFileRoute('/_dashboard/sensor-data')({
+export const Route = createFileRoute('/_dashboard/devices/sensor-data')({
   component: RouteComponent,
 });
 

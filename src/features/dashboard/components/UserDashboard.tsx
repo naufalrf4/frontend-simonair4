@@ -240,6 +240,7 @@ const UserDashboard: React.FC = () => {
 
   const handleCalibrationSubmit = async (calibrationData: any) => {
     try {
+      console.log('Submitting calibration data:', calibrationData);
       await apiClient.post(`/devices/${calibrationModal.deviceId}/calibrations`, calibrationData);
       toast.success('Calibration submitted successfully');
     } catch (error) {
@@ -251,9 +252,7 @@ const UserDashboard: React.FC = () => {
 
   const handleOffsetSubmit = async (thresholds: any) => {
     try {
-      await apiClient.post(`/devices/${offsetModal.deviceId}/thresholds`, {
-        threshold: thresholds,
-      });
+      await apiClient.post(`/devices/${offsetModal.deviceId}/thresholds`, thresholds);
       toast.success('Offset submitted successfully');
     } catch (error) {
       console.error('Failed to submit offset:', error);

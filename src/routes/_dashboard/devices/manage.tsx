@@ -3,7 +3,7 @@ import { DevicesPage } from '@/features/devices/components/DevicesPage'
 import { ErrorPage } from '@/components/common/error-page'
 import { DEVICE_MESSAGES } from '@/features/devices/constants/messages'
 
-export const Route = createFileRoute('/_dashboard/devices')({
+export const Route = createFileRoute('/_dashboard/devices/manage')({
   component: RouteComponent,
   pendingComponent: LoadingComponent,
   errorComponent: ({ error, reset }) => <ErrorPage error={error} reset={reset} />,

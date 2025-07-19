@@ -16,18 +16,19 @@ import { Route as R404RouteImport } from './routes/404'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardWaterEventsRouteImport } from './routes/_dashboard/water-events'
 import { Route as DashboardUsersRouteImport } from './routes/_dashboard/users'
-import { Route as DashboardSensorDataRouteImport } from './routes/_dashboard/sensor-data'
 import { Route as DashboardNotificationsRouteImport } from './routes/_dashboard/notifications'
-import { Route as DashboardManualDataRouteImport } from './routes/_dashboard/manual-data'
 import { Route as DashboardManageDevicesRouteImport } from './routes/_dashboard/manage-devices'
 import { Route as DashboardFishMortalityRouteImport } from './routes/_dashboard/fish-mortality'
 import { Route as DashboardFishGrowthRouteImport } from './routes/_dashboard/fish-growth'
 import { Route as DashboardFeedsRouteImport } from './routes/_dashboard/feeds'
-import { Route as DashboardDevicesRouteImport } from './routes/_dashboard/devices'
 import { Route as DashboardDashboardRouteImport } from './routes/_dashboard/dashboard'
 import { Route as AuthRegisterRouteImport } from './routes/_auth/register'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as AuthForgotPasswordRouteImport } from './routes/_auth/forgot-password'
+import { Route as DashboardDevicesIndexRouteImport } from './routes/_dashboard/devices/index'
+import { Route as DashboardDevicesSensorDataRouteImport } from './routes/_dashboard/devices/sensor-data'
+import { Route as DashboardDevicesManualDataRouteImport } from './routes/_dashboard/devices/manual-data'
+import { Route as DashboardDevicesManageRouteImport } from './routes/_dashboard/devices/manage'
 import { Route as DashboardMobileMonitoringRouteImport } from './routes/_dashboard/_mobile/monitoring'
 import { Route as DashboardMobileFishFarmingRouteImport } from './routes/_dashboard/_mobile/fish-farming'
 import { Route as DashboardMobileDeviceRouteImport } from './routes/_dashboard/_mobile/device'
@@ -67,19 +68,9 @@ const DashboardUsersRoute = DashboardUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardSensorDataRoute = DashboardSensorDataRouteImport.update({
-  id: '/sensor-data',
-  path: '/sensor-data',
-  getParentRoute: () => DashboardRoute,
-} as any)
 const DashboardNotificationsRoute = DashboardNotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
-  getParentRoute: () => DashboardRoute,
-} as any)
-const DashboardManualDataRoute = DashboardManualDataRouteImport.update({
-  id: '/manual-data',
-  path: '/manual-data',
   getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardManageDevicesRoute = DashboardManageDevicesRouteImport.update({
@@ -102,11 +93,6 @@ const DashboardFeedsRoute = DashboardFeedsRouteImport.update({
   path: '/feeds',
   getParentRoute: () => DashboardRoute,
 } as any)
-const DashboardDevicesRoute = DashboardDevicesRouteImport.update({
-  id: '/devices',
-  path: '/devices',
-  getParentRoute: () => DashboardRoute,
-} as any)
 const DashboardDashboardRoute = DashboardDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -126,6 +112,28 @@ const AuthForgotPasswordRoute = AuthForgotPasswordRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
   getParentRoute: () => AuthRoute,
+} as any)
+const DashboardDevicesIndexRoute = DashboardDevicesIndexRouteImport.update({
+  id: '/devices/',
+  path: '/devices/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardDevicesSensorDataRoute =
+  DashboardDevicesSensorDataRouteImport.update({
+    id: '/devices/sensor-data',
+    path: '/devices/sensor-data',
+    getParentRoute: () => DashboardRoute,
+  } as any)
+const DashboardDevicesManualDataRoute =
+  DashboardDevicesManualDataRouteImport.update({
+    id: '/devices/manual-data',
+    path: '/devices/manual-data',
+    getParentRoute: () => DashboardRoute,
+  } as any)
+const DashboardDevicesManageRoute = DashboardDevicesManageRouteImport.update({
+  id: '/devices/manage',
+  path: '/devices/manage',
+  getParentRoute: () => DashboardRoute,
 } as any)
 const DashboardMobileMonitoringRoute =
   DashboardMobileMonitoringRouteImport.update({
@@ -163,14 +171,11 @@ export interface FileRoutesByFullPath {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/dashboard': typeof DashboardDashboardRoute
-  '/devices': typeof DashboardDevicesRoute
   '/feeds': typeof DashboardFeedsRoute
   '/fish-growth': typeof DashboardFishGrowthRoute
   '/fish-mortality': typeof DashboardFishMortalityRoute
   '/manage-devices': typeof DashboardManageDevicesRoute
-  '/manual-data': typeof DashboardManualDataRoute
   '/notifications': typeof DashboardNotificationsRoute
-  '/sensor-data': typeof DashboardSensorDataRoute
   '/users': typeof DashboardUsersRoute
   '/water-events': typeof DashboardWaterEventsRoute
   '/reset-password/$token': typeof AuthResetPasswordTokenRoute
@@ -178,6 +183,10 @@ export interface FileRoutesByFullPath {
   '/device': typeof DashboardMobileDeviceRoute
   '/fish-farming': typeof DashboardMobileFishFarmingRoute
   '/monitoring': typeof DashboardMobileMonitoringRoute
+  '/devices/manage': typeof DashboardDevicesManageRoute
+  '/devices/manual-data': typeof DashboardDevicesManualDataRoute
+  '/devices/sensor-data': typeof DashboardDevicesSensorDataRoute
+  '/devices': typeof DashboardDevicesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -187,14 +196,11 @@ export interface FileRoutesByTo {
   '/login': typeof AuthLoginRoute
   '/register': typeof AuthRegisterRoute
   '/dashboard': typeof DashboardDashboardRoute
-  '/devices': typeof DashboardDevicesRoute
   '/feeds': typeof DashboardFeedsRoute
   '/fish-growth': typeof DashboardFishGrowthRoute
   '/fish-mortality': typeof DashboardFishMortalityRoute
   '/manage-devices': typeof DashboardManageDevicesRoute
-  '/manual-data': typeof DashboardManualDataRoute
   '/notifications': typeof DashboardNotificationsRoute
-  '/sensor-data': typeof DashboardSensorDataRoute
   '/users': typeof DashboardUsersRoute
   '/water-events': typeof DashboardWaterEventsRoute
   '/reset-password/$token': typeof AuthResetPasswordTokenRoute
@@ -202,6 +208,10 @@ export interface FileRoutesByTo {
   '/device': typeof DashboardMobileDeviceRoute
   '/fish-farming': typeof DashboardMobileFishFarmingRoute
   '/monitoring': typeof DashboardMobileMonitoringRoute
+  '/devices/manage': typeof DashboardDevicesManageRoute
+  '/devices/manual-data': typeof DashboardDevicesManualDataRoute
+  '/devices/sensor-data': typeof DashboardDevicesSensorDataRoute
+  '/devices': typeof DashboardDevicesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -214,14 +224,11 @@ export interface FileRoutesById {
   '/_auth/login': typeof AuthLoginRoute
   '/_auth/register': typeof AuthRegisterRoute
   '/_dashboard/dashboard': typeof DashboardDashboardRoute
-  '/_dashboard/devices': typeof DashboardDevicesRoute
   '/_dashboard/feeds': typeof DashboardFeedsRoute
   '/_dashboard/fish-growth': typeof DashboardFishGrowthRoute
   '/_dashboard/fish-mortality': typeof DashboardFishMortalityRoute
   '/_dashboard/manage-devices': typeof DashboardManageDevicesRoute
-  '/_dashboard/manual-data': typeof DashboardManualDataRoute
   '/_dashboard/notifications': typeof DashboardNotificationsRoute
-  '/_dashboard/sensor-data': typeof DashboardSensorDataRoute
   '/_dashboard/users': typeof DashboardUsersRoute
   '/_dashboard/water-events': typeof DashboardWaterEventsRoute
   '/_auth/reset-password/$token': typeof AuthResetPasswordTokenRoute
@@ -229,6 +236,10 @@ export interface FileRoutesById {
   '/_dashboard/_mobile/device': typeof DashboardMobileDeviceRoute
   '/_dashboard/_mobile/fish-farming': typeof DashboardMobileFishFarmingRoute
   '/_dashboard/_mobile/monitoring': typeof DashboardMobileMonitoringRoute
+  '/_dashboard/devices/manage': typeof DashboardDevicesManageRoute
+  '/_dashboard/devices/manual-data': typeof DashboardDevicesManualDataRoute
+  '/_dashboard/devices/sensor-data': typeof DashboardDevicesSensorDataRoute
+  '/_dashboard/devices/': typeof DashboardDevicesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -240,14 +251,11 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/dashboard'
-    | '/devices'
     | '/feeds'
     | '/fish-growth'
     | '/fish-mortality'
     | '/manage-devices'
-    | '/manual-data'
     | '/notifications'
-    | '/sensor-data'
     | '/users'
     | '/water-events'
     | '/reset-password/$token'
@@ -255,6 +263,10 @@ export interface FileRouteTypes {
     | '/device'
     | '/fish-farming'
     | '/monitoring'
+    | '/devices/manage'
+    | '/devices/manual-data'
+    | '/devices/sensor-data'
+    | '/devices'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -264,14 +276,11 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/dashboard'
-    | '/devices'
     | '/feeds'
     | '/fish-growth'
     | '/fish-mortality'
     | '/manage-devices'
-    | '/manual-data'
     | '/notifications'
-    | '/sensor-data'
     | '/users'
     | '/water-events'
     | '/reset-password/$token'
@@ -279,6 +288,10 @@ export interface FileRouteTypes {
     | '/device'
     | '/fish-farming'
     | '/monitoring'
+    | '/devices/manage'
+    | '/devices/manual-data'
+    | '/devices/sensor-data'
+    | '/devices'
   id:
     | '__root__'
     | '/'
@@ -290,14 +303,11 @@ export interface FileRouteTypes {
     | '/_auth/login'
     | '/_auth/register'
     | '/_dashboard/dashboard'
-    | '/_dashboard/devices'
     | '/_dashboard/feeds'
     | '/_dashboard/fish-growth'
     | '/_dashboard/fish-mortality'
     | '/_dashboard/manage-devices'
-    | '/_dashboard/manual-data'
     | '/_dashboard/notifications'
-    | '/_dashboard/sensor-data'
     | '/_dashboard/users'
     | '/_dashboard/water-events'
     | '/_auth/reset-password/$token'
@@ -305,6 +315,10 @@ export interface FileRouteTypes {
     | '/_dashboard/_mobile/device'
     | '/_dashboard/_mobile/fish-farming'
     | '/_dashboard/_mobile/monitoring'
+    | '/_dashboard/devices/manage'
+    | '/_dashboard/devices/manual-data'
+    | '/_dashboard/devices/sensor-data'
+    | '/_dashboard/devices/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -366,25 +380,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardUsersRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/_dashboard/sensor-data': {
-      id: '/_dashboard/sensor-data'
-      path: '/sensor-data'
-      fullPath: '/sensor-data'
-      preLoaderRoute: typeof DashboardSensorDataRouteImport
-      parentRoute: typeof DashboardRoute
-    }
     '/_dashboard/notifications': {
       id: '/_dashboard/notifications'
       path: '/notifications'
       fullPath: '/notifications'
       preLoaderRoute: typeof DashboardNotificationsRouteImport
-      parentRoute: typeof DashboardRoute
-    }
-    '/_dashboard/manual-data': {
-      id: '/_dashboard/manual-data'
-      path: '/manual-data'
-      fullPath: '/manual-data'
-      preLoaderRoute: typeof DashboardManualDataRouteImport
       parentRoute: typeof DashboardRoute
     }
     '/_dashboard/manage-devices': {
@@ -415,13 +415,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardFeedsRouteImport
       parentRoute: typeof DashboardRoute
     }
-    '/_dashboard/devices': {
-      id: '/_dashboard/devices'
-      path: '/devices'
-      fullPath: '/devices'
-      preLoaderRoute: typeof DashboardDevicesRouteImport
-      parentRoute: typeof DashboardRoute
-    }
     '/_dashboard/dashboard': {
       id: '/_dashboard/dashboard'
       path: '/dashboard'
@@ -449,6 +442,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/forgot-password'
       preLoaderRoute: typeof AuthForgotPasswordRouteImport
       parentRoute: typeof AuthRoute
+    }
+    '/_dashboard/devices/': {
+      id: '/_dashboard/devices/'
+      path: '/devices'
+      fullPath: '/devices'
+      preLoaderRoute: typeof DashboardDevicesIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/devices/sensor-data': {
+      id: '/_dashboard/devices/sensor-data'
+      path: '/devices/sensor-data'
+      fullPath: '/devices/sensor-data'
+      preLoaderRoute: typeof DashboardDevicesSensorDataRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/devices/manual-data': {
+      id: '/_dashboard/devices/manual-data'
+      path: '/devices/manual-data'
+      fullPath: '/devices/manual-data'
+      preLoaderRoute: typeof DashboardDevicesManualDataRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/_dashboard/devices/manage': {
+      id: '/_dashboard/devices/manage'
+      path: '/devices/manage'
+      fullPath: '/devices/manage'
+      preLoaderRoute: typeof DashboardDevicesManageRouteImport
+      parentRoute: typeof DashboardRoute
     }
     '/_dashboard/_mobile/monitoring': {
       id: '/_dashboard/_mobile/monitoring'
@@ -506,38 +527,40 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 interface DashboardRouteChildren {
   DashboardDashboardRoute: typeof DashboardDashboardRoute
-  DashboardDevicesRoute: typeof DashboardDevicesRoute
   DashboardFeedsRoute: typeof DashboardFeedsRoute
   DashboardFishGrowthRoute: typeof DashboardFishGrowthRoute
   DashboardFishMortalityRoute: typeof DashboardFishMortalityRoute
   DashboardManageDevicesRoute: typeof DashboardManageDevicesRoute
-  DashboardManualDataRoute: typeof DashboardManualDataRoute
   DashboardNotificationsRoute: typeof DashboardNotificationsRoute
-  DashboardSensorDataRoute: typeof DashboardSensorDataRoute
   DashboardUsersRoute: typeof DashboardUsersRoute
   DashboardWaterEventsRoute: typeof DashboardWaterEventsRoute
   DashboardMobileAdminRoute: typeof DashboardMobileAdminRoute
   DashboardMobileDeviceRoute: typeof DashboardMobileDeviceRoute
   DashboardMobileFishFarmingRoute: typeof DashboardMobileFishFarmingRoute
   DashboardMobileMonitoringRoute: typeof DashboardMobileMonitoringRoute
+  DashboardDevicesManageRoute: typeof DashboardDevicesManageRoute
+  DashboardDevicesManualDataRoute: typeof DashboardDevicesManualDataRoute
+  DashboardDevicesSensorDataRoute: typeof DashboardDevicesSensorDataRoute
+  DashboardDevicesIndexRoute: typeof DashboardDevicesIndexRoute
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardDashboardRoute: DashboardDashboardRoute,
-  DashboardDevicesRoute: DashboardDevicesRoute,
   DashboardFeedsRoute: DashboardFeedsRoute,
   DashboardFishGrowthRoute: DashboardFishGrowthRoute,
   DashboardFishMortalityRoute: DashboardFishMortalityRoute,
   DashboardManageDevicesRoute: DashboardManageDevicesRoute,
-  DashboardManualDataRoute: DashboardManualDataRoute,
   DashboardNotificationsRoute: DashboardNotificationsRoute,
-  DashboardSensorDataRoute: DashboardSensorDataRoute,
   DashboardUsersRoute: DashboardUsersRoute,
   DashboardWaterEventsRoute: DashboardWaterEventsRoute,
   DashboardMobileAdminRoute: DashboardMobileAdminRoute,
   DashboardMobileDeviceRoute: DashboardMobileDeviceRoute,
   DashboardMobileFishFarmingRoute: DashboardMobileFishFarmingRoute,
   DashboardMobileMonitoringRoute: DashboardMobileMonitoringRoute,
+  DashboardDevicesManageRoute: DashboardDevicesManageRoute,
+  DashboardDevicesManualDataRoute: DashboardDevicesManualDataRoute,
+  DashboardDevicesSensorDataRoute: DashboardDevicesSensorDataRoute,
+  DashboardDevicesIndexRoute: DashboardDevicesIndexRoute,
 }
 
 const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
