@@ -238,7 +238,7 @@ export const useWebSocket = ({ token, devices, role, enabled = true }: UseWebSoc
       setTimeout(() => setThresholdAck(null), 5000);
     });
 
-    socketInstance.on('error', (error) => {
+    socketInstance.on('error', () => {
       // console.error('❌ WebSocket error:', error);
     });
 

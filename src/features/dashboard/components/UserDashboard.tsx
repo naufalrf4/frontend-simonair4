@@ -47,7 +47,7 @@ const UserDashboard: React.FC = () => {
     open: false,
     deviceId: '',
   });
-  const [showQuickActions, setShowQuickActions] = useState(false);
+  // const [showQuickActions, setShowQuickActions] = useState(false);
 
   useEffect(() => {
     if (!isAuthenticated) {

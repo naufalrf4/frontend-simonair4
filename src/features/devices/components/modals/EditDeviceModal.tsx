@@ -22,7 +22,6 @@ import { formatDeviceForForm } from '../../utils/deviceFormatters';
 import { DEVICE_MESSAGES } from '../../constants/messages';
 import type { Device, DeviceFormData } from '../../types';
 import { Edit, Save, AlertTriangle, User as UserIcon } from 'lucide-react';
-import { Input } from '@/components/ui/input';
 import { useAuth } from '@/features/authentication/hooks/useAuth';
 import { apiClient } from '@/utils/apiClient';
 import { useUsersQuery } from '@/features/users/hooks/useUsersQuery';

@@ -3,7 +3,6 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import type { MortalityRecord } from '../types'
@@ -124,4 +123,3 @@ export const UpsertMortalityModal: React.FC<UpsertMortalityModalProps> = ({ open
     </Dialog>
   )
 }
-

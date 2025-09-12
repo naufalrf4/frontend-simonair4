@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Calendar as CalendarIcon, Plus, Database } from 'lucide-react';
 import { useFeedsListQuery } from '../hooks/useFeedsListQuery';
-import type { FeedRecord, FeedType } from '../types';
+import type { FeedRecord } from '../types';
 import { UpsertFeedModal } from './UpsertFeedModal';
 import { DeviceSelector } from '@/features/sensor-data/components/DeviceSelector';
 import type { Device } from '@/features/sensor-data/types';

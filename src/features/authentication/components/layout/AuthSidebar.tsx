@@ -1,4 +1,4 @@
-import { Fish, Waves, Thermometer, FlaskConical, Droplets, Activity } from 'lucide-react';
+import { Fish, Thermometer, FlaskConical, Droplets, Activity } from 'lucide-react';
 import FeatureCard from './FeatureCard';
 
 export default function AuthSidebar() {

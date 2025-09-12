@@ -4,6 +4,8 @@ import type {
   SensorHistoryParams,
   Device,
   SensorDataError,
+  SensorReading,
+  SensorStatus,
 } from '../types';
 // import { createEnhancedError, retryWithBackoff } from '../utils/errorHandling';
 
@@ -218,7 +220,7 @@ export class SensorDataService {
         }
 
         // Normalize flat/named rows into UI's SensorReading shape
-        const normalized = rows.map((row: any) => {
+        const normalized: SensorReading[] = rows.map((row: any) => {
           const time = row.time || row.timestamp;
           const phVal = typeof row.ph === 'number' ? row.ph : (row.ph_calibrated ?? row.phValue ?? null);
           const tdsVal = typeof row.tds === 'number' ? row.tds : (row.tds_calibrated ?? row.tdsValue ?? null);
@@ -226,14 +228,14 @@ export class SensorDataService {
           const tempVal = typeof row.temperature === 'number' ? row.temperature : (row.temperature_value ?? row.temp ?? null);
 
           return {
-            time,
-            timestamp: time,
-            device_id: row.device_id ?? params.deviceId,
-            temperature: { value: tempVal, status: 'GOOD' },
-            ph: { raw: 0, voltage: 0, calibrated: phVal, calibrated_ok: true, status: 'GOOD' },
-            tds: { raw: 0, voltage: 0, calibrated: tdsVal, calibrated_ok: true, status: 'GOOD' },
-            do_level: { raw: 0, voltage: 0, calibrated: doVal, calibrated_ok: true, status: 'GOOD' },
-          };
+            time: String(time),
+            timestamp: String(time),
+            device_id: String(row.device_id ?? params.deviceId),
+            temperature: { value: Number(tempVal ?? 0), status: 'GOOD' as SensorStatus },
+            ph: { raw: 0, voltage: 0, calibrated: Number(phVal ?? 0), calibrated_ok: true, status: 'GOOD' as SensorStatus },
+            tds: { raw: 0, voltage: 0, calibrated: Number(tdsVal ?? 0), calibrated_ok: true, status: 'GOOD' as SensorStatus },
+            do_level: { raw: 0, voltage: 0, calibrated: Number(doVal ?? 0), calibrated_ok: true, status: 'GOOD' as SensorStatus },
+          } satisfies SensorReading;
         });
 
         // Return validated response
@@ -266,7 +268,6 @@ export class SensorDataService {
 
     let page = 1;
     let allRows: any[] = [];
-    let totalPages: number | null = null;
     let hasNext: boolean | null = null;
 
     // Loop pages until finished
@@ -288,7 +289,6 @@ export class SensorDataService {
       if (typeof meta.hasNext === 'boolean') {
         hasNext = meta.hasNext;
       } else if (typeof meta.totalPages === 'number' && typeof meta.page === 'number') {
-        totalPages = meta.totalPages;
         hasNext = meta.page < meta.totalPages;
       } else {
         // Fallback based on page size

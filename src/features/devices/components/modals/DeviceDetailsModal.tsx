@@ -13,7 +13,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { 
   Edit, 
-  Trash2, 
   Wifi, 
   WifiOff, 
   MapPin, 
@@ -46,7 +45,6 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
   onClose,
   deviceId,
   onEdit,
-  onDelete,
 }) => {
   const { data: device, isLoading, error, refetch } = useDeviceQuery(
     deviceId || '',
@@ -65,11 +63,11 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
     }
   };
 
-  const handleDelete = () => {
-    if (device && onDelete) {
-      onDelete(device);
-    }
-  };
+  // const handleDelete = () => {
+  //   if (device && onDelete) {
+  //     onDelete(device);
+  //   }
+  // };
 
   // Format date in English with WIB suffix for this page
   const formatWIB = (dateString?: string | null) => {

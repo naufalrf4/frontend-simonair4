@@ -207,7 +207,7 @@ export const RETRY_CONFIG = {
     [DeviceErrorType.NETWORK_ERROR]: 3,
     [DeviceErrorType.TIMEOUT_ERROR]: 2,
     [DeviceErrorType.SERVER_ERROR]: 3,
-  },
+  } as Partial<Record<DeviceErrorType, number>>,
 };
 
 /**

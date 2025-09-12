@@ -5,7 +5,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useDeleteUserMutation } from '../hooks/useUserMutations';
-import { AlertTriangle, Trash2, Loader2, UserX } from 'lucide-react';
+import { AlertTriangle, Trash2, Loader2 } from 'lucide-react';
 import { UserAvatar } from './UserStatusBadge';
 import type { User } from '../types';
 
@@ -94,17 +94,17 @@ export const DeleteUserDialog: React.FC<DeleteUserDialogProps> = ({ open, user, 
           <Button 
             variant="outline" 
             onClick={onClose}
-            disabled={deleteMutation.isLoading}
+            disabled={deleteMutation.isPending}
           >
             Cancel
           </Button>
           <Button 
             variant="destructive" 
             onClick={handleDelete}
-            disabled={deleteMutation.isLoading}
+            disabled={deleteMutation.isPending}
             className="min-w-[120px]"
           >
-            {deleteMutation.isLoading ? (
+            {deleteMutation.isPending ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Deleting...
@@ -121,4 +121,3 @@ export const DeleteUserDialog: React.FC<DeleteUserDialogProps> = ({ open, user, 
     </Dialog>
   );
 };
-
