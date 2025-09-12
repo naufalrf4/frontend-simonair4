@@ -101,16 +101,35 @@ export const DeviceForm: React.FC<DeviceFormProps> = ({
                   {DEVICE_MESSAGES.DEVICE_ID_LABEL} *
                 </FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    placeholder={DEVICE_MESSAGES.DEVICE_ID_PLACEHOLDER}
-                    disabled={disabled || isLoading || disableDeviceId}
-                  />
+                  {disableDeviceId ? (
+                    <Input
+                      {...field}
+                      placeholder={DEVICE_MESSAGES.DEVICE_ID_PLACEHOLDER}
+                      disabled={true}
+                    />
+                  ) : (
+                    <div className="flex">
+                      <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 bg-muted text-sm font-mono text-muted-foreground select-none">
+                        SMNR-
+                      </span>
+                      <Input
+                        value={(field.value || '').replace(/^SMNR-?/i, '')}
+                        onChange={(e) => {
+                          const raw = e.target.value || '';
+                          const upper = raw.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
+                          field.onChange(`SMNR-${upper}`);
+                        }}
+                        placeholder={'XXXX'}
+                        disabled={disabled || isLoading}
+                        className="rounded-l-none"
+                      />
+                    </div>
+                  )}
                 </FormControl>
                 <FormDescription>
                   {disableDeviceId
                     ? DEVICE_MESSAGES.DEVICE_ID_LOCKED
-                    : DEVICE_MESSAGES.DEVICE_ID_HELP}
+                    : 'Enter 4 characters (A–Z, 0–9). Device ID will be SMNR-XXXX'}
                 </FormDescription>
                 <FormMessage />
               </FormItem>

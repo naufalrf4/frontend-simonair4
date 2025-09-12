@@ -10,19 +10,15 @@ interface DeviceListProps {
 
 const DeviceList: React.FC<DeviceListProps> = ({ devices, onCalibrateClick, onOffsetClick }) => {
   const handleCalibrateClick = (device: Device) => {
-    console.log('🔧 DeviceList: Calibrate clicked for device:', device.device_id);
     onCalibrateClick(device.device_id);
   };
 
   const handleOffsetClick = (device: Device) => {
-    console.log('⚙️ DeviceList: Offset clicked for device:', device.device_id);
     onOffsetClick(device.device_id);
   };
 
-  // Sort online devices first, then by name
   const sortedDevices = [...devices].sort((a, b) => {
     if (a.online === b.online) {
-      // Use device_name if available, fallback to id
       const nameA = a.device_name || a.id;
       const nameB = b.device_name || b.id;
       return nameA.localeCompare(nameB);

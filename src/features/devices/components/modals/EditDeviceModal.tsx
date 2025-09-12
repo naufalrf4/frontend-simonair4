@@ -21,7 +21,18 @@ import { useUpdateDeviceMutation } from '../../hooks/useDeviceMutations';
 import { formatDeviceForForm } from '../../utils/deviceFormatters';
 import { DEVICE_MESSAGES } from '../../constants/messages';
 import type { Device, DeviceFormData } from '../../types';
-import { Edit, Save, AlertTriangle } from 'lucide-react';
+import { Edit, Save, AlertTriangle, User as UserIcon } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { useAuth } from '@/features/authentication/hooks/useAuth';
+import { apiClient } from '@/utils/apiClient';
+import { useUsersQuery } from '@/features/users/hooks/useUsersQuery';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '@/components/ui/select';
 
 export interface EditDeviceModalProps {
   isOpen: boolean;
@@ -40,6 +51,12 @@ export const EditDeviceModal: React.FC<EditDeviceModalProps> = ({
   const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
   const [initialFormData, setInitialFormData] = useState<DeviceFormData | null>(null);
   const [currentFormData, setCurrentFormData] = useState<DeviceFormData | null>(null);
+  const { user } = useAuth();
+  const isPrivileged = user?.role === 'admin' || user?.role === 'superuser';
+  const [ownerUserId, setOwnerUserId] = useState<string>('');
+  const { data: users = [], isLoading: usersLoading } = useUsersQuery(
+    isPrivileged ? { limit: 100 } : {},
+  );
 
   const updateDeviceMutation = useUpdateDeviceMutation();
 
@@ -50,8 +67,10 @@ export const EditDeviceModal: React.FC<EditDeviceModalProps> = ({
       setInitialFormData(formData);
       setCurrentFormData(formData);
       setHasUnsavedChanges(false);
+      // Initialize owner: device owner if available, otherwise current user
+      setOwnerUserId(device.user?.id || user?.id || '');
     }
-  }, [device, isOpen]);
+  }, [device, isOpen, user]);
 
   // Check for unsaved changes
   useEffect(() => {
@@ -69,7 +88,11 @@ export const EditDeviceModal: React.FC<EditDeviceModalProps> = ({
         deviceId: device.device_id, // Changed from device_name to device_id
         data,
       });
-      
+      // Owner change for admin/superuser
+      if (isPrivileged && ownerUserId && ownerUserId !== (device.user?.id || '')) {
+        await apiClient.patch(`/devices/${device.device_id}/owner`, { user_id: ownerUserId });
+      }
+
       setHasUnsavedChanges(false);
       onClose();
       onSuccess?.();
@@ -129,7 +152,10 @@ export const EditDeviceModal: React.FC<EditDeviceModalProps> = ({
               {DEVICE_MESSAGES.EDIT_DEVICE_TITLE}
             </DialogTitle>
             <DialogDescription>
-              {DEVICE_MESSAGES.EDIT_DEVICE_DESCRIPTION.replace('{device_name}', device?.device_name || '')}
+              {DEVICE_MESSAGES.EDIT_DEVICE_DESCRIPTION.replace(
+                '{device_name}',
+                device?.device_name || '',
+              )}
             </DialogDescription>
           </DialogHeader>
 
@@ -139,7 +165,11 @@ export const EditDeviceModal: React.FC<EditDeviceModalProps> = ({
               onCancel={handleCancel}
               initialData={initialFormData}
               isLoading={updateDeviceMutation.isPending}
-              submitLabel={updateDeviceMutation.isPending ? DEVICE_MESSAGES.SAVING_DEVICE : DEVICE_MESSAGES.SAVE_CHANGES}
+              submitLabel={
+                updateDeviceMutation.isPending
+                  ? DEVICE_MESSAGES.SAVING_DEVICE
+                  : DEVICE_MESSAGES.SAVE_CHANGES
+              }
               submitIcon={<Save className="mr-2 h-4 w-4" />}
               showCancel={true}
               className="mt-4"
@@ -147,10 +177,37 @@ export const EditDeviceModal: React.FC<EditDeviceModalProps> = ({
               onChange={handleFormChange}
             />
           )}
+
+          {isPrivileged && (
+            <div className="mt-4 space-y-2">
+              <label className="text-sm font-medium flex items-center gap-2">
+                <UserIcon className="h-4 w-4" /> Owner
+              </label>
+              <Select
+                value={ownerUserId}
+                onValueChange={(v) => setOwnerUserId(v)}
+                disabled={usersLoading}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={usersLoading ? 'Loading users...' : 'Select owner'} />
+                </SelectTrigger>
+                <SelectContent>
+                  {users.map((u) => {
+                    const label = u.fullName || u.full_name || u.name || u.email || u.id;
+                    return (
+                      <SelectItem key={u.id} value={u.id}>
+                        {label}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">Admins can reassign device ownership.</p>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
-      {/* Unsaved Changes Warning Dialog */}
       <AlertDialog open={showUnsavedWarning} onOpenChange={setShowUnsavedWarning}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -166,7 +223,10 @@ export const EditDeviceModal: React.FC<EditDeviceModalProps> = ({
             <AlertDialogCancel onClick={handleCancelClose}>
               {DEVICE_MESSAGES.CONTINUE_EDITING}
             </AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmClose} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <AlertDialogAction
+              onClick={handleConfirmClose}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
               {DEVICE_MESSAGES.DISCARD_CHANGES}
             </AlertDialogAction>
           </AlertDialogFooter>

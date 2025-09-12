@@ -93,7 +93,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (!isInitialized || !fingerprint) return;
 
     const cleanupTokenRefreshed = eventBus.on('token-refreshed', async ({ token }) => {
-      console.log('🔄 Token refreshed, updating storage and scheduling next refresh');
+      // console.log('🔄 Token refreshed, updating storage and scheduling next refresh');
       await saveTokenToStorage(token);
       scheduleTokenRefresh(token);
       emitDebouncedProfileFetch();
@@ -101,24 +101,34 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const cleanupAuthError = eventBus.on('auth-error', ({ type, error }) => {
       console.error('🚨 Auth error:', type, error);
-      
+      const hadToken = Boolean(localStorage.getItem('simonairToken'));
+
       if (type === 'refresh_failed') {
-        toast.error('Sesi berakhir, silakan masuk kembali.');
-        performLogout();
+        if (isAuthenticated || hadToken) {
+          toast.error('Sesi berakhir, silakan masuk kembali.');
+          performLogout();
+        }
       } else if (type === 'unauthorized') {
-        performLogout();
+        if (isAuthenticated || hadToken) {
+          performLogout();
+        }
       } else {
-        toast.error('Terjadi kesalahan otentikasi.');
+        if (isAuthenticated || hadToken) {
+          toast.error('Terjadi kesalahan otentikasi.');
+        }
       }
     });
 
     const cleanupLogoutRequired = eventBus.on('logout-required', () => {
-      console.log('🚪 Logout required, performing logout');
-      performLogout();
+      // console.log('🚪 Logout required, performing logout');
+      const hadToken = Boolean(localStorage.getItem('simonairToken'));
+      if (isAuthenticated || hadToken) {
+        performLogout();
+      }
     });
 
     const cleanupTokenExpired = eventBus.on('token-expired', () => {
-      console.log('⏰ Token expired, attempting refresh');
+      // console.log('⏰ Token expired, attempting refresh');
       attemptTokenRefresh();
     });
 
@@ -129,6 +139,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setUser(updatedUser);
         saveUserToStorage(updatedUser);
       }
+      // Ensure session is marked authenticated once profile is available
+      if (!isAuthenticated) {
+        setIsAuthenticated(true);
+      }
     });
 
     return () => {
@@ -138,7 +152,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       cleanupTokenExpired();
       cleanupProfileUpdated();
     };
-  }, [isInitialized, fingerprint, user]);
+  }, [isInitialized, fingerprint, user, isAuthenticated]);
 
   const isTokenExpired = (token: string): boolean => {
     try {
@@ -171,14 +185,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const refreshTime = expiryTime - (2 * 60 * 1000) - Date.now();
     
     if (refreshTime > 0) {
-      console.log(`⏰ Scheduling token refresh in ${Math.round(refreshTime / 1000)} seconds`);
+      // console.log(`⏰ Scheduling token refresh in ${Math.round(refreshTime / 1000)} seconds`);
       
       refreshTimeoutRef.current = setTimeout(() => {
         attemptTokenRefresh();
       }, refreshTime);
     } else {
       // Token expires soon or already expired, refresh immediately
-      console.log('⚡ Token expires soon, refreshing immediately');
+      // console.log('⚡ Token expires soon, refreshing immediately');
       attemptTokenRefresh();
     }
   }, []);
@@ -186,14 +200,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const attemptTokenRefresh = useCallback(async () => {
     // Prevent multiple simultaneous refresh attempts
     if (isRefreshingRef.current) {
-      console.log('🔄 Refresh already in progress, skipping');
+      // console.log('🔄 Refresh already in progress, skipping');
       return;
     }
 
     // Rate limiting: don't attempt refresh more than once per minute
     const now = Date.now();
     if (now - lastRefreshAttemptRef.current < 60000) {
-      console.log('⏱️ Rate limiting: skipping refresh attempt');
+      // console.log('⏱️ Rate limiting: skipping refresh attempt');
       return;
     }
 
@@ -201,7 +215,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     lastRefreshAttemptRef.current = now;
 
     try {
-      console.log('🔄 Attempting token refresh...');
+      // console.log('🔄 Attempting token refresh...');
       await refreshMutation.mutateAsync();
     } catch (error) {
       console.error('❌ Token refresh failed:', error);
@@ -265,7 +279,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const loginMutation = useMutation({
     mutationFn: (data: { email: string; password: string }) => apiClient.post('/auth/login', data),
     onSuccess: async ({ data }) => {
-      const token = data.data.accessToken;
+      const token = data?.data?.accessToken ?? data?.accessToken;
       await saveTokenToStorage(token);
       setIsAuthenticated(true);
       scheduleTokenRefresh(token); // Schedule refresh for new token
@@ -283,7 +297,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     mutationFn: (data: { fullName: string; email: string; password: string }) =>
       apiClient.post('/auth/register', data),
     onSuccess: async ({ data }) => {
-      const token = data.data.accessToken;
+      const token = data?.data?.accessToken ?? data?.accessToken;
       await saveTokenToStorage(token);
       setIsAuthenticated(true);
       scheduleTokenRefresh(token); // Schedule refresh for new token
@@ -311,8 +325,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const refreshMutation = useMutation({
     mutationFn: () => apiClient.post('/auth/refresh'),
     onSuccess: async ({ data }) => {
-      const token = data.data.accessToken;
-      console.log('✅ Token refresh successful');
+      const token = data?.data?.accessToken ?? data?.accessToken;
+      // console.log('✅ Token refresh successful');
       eventBus.emit('token-refreshed', { token });
     },
     onError: (error: any) => {

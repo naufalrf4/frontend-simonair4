@@ -19,7 +19,7 @@ export class SensorDataService {
     if (error.response) {
       // Server responded with error status
       const status = error.response.status;
-      const message = error.response.data?.message || error.message;
+      const message = error.response.data?.error?.message || error.response.data?.message || error.message;
       
       if (status === 404) {
         return {
@@ -116,10 +116,10 @@ export class SensorDataService {
       } as SensorDataError;
     }
 
-    if (params.limit < 1 || params.limit > 1000) {
+    if (params.limit < 1 || params.limit > 100) {
       throw {
         type: 'validation',
-        message: 'Jumlah data per halaman harus antara 1-1000',
+        message: 'Jumlah data per halaman harus antara 1-100',
         code: 'INVALID_LIMIT'
       } as SensorDataError;
     }
@@ -171,6 +171,9 @@ export class SensorDataService {
           from: params.from,
           to: params.to,
           orderBy: params.orderBy,
+          // Ensure flat numeric format with all metrics to match docs
+          format: 'flat',
+          fields: 'temperature,ph,tds,do_level',
         });
 
         const response = await apiClient.get(`/sensors/${params.deviceId}/history?${queryParams}`);
@@ -184,10 +187,29 @@ export class SensorDataService {
           } as SensorDataError;
         }
 
-        const { status, data, metadata } = response.data;
+        const payload = response.data;
+        const status = payload.status ?? 'success';
+        // Extract rows from multiple possible shapes
+        let rows: any[] | undefined = undefined;
+        if (Array.isArray(payload)) {
+          rows = payload as any[];
+        } else if (Array.isArray(payload.data)) {
+          rows = payload.data;
+        } else if (payload.data && Array.isArray(payload.data.rows)) {
+          rows = payload.data.rows;
+        } else if (payload.data && payload.data.points && Array.isArray(payload.data.points)) {
+          // series flat format: points: [[time, temp, ph, tds, do], ...]
+          const metrics: string[] = payload.data.metrics || ['temperature', 'ph', 'tds', 'do_level'];
+          rows = payload.data.points.map((p: any[]) => {
+            const obj: Record<string, any> = { time: p[0] };
+            metrics.forEach((m, i) => {
+              obj[m] = p[i + 1];
+            });
+            return obj;
+          });
+        }
 
-        // Validate required fields
-        if (!status || !Array.isArray(data)) {
+        if (!Array.isArray(rows)) {
           throw {
             type: 'data',
             message: 'Data respons tidak lengkap atau format tidak sesuai',
@@ -195,11 +217,30 @@ export class SensorDataService {
           } as SensorDataError;
         }
 
+        // Normalize flat/named rows into UI's SensorReading shape
+        const normalized = rows.map((row: any) => {
+          const time = row.time || row.timestamp;
+          const phVal = typeof row.ph === 'number' ? row.ph : (row.ph_calibrated ?? row.phValue ?? null);
+          const tdsVal = typeof row.tds === 'number' ? row.tds : (row.tds_calibrated ?? row.tdsValue ?? null);
+          const doVal = typeof row.do_level === 'number' ? row.do_level : (row.do_calibrated ?? row.do ?? row.doValue ?? null);
+          const tempVal = typeof row.temperature === 'number' ? row.temperature : (row.temperature_value ?? row.temp ?? null);
+
+          return {
+            time,
+            timestamp: time,
+            device_id: row.device_id ?? params.deviceId,
+            temperature: { value: tempVal, status: 'GOOD' },
+            ph: { raw: 0, voltage: 0, calibrated: phVal, calibrated_ok: true, status: 'GOOD' },
+            tds: { raw: 0, voltage: 0, calibrated: tdsVal, calibrated_ok: true, status: 'GOOD' },
+            do_level: { raw: 0, voltage: 0, calibrated: doVal, calibrated_ok: true, status: 'GOOD' },
+          };
+        });
+
         // Return validated response
         return {
           status: status as 'success' | 'error',
-          data,
-          metadata: metadata || {
+          data: normalized,
+          metadata: payload.metadata || payload.pagination || {
             timestamp: new Date().toISOString(),
             path: `/sensors/${params.deviceId}/history`,
             executionTime: 0
@@ -209,6 +250,68 @@ export class SensorDataService {
         throw this.parseApiError(error);
       }
     }, 'getSensorData');
+  }
+
+  /**
+   * Fetch all sensor data within range (paginate internally)
+   */
+  static async getAllSensorData(args: {
+    deviceId: string;
+    from: string;
+    to: string;
+    orderBy?: 'ASC' | 'DESC';
+  }): Promise<SensorHistoryResponse> {
+    const orderBy = args.orderBy || 'DESC';
+    const pageLimit = 100; // max allowed per docs
+
+    let page = 1;
+    let allRows: any[] = [];
+    let totalPages: number | null = null;
+    let hasNext: boolean | null = null;
+
+    // Loop pages until finished
+    // Add a hard cap of 10k rows to prevent runaway in case of bad metadata
+    const maxRows = 10000;
+    while (true) {
+      const chunk = await this.getSensorData({
+        deviceId: args.deviceId,
+        page,
+        limit: pageLimit,
+        from: args.from,
+        to: args.to,
+        orderBy,
+      });
+
+      allRows = allRows.concat(chunk.data);
+
+      const meta: any = chunk.metadata || {};
+      if (typeof meta.hasNext === 'boolean') {
+        hasNext = meta.hasNext;
+      } else if (typeof meta.totalPages === 'number' && typeof meta.page === 'number') {
+        totalPages = meta.totalPages;
+        hasNext = meta.page < meta.totalPages;
+      } else {
+        // Fallback based on page size
+        hasNext = (chunk.data?.length || 0) === pageLimit;
+      }
+
+      if (!hasNext || allRows.length >= maxRows) break;
+      page += 1;
+    }
+
+    return {
+      status: 'success',
+      data: allRows,
+      metadata: {
+        timestamp: new Date().toISOString(),
+        path: `/sensors/${args.deviceId}/history`,
+        executionTime: 0,
+        total: allRows.length,
+        page: 1,
+        limit: allRows.length,
+        totalPages: 1,
+      } as any,
+    };
   }
 
   /**

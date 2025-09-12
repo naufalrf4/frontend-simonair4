@@ -23,13 +23,14 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '../hooks/useAuth';
+import { BASE_URL } from '@/utils/constants';
 
 const loginFormSchema = z.object({
   email: z
     .string()
-    .min(1, { message: 'Email harus diisi' })
-    .email({ message: 'Format email tidak valid' }),
-  password: z.string().min(6, { message: 'Kata sandi minimal 6 karakter' }),
+    .min(1, { message: 'Email is required' })
+    .email({ message: 'Invalid email format' }),
+  password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
 });
 
 type LoginFormValues = z.infer<typeof loginFormSchema>;
@@ -37,6 +38,7 @@ type LoginFormValues = z.infer<typeof loginFormSchema>;
 export function LoginPage() {
   const { login } = useAuth();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const navigate = useNavigate();
   const search = useSearch({ strict: false });
   const [showPassword, setShowPassword] = useState(false);
@@ -60,7 +62,7 @@ export function LoginPage() {
       const errorMessage =
         error?.response?.data?.message ||
         error?.message ||
-        'Login gagal. Silakan periksa kredensial Anda.';
+        'Login failed. Please check your credentials.';
       form.setError('root', {
         message: errorMessage,
       });
@@ -70,6 +72,30 @@ export function LoginPage() {
   };
 
   const togglePasswordVisibility = useCallback(() => setShowPassword((prev: boolean) => !prev), []);
+
+  const handleGoogleLoginClick = useCallback(async () => {
+    try {
+      setGoogleLoading(true);
+      const redirectUri = `${window.location.origin}/oauth/callback`;
+      // Always use backend BASE_URL for OAuth endpoint
+      const base = BASE_URL;
+      const res = await fetch(
+        `${base}/auth/google?redirectUri=${encodeURIComponent(redirectUri)}`,
+        { credentials: 'include' },
+      );
+      const json = await res.json();
+      const url = json?.data?.url;
+      if (url) {
+        window.location.assign(url);
+      } else {
+        throw new Error('Google OAuth URL missing');
+      }
+    } catch (e) {
+      form.setError('root', { message: 'Failed to initiate Google login' });
+    } finally {
+      setGoogleLoading(false);
+    }
+  }, [form]);
 
   const Tooltip = ({ children, message }: { children: React.ReactNode; message: string }) => (
     <span className="group relative inline-flex items-center">
@@ -93,11 +119,11 @@ export function LoginPage() {
             loading="lazy"
           />
           <CardTitle className="text-xl font-bold text-center text-primary drop-shadow-md">
-            Selamat Datang Kembali!
+            Welcome Back!
           </CardTitle>
         </div>
         <CardDescription className="text-center text-sm font-normal text-muted-foreground">
-          Silakan masuk untuk mengakses SIMONAIR 4.0
+          Please log in to access SIMONAIR 4.0
         </CardDescription>
       </CardHeader>
 
@@ -112,7 +138,7 @@ export function LoginPage() {
                   <div className="flex items-center gap-1 mb-1">
                     <FormLabel className="text-sm font-medium text-primary flex items-center gap-1">
                       Email
-                      <Tooltip message="Wajib diisi">
+                      <Tooltip message="Required">
                         <span className="text-primary text-base font-bold cursor-help">*</span>
                       </Tooltip>
                     </FormLabel>
@@ -125,7 +151,7 @@ export function LoginPage() {
                       <Input
                         {...field}
                         type="email"
-                        placeholder="Masukkan email Anda"
+                        placeholder="Enter your email"
                         className="bg-background border-input focus:border-primary focus:ring-2 focus:ring-primary/30 py-5 pl-11 text-base rounded-md outline-none transition-all"
                         aria-label="Email"
                         autoComplete="email"
@@ -147,8 +173,8 @@ export function LoginPage() {
                   <div className="flex items-center justify-between mb-1">
                     <div className="flex items-center gap-1">
                       <FormLabel className="text-sm font-semibold text-primary flex items-center gap-1">
-                        Kata Sandi
-                        <Tooltip message="Wajib diisi, minimal 6 karakter">
+                        Password
+                        <Tooltip message="Required, minimum 6 characters">
                           <span className="text-primary text-base font-bold cursor-help">*</span>
                         </Tooltip>
                       </FormLabel>
@@ -158,7 +184,7 @@ export function LoginPage() {
                       className="text-xs font-medium text-primary hover:underline focus:underline transition-colors flex items-center gap-1"
                     >
                       <HelpCircle size={15} className="text-primary/90" />
-                      Lupa kata sandi?
+                      Forgot password?
                     </Link>
                   </div>
                   <div className="relative group">
@@ -169,7 +195,7 @@ export function LoginPage() {
                       <Input
                         {...field}
                         type={showPassword ? 'text' : 'password'}
-                        placeholder="Masukkan kata sandi"
+                        placeholder="Enter your password"
                         className="bg-background border-input focus:border-primary focus:ring-2 focus:ring-primary/30 py-5 pl-11 pr-11 text-base rounded-md outline-none transition-all"
                         aria-label="Password"
                         autoComplete="current-password"
@@ -180,7 +206,7 @@ export function LoginPage() {
                       type="button"
                       onClick={togglePasswordVisibility}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-primary/80 hover:text-primary transition-colors duration-200 disabled:opacity-50"
-                      aria-label={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
                       tabIndex={0}
                       disabled={isLoggingIn}
                     >
@@ -204,7 +230,7 @@ export function LoginPage() {
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 py-5 text-base font-semibold rounded-md shadow-sm hover:shadow mt-6 flex items-center justify-center gap-2 focus:ring-2 focus:ring-primary/30"
               disabled={isLoggingIn}
               // || googleLoading
-              aria-label="Masuk ke akun"
+              aria-label="Log in to account"
             >
               {isLoggingIn ? (
                 <div className="flex items-center justify-center" aria-hidden="true">
@@ -229,11 +255,11 @@ export function LoginPage() {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                  <span>Memproses...</span>
+                  <span>Processing...</span>
                 </div>
               ) : (
                 <>
-                  <span>Masuk</span>
+                  <span>Login</span>
                   <ArrowRight size={20} className="ml-1" />
                 </>
               )}
@@ -241,18 +267,18 @@ export function LoginPage() {
 
             <div className="flex items-center gap-2 my-2">
               <div className="flex-grow border-t border-muted"></div>
-              <span className="text-sm text-muted-foreground">atau lanjutkan dengan</span>
+              <span className="text-sm text-muted-foreground">or continue with</span>
               <div className="flex-grow border-t border-muted"></div>
             </div>
 
-            {/* <Button
+            <Button
               type="button"
               variant="outline"
               className={`w-full flex items-center justify-center gap-3 py-5 text-base font-semibold rounded-lg border border-primary
                 hover:bg-primary/95 hover:text-white focus-visible:ring-2 focus-visible:ring-primary/40 transition-all duration-200 shadow-sm relative
                 ${googleLoading || isLoggingIn ? 'opacity-60 pointer-events-none' : ''}`}
               onClick={handleGoogleLoginClick}
-              aria-label="Masuk dengan Google"
+              aria-label="Login with Google"
               disabled={googleLoading || isLoggingIn}
               tabIndex={0}
             >
@@ -287,21 +313,21 @@ export function LoginPage() {
                   alt="Google"
                   className="w-6 h-6 drop-shadow"
                 />
-                <span className="ml-1">Masuk dengan Google</span>
+                <span className="ml-1">Login with Google</span>
               </span>
-            </Button> */}
+            </Button>
           </form>
         </Form>
       </CardContent>
 
       <CardFooter className="flex flex-col items-center gap-2 pb-6 pt-2">
         <span className="text-base text-muted-foreground text-center">
-          Belum punya akun?{' '}
+          Don't have an account?{' '}
           <Link
             to="/register"
             className="text-primary font-semibold hover:underline focus:underline transition-colors"
           >
-            Daftar disini
+            Sign up here
           </Link>
         </span>
       </CardFooter>

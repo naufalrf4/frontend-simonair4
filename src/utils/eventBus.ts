@@ -32,20 +32,20 @@ class EventBus {
         try {
           listener(data);
         } catch (error) {
-          console.error(`Error in event listener for ${event}:`, error);
+          // console.error(`Error in event listener for ${event}:`, error);
         }
       });
     }
 
     if (process.env.NODE_ENV === 'development') {
       if (event === 'token-refreshed') {
-        console.log(`🔄 [EventBus] Token refreshed successfully`);
+        // console.log(`🔄 [EventBus] Token refreshed successfully`);
       } else if (event === 'auth-error') {
-        console.error(`🚨 [EventBus] Auth error:`, data);
+        // console.error(`🚨 [EventBus] Auth error:`, data);
       } else if (event === 'token-expired') {
-        console.warn(`⏰ [EventBus] Token expired`);
+        // console.warn(`⏰ [EventBus] Token expired`);
       } else {
-        console.log(`[EventBus] ${event}:`, data);
+        // console.log(`[EventBus] ${event}:`, data);
       }
     }
   }

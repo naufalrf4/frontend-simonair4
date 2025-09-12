@@ -65,7 +65,6 @@ export const useWebSocket = ({ token, devices, role, enabled = true }: UseWebSoc
   const enabledRef = useRef(enabled);
   const maxReconnectAttempts = 5;
 
-  // Update enabled ref when prop changes
   useEffect(() => {
     enabledRef.current = enabled;
   }, [enabled]);
@@ -83,7 +82,7 @@ export const useWebSocket = ({ token, devices, role, enabled = true }: UseWebSoc
     clearTimeouts();
     
     if (socket) {
-      console.log('🔌 Disconnecting WebSocket...');
+      // console.log('🔌 Disconnecting WebSocket...');
       socket.disconnect();
       setSocket(null);
       setIsConnected(false);
@@ -94,26 +93,25 @@ export const useWebSocket = ({ token, devices, role, enabled = true }: UseWebSoc
 
   const connect = useCallback(() => {
     if (!enabledRef.current) {
-      console.log('🔌 WebSocket disabled, skipping connection');
+      // console.log('🔌 WebSocket disabled, skipping connection');
       return;
     }
 
     if (!token || !import.meta.env.VITE_BASE_URL) {
-      console.log('🔌 Missing token or base URL:', { hasToken: !!token, hasUrl: !!import.meta.env.VITE_BASE_URL });
+      // console.log('🔌 Missing token or base URL:', { hasToken: !!token, hasUrl: !!import.meta.env.VITE_BASE_URL });
       return;
     }
 
     if (devices.length === 0) {
-      console.log('🔌 No devices available for WebSocket');
+      // console.log('🔌 No devices available for WebSocket');
       return;
     }
 
     if (isConnectingRef.current || connectedRef.current) {
-      console.log('🔌 Already connecting/connected, skipping');
+      // console.log('🔌 Already connecting/connected, skipping');
       return;
     }
 
-    // Clean up any existing connection
     if (socket) {
       disconnect();
     }
@@ -121,88 +119,83 @@ export const useWebSocket = ({ token, devices, role, enabled = true }: UseWebSoc
     isConnectingRef.current = true;
     clearTimeouts();
 
-    console.log('🔌 Connecting to WebSocket...', {
-      url: import.meta.env.VITE_BASE_URL,
-      deviceCount: devices.length,
-      hasToken: !!token
-    });
+    // console.log('🔌 Connecting to WebSocket...', {
+    //   url: import.meta.env.VITE_BASE_URL,
+    //   deviceCount: devices.length,
+    //   hasToken: !!token
+    // });
 
     const socketInstance = io(import.meta.env.VITE_BASE_URL, {
       auth: { 
         token: token.startsWith('Bearer ') ? token.slice(7) : token
       },
-      transports: ['websocket', 'polling'], // Add polling as fallback
-      timeout: 20000, // Increase timeout
+      transports: ['websocket', 'polling'],
+      timeout: 20000,
       forceNew: true,
       autoConnect: true,
-      reconnection: false, // Handle reconnection manually
+      reconnection: false,
     });
 
     socketInstance.on('connect', () => {
-      console.log('✅ WebSocket connected:', socketInstance.id);
+      // console.log('✅ WebSocket connected:', socketInstance.id);
       setIsConnected(true);
       connectedRef.current = true;
       isConnectingRef.current = false;
       reconnectAttemptsRef.current = 0;
 
-      // Join device rooms
       devices.forEach((device) => {
         const roomName = `device:${device.device_id}`;
         socketInstance.emit('join_room', roomName);
-        console.log(`📡 Joining room: ${roomName}`);
+        // console.log(`📡 Joining room: ${roomName}`);
       });
 
-      // Join admin room if applicable
       if (role === 'admin' || role === 'superuser') {
         socketInstance.emit('join_room', 'all-devices');
-        console.log('📡 Joining admin room: all-devices');
+        // console.log('📡 Joining admin room: all-devices');
       }
     });
 
     socketInstance.on('disconnect', (reason) => {
-      console.warn('⚠️ WebSocket disconnected:', reason);
+      // console.warn('⚠️ WebSocket disconnected:', reason);
       setIsConnected(false);
       connectedRef.current = false;
       isConnectingRef.current = false;
       
       if (reason === 'io server disconnect') {
-        console.error('❌ Server disconnected client - likely auth failure');
+        // console.error('❌ Server disconnected client - likely auth failure');
         return;
       }
       
-      // Auto-reconnect with exponential backoff
       if (reason !== 'io client disconnect' && 
           reconnectAttemptsRef.current < maxReconnectAttempts && 
           enabledRef.current) {
         
         const delay = Math.min(1000 * Math.pow(2, reconnectAttemptsRef.current), 30000);
-        console.log(`🔄 Reconnecting in ${delay}ms... (attempt ${reconnectAttemptsRef.current + 1}/${maxReconnectAttempts})`);
+        // console.log(`🔄 Reconnecting in ${delay}ms... (attempt ${reconnectAttemptsRef.current + 1}/${maxReconnectAttempts})`);
         
         reconnectTimeoutRef.current = setTimeout(() => {
           reconnectAttemptsRef.current += 1;
           connect();
         }, delay);
       } else {
-        console.error('❌ Max reconnection attempts reached or connection disabled');
+        // console.error('❌ Max reconnection attempts reached or connection disabled');
       }
     });
 
     socketInstance.on('connect_error', (error) => {
-      console.error('❌ WebSocket connection error:', error.message);
+      // console.error('❌ WebSocket connection error:', error.message);
       setIsConnected(false);
       connectedRef.current = false;
       isConnectingRef.current = false;
       
-      // Handle specific error types
       if (error.message.includes('Authentication') || error.message.includes('jwt')) {
-        console.error('❌ Authentication error - stopping reconnection attempts');
+        // console.error('❌ Authentication error - stopping reconnection attempts');
         return;
       }
 
-      // Retry on 502 and other server errors
       if (reconnectAttemptsRef.current < maxReconnectAttempts && enabledRef.current) {
         const delay = Math.min(2000 * Math.pow(1.5, reconnectAttemptsRef.current), 10000);
-        console.log(`🔄 Retrying connection in ${delay}ms due to error: ${error.message}`);
+        // console.log(`🔄 Retrying connection in ${delay}ms due to error: ${error.message}`);
         
         reconnectTimeoutRef.current = setTimeout(() => {
           reconnectAttemptsRef.current += 1;
@@ -222,6 +215,19 @@ export const useWebSocket = ({ token, devices, role, enabled = true }: UseWebSoc
       }));
     });
 
+    socketInstance.on('realtimeSensorUpdate', (data: any) => {
+      const device_id = data.device_id || data.deviceId;
+      const timestamp = data.timestamp || data.time || new Date().toISOString();
+      setSensorData((prev) => ({
+        ...prev,
+        [device_id]: {
+          ...data,
+          device_id,
+          timestamp,
+        } as any,
+      }));
+    });
+
     socketInstance.on('calibrationAck', (data: AckData) => {
       setCalibrationAck(data);
       setTimeout(() => setCalibrationAck(null), 5000);
@@ -233,18 +239,16 @@ export const useWebSocket = ({ token, devices, role, enabled = true }: UseWebSoc
     });
 
     socketInstance.on('error', (error) => {
-      console.error('❌ WebSocket error:', error);
+      // console.error('❌ WebSocket error:', error);
     });
 
     setSocket(socketInstance);
   }, [token, devices, role, socket, disconnect, clearTimeouts]);
 
-  // Simplified connection effect
   useEffect(() => {
     if (enabled && token && devices.length > 0) {
-      console.log('🔌 WebSocket prerequisites met, attempting connection...');
+      // console.log('🔌 WebSocket prerequisites met, attempting connection...');
       
-      // Small delay to ensure all states are settled
       const timer = setTimeout(() => {
         connect();
       }, 500);
@@ -253,11 +257,11 @@ export const useWebSocket = ({ token, devices, role, enabled = true }: UseWebSoc
         clearTimeout(timer);
       };
     } else {
-      console.log('🔌 WebSocket prerequisites not met:', {
-        enabled,
-        hasToken: !!token,
-        deviceCount: devices.length
-      });
+      // console.log('🔌 WebSocket prerequisites not met:', {
+      //   enabled,
+      //   hasToken: !!token,
+      //   deviceCount: devices.length
+      // });
       disconnect();
     }
   }, [enabled, token, devices.length, connect, disconnect]);
@@ -280,14 +284,14 @@ export const useWebSocket = ({ token, devices, role, enabled = true }: UseWebSoc
   const joinRoom = useCallback((roomName: string) => {
     if (socket && isConnected) {
       socket.emit('join_room', roomName);
-      console.log(`📡 Manually joining room: ${roomName}`);
+      // console.log(`📡 Manually joining room: ${roomName}`);
     }
   }, [socket, isConnected]);
 
   const leaveRoom = useCallback((roomName: string) => {
     if (socket && isConnected) {
       socket.emit('leave_room', roomName);
-      console.log(`📡 Leaving room: ${roomName}`);
+      // console.log(`📡 Leaving room: ${roomName}`);
     }
   }, [socket, isConnected]);
 

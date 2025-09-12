@@ -49,7 +49,7 @@ export function DataTable<TData, TValue>({
   columns,
   data,
   searchColumn,
-  searchPlaceholder = 'Cari...',
+  searchPlaceholder = 'Search...',
   searchValue,
   onSearchChange,
   pagination,
@@ -149,8 +149,10 @@ export function DataTable<TData, TValue>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
+                  const hideOnMobile = (header.column.columnDef as any)?.meta?.hideOnMobile;
+                  const thClass = hideOnMobile ? 'hidden md:table-cell' : undefined;
                   return (
-                    <TableHead key={header.id}>
+                    <TableHead key={header.id} className={thClass}>
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}
@@ -166,7 +168,7 @@ export function DataTable<TData, TValue>({
                 <TableCell colSpan={columns.length} className="h-24 text-center">
                   <div className="flex justify-center items-center h-full">
                     <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                    <span className="ml-2">Memuat data...</span>
+                    <span className="ml-2">Loading data...</span>
                   </div>
                 </TableCell>
               </TableRow>
@@ -177,17 +179,21 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && 'selected'}
                   className={row.getIsSelected() ? 'bg-primary/5' : ''}
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell) => {
+                    const hideOnMobile = (cell.column.columnDef as any)?.meta?.hideOnMobile;
+                    const tdClass = hideOnMobile ? 'hidden md:table-cell' : undefined;
+                    return (
+                      <TableCell key={cell.id} className={tdClass}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  Tidak ada data
+                  No data available
                 </TableCell>
               </TableRow>
             )}

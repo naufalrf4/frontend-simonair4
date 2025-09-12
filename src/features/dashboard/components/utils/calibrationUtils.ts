@@ -4,7 +4,7 @@ const SENSOR_CONFIG = {
   ph: {
     icon: Droplets,
     name: 'pH',
-    description: 'Kalibrasi tingkat keasaman air',
+    description: 'Calibrate water acidity level',
     color: 'bg-blue-500',
     textColor: 'text-blue-700',
     bgColor: 'bg-blue-50',
@@ -13,7 +13,7 @@ const SENSOR_CONFIG = {
   tds: {
     icon: Zap,
     name: 'TDS',
-    description: 'Kalibrasi kandungan zat terlarut',
+    description: 'Calibrate dissolved solids content',
     color: 'bg-yellow-500',
     textColor: 'text-yellow-700',
     bgColor: 'bg-yellow-50',
@@ -22,7 +22,7 @@ const SENSOR_CONFIG = {
   do: {
     icon: Waves,
     name: 'DO',
-    description: 'Kalibrasi oksigen terlarut',
+    description: 'Calibrate dissolved oxygen',
     color: 'bg-green-500',
     textColor: 'text-green-700',
     bgColor: 'bg-green-50',

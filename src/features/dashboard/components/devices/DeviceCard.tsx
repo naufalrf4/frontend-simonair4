@@ -1,5 +1,7 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Wrench, Sliders } from 'lucide-react';
 import DeviceHeader from './DeviceHeader';
 import ConnectionStatus from '../status/ConnectionStatus';
 import SensorsGrid from '../sensors/SensorsGrid';
@@ -33,15 +35,44 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, onCalibrateClick, onOff
       />
 
       <div className="px-3 py-3 sm:px-6 sm:py-4 space-y-2 sm:space-y-4">
-        {/* Mobile: Minimal header */}
         <div className="sm:hidden">
-          <div className="text-center space-y-1">
+          <div className="text-center space-y-2">
             <h3 className="font-semibold text-base text-gray-800">{device.device_name}</h3>
             <p className="text-xs text-gray-500">
               {device.online
-                ? `Online • ${device.lastData || 'Baru saja'}`
-                : `Offline • ${device.lastOnline || 'Tidak diketahui'}`}
+                ? `Online • ${device.lastData || 'Just now'}`
+                : `Offline • ${device.lastOnline || 'Unknown'}`}
             </p>
+            
+            {/* Mobile quick action buttons */}
+            <div className="flex justify-center gap-2 pt-1">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCalibrateClick();
+                }}
+                disabled={!device.online}
+                className="h-8 px-3 text-xs"
+              >
+                <Wrench className="h-3 w-3 mr-1" />
+                Calibration
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOffsetClick();
+                }}
+                disabled={!device.online}
+                className="h-8 px-3 text-xs"
+              >
+                <Sliders className="h-3 w-3 mr-1" />
+                Threshold
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -58,13 +89,18 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, onCalibrateClick, onOff
           <ConnectionStatus device={device} />
         </div>
 
-        {/* Mobile: 2x2 Grid, Desktop: Original SensorsGrid */}
-        <div className="sm:hidden grid grid-cols-2 gap-2">
-          {device.sensors.map((sensor, index) => (
-            <div key={sensor.label || index} className="aspect-square">
-              <SensorCard sensor={sensor} isOnline={device.online} lastUpdate={device.lastData} />
-            </div>
-          ))}
+        {/* Mobile: 2x2 responsive grid of sensors */}
+        <div className="sm:hidden">
+          <div className="grid grid-cols-2 gap-3">
+            {device.sensors.map((sensor, index) => (
+              <SensorCard
+                key={sensor.label || index}
+                sensor={sensor}
+                isOnline={device.online}
+                lastUpdate={device.lastData}
+              />
+            ))}
+          </div>
         </div>
 
         <div className="hidden sm:block">

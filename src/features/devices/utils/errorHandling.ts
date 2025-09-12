@@ -49,14 +49,17 @@ export function parseApiError(error: unknown): DeviceError {
 
   if (error instanceof AxiosError) {
     const status = error.response?.status;
-    const message = error.response?.data?.message || error.message;
+    // Align with docs/api/devices.md error envelope
+    const apiErr = (error.response?.data as any)?.error;
+    const message = apiErr?.message || (error.response?.data as any)?.message || error.message;
+    const codeFromBody = typeof apiErr?.code === 'number' ? apiErr.code : undefined;
 
     switch (status) {
       case 400:
         return new DeviceError(
           message || 'Invalid request. Please check your input and try again.',
           DeviceErrorType.VALIDATION_ERROR,
-          status,
+          codeFromBody ?? status,
           error
         );
 
@@ -64,7 +67,7 @@ export function parseApiError(error: unknown): DeviceError {
         return new DeviceError(
           'You are not authorized to perform this action. Please log in again.',
           DeviceErrorType.AUTHORIZATION_ERROR,
-          status,
+          codeFromBody ?? status,
           error
         );
 
@@ -72,7 +75,7 @@ export function parseApiError(error: unknown): DeviceError {
         return new DeviceError(
           'You do not have permission to access this device.',
           DeviceErrorType.AUTHORIZATION_ERROR,
-          status,
+          codeFromBody ?? status,
           error
         );
 
@@ -80,7 +83,7 @@ export function parseApiError(error: unknown): DeviceError {
         return new DeviceError(
           'Device not found. It may have been deleted or you may not have access to it.',
           DeviceErrorType.NOT_FOUND_ERROR,
-          status,
+          codeFromBody ?? status,
           error
         );
 
@@ -88,7 +91,7 @@ export function parseApiError(error: unknown): DeviceError {
         return new DeviceError(
           'Device ID already exists. Please choose a different device ID.',
           DeviceErrorType.CONFLICT_ERROR,
-          status,
+          codeFromBody ?? status,
           error
         );
 
@@ -96,7 +99,7 @@ export function parseApiError(error: unknown): DeviceError {
         return new DeviceError(
           message || 'Invalid data provided. Please check your input.',
           DeviceErrorType.VALIDATION_ERROR,
-          status,
+          codeFromBody ?? status,
           error
         );
 
@@ -116,7 +119,7 @@ export function parseApiError(error: unknown): DeviceError {
         return new DeviceError(
           'Server error occurred. Please try again in a few moments.',
           DeviceErrorType.SERVER_ERROR,
-          status,
+          codeFromBody ?? status,
           error,
           true // Retryable
         );
@@ -186,33 +189,66 @@ export function getOperationErrorMessage(
 }
 
 /**
- * Retry configuration for different error types
+ * Enhanced retry configuration for different error types
  */
 export const RETRY_CONFIG = {
   maxRetries: 3,
   baseDelay: 1000, // 1 second
   maxDelay: 10000, // 10 seconds
   backoffFactor: 2,
+  jitterFactor: 0.1, // Add randomness to prevent thundering herd
   retryableErrors: [
     DeviceErrorType.NETWORK_ERROR,
     DeviceErrorType.TIMEOUT_ERROR,
     DeviceErrorType.SERVER_ERROR,
   ],
+  // Specific retry counts for different error types
+  retryCountByType: {
+    [DeviceErrorType.NETWORK_ERROR]: 3,
+    [DeviceErrorType.TIMEOUT_ERROR]: 2,
+    [DeviceErrorType.SERVER_ERROR]: 3,
+  },
 };
 
 /**
- * Calculate retry delay with exponential backoff
+ * Calculate retry delay with exponential backoff and jitter
  */
-export function calculateRetryDelay(attempt: number): number {
-  const delay = RETRY_CONFIG.baseDelay * Math.pow(RETRY_CONFIG.backoffFactor, attempt - 1);
-  return Math.min(delay, RETRY_CONFIG.maxDelay);
+export function calculateRetryDelay(attempt: number, errorType?: DeviceErrorType): number {
+  const baseDelay = RETRY_CONFIG.baseDelay;
+  const backoffFactor = RETRY_CONFIG.backoffFactor;
+  const jitterFactor = RETRY_CONFIG.jitterFactor;
+  
+  // Calculate exponential backoff
+  let delay = baseDelay * Math.pow(backoffFactor, attempt - 1);
+  
+  // Add jitter to prevent thundering herd problem
+  const jitter = delay * jitterFactor * (Math.random() * 2 - 1); // Random between -jitterFactor and +jitterFactor
+  delay += jitter;
+  
+  // Apply error-type specific adjustments
+  if (errorType === DeviceErrorType.TIMEOUT_ERROR) {
+    // Longer delays for timeout errors
+    delay *= 1.5;
+  } else if (errorType === DeviceErrorType.NETWORK_ERROR) {
+    // Shorter delays for network errors (they might recover quickly)
+    delay *= 0.8;
+  }
+  
+  return Math.min(Math.max(delay, baseDelay * 0.5), RETRY_CONFIG.maxDelay);
 }
 
 /**
- * Check if error is retryable
+ * Check if error is retryable and get max retry count
  */
 export function isRetryableError(error: DeviceError): boolean {
   return error.retryable || RETRY_CONFIG.retryableErrors.includes(error.type);
+}
+
+/**
+ * Get maximum retry count for specific error type
+ */
+export function getMaxRetryCount(errorType: DeviceErrorType): number {
+  return RETRY_CONFIG.retryCountByType[errorType] || RETRY_CONFIG.maxRetries;
 }
 
 /**
@@ -221,3 +257,126 @@ export function isRetryableError(error: DeviceError): boolean {
 export function sleep(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+/**
+ * Enhanced error context for better debugging and monitoring
+ */
+export interface ErrorContext {
+  operation: string;
+  attempt: number;
+  maxAttempts: number;
+  timestamp: string;
+  userAgent?: string;
+  url?: string;
+  method?: string;
+  requestId?: string;
+}
+
+/**
+ * Create error context for logging and monitoring
+ */
+export function createErrorContext(
+  operation: string,
+  attempt: number,
+  maxAttempts: number,
+  additionalContext?: Partial<ErrorContext>
+): ErrorContext {
+  return {
+    operation,
+    attempt,
+    maxAttempts,
+    timestamp: new Date().toISOString(),
+    userAgent: navigator.userAgent,
+    ...additionalContext,
+  };
+}
+
+/**
+ * Log error with context for monitoring
+ */
+export function logErrorWithContext(error: DeviceError, context: ErrorContext): void {
+  const logData = {
+    error: {
+      type: error.type,
+      message: error.message,
+      statusCode: error.statusCode,
+      retryable: error.retryable,
+    },
+    context,
+    stack: error.stack,
+  };
+  
+  // Log to console in development
+  if (process.env.NODE_ENV === 'development') {
+    console.error('Device Error:', logData);
+  }
+  
+  // In production, you might want to send this to a monitoring service
+  // Example: sendToMonitoringService(logData);
+}
+
+/**
+ * Circuit breaker pattern for preventing cascading failures
+ */
+class CircuitBreaker {
+  private failures = 0;
+  private lastFailureTime = 0;
+  private state: 'CLOSED' | 'OPEN' | 'HALF_OPEN' = 'CLOSED';
+  
+  constructor(
+    private readonly failureThreshold = 5,
+    private readonly recoveryTimeout = 60000 // 1 minute
+  ) {}
+  
+  async execute<T>(operation: () => Promise<T>): Promise<T> {
+    if (this.state === 'OPEN') {
+      if (Date.now() - this.lastFailureTime > this.recoveryTimeout) {
+        this.state = 'HALF_OPEN';
+      } else {
+        throw new DeviceError(
+          'Service temporarily unavailable. Please try again later.',
+          DeviceErrorType.SERVER_ERROR,
+          503,
+          undefined,
+          true
+        );
+      }
+    }
+    
+    try {
+      const result = await operation();
+      this.onSuccess();
+      return result;
+    } catch (error) {
+      this.onFailure();
+      throw error;
+    }
+  }
+  
+  private onSuccess(): void {
+    this.failures = 0;
+    this.state = 'CLOSED';
+  }
+  
+  private onFailure(): void {
+    this.failures++;
+    this.lastFailureTime = Date.now();
+    
+    if (this.failures >= this.failureThreshold) {
+      this.state = 'OPEN';
+    }
+  }
+  
+  getState(): string {
+    return this.state;
+  }
+  
+  reset(): void {
+    this.failures = 0;
+    this.lastFailureTime = 0;
+    this.state = 'CLOSED';
+  }
+}
+
+// Global circuit breaker instance for device operations
+export const deviceCircuitBreaker = new CircuitBreaker(5, 60000);

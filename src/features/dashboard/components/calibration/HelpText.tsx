@@ -2,7 +2,7 @@ import React from 'react';
 
 const HelpText: React.FC = () => {
   return (
-    <div className="text-center text-sm text-gray-500 mt-4">
+    <div className="text-center text-sm text-gray-500 mt-4 px-2 leading-relaxed">
       <p>Pastikan sensor sudah terpasang dan perangkat dalam keadaan online</p>
     </div>
   );

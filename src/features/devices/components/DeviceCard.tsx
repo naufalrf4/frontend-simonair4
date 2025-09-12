@@ -159,7 +159,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({
           {device.location && (
             <div className="flex items-center gap-2 text-sm">
               <MapPin className="w-4 h-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Lokasi:</span>
+              <span className="text-muted-foreground">Location:</span>
               <span className="font-medium">{device.location}</span>
             </div>
           )}
@@ -167,7 +167,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({
           {device.aquarium_size && (
             <div className="flex items-center gap-2 text-sm">
               <Ruler className="w-4 h-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Ukuran:</span>
+              <span className="text-muted-foreground">Size:</span>
               <span className="font-medium">{device.aquarium_size}</span>
             </div>
           )}
@@ -175,22 +175,18 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({
           {device.fish_count && device.fish_count > 0 && (
             <div className="flex items-center gap-2 text-sm">
               <Fish className="w-4 h-4 text-muted-foreground" />
-              <span className="text-muted-foreground">Ikan:</span>
-              <span className="font-medium">{device.fish_count} ekor</span>
+              <span className="text-muted-foreground">Fish:</span>
+              <span className="font-medium">{device.fish_count} fish</span>
             </div>
           )}
         </div>
 
-        {/* Sensor Data Display */}
         {device.online && device.latestSensorData && (
           <div className="border-t pt-4">
             <div className="flex items-center justify-between mb-3">
               <h4 className="text-sm font-medium text-muted-foreground">
-                Data Sensor Terkini
+                Recent Sensor Data
               </h4>
-              <Badge variant="outline" className="text-xs text-emerald-600 border-emerald-200">
-                Live
-              </Badge>
             </div>
             <div className="grid grid-cols-2 gap-2">
               {device.latestSensorData.ph !== undefined && (
@@ -243,7 +239,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({
             </div>
             
             <div className="text-xs text-muted-foreground mt-3 text-center">
-              Diperbarui {formatTimestamp(device.latestSensorData.timestamp)}
+              Last Data {formatTimestamp(device.latestSensorData.timestamp)}
             </div>
           </div>
         )}
@@ -260,7 +256,7 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({
             {device.last_seen && (
               <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
                 <Clock className="w-3 h-3" />
-                <span>Terakhir online: {formatTimestamp(device.last_seen)}</span>
+                <span>Last online: {formatTimestamp(device.last_seen)}</span>
               </div>
             )}
           </div>
@@ -269,9 +265,9 @@ export const DeviceCard: React.FC<DeviceCardProps> = ({
         {/* Device metadata */}
         <div className="border-t pt-3 text-xs text-muted-foreground">
           <div className="flex justify-between items-center">
-            <span>Ditambahkan {formatTimestamp(device.created_at)}</span>
+            <span>Paired {formatTimestamp(device.created_at)}</span>
             {device.updated_at && (
-              <span>Diperbarui {formatTimestamp(device.updated_at)}</span>
+              <span>Updated {formatTimestamp(device.updated_at)}</span>
             )}
           </div>
         </div>

@@ -10,7 +10,8 @@ import { toast } from 'sonner';
 import { DeviceSelector } from './DeviceSelector';
 import { DateRangeFilter } from './filters/DateRangeFilter';
 import { ExcelExportButton } from './ExcelExportButton';
-import { PHTable, TDSTable, DOTable, TemperatureTable } from './tables';
+// Unified table view (single table)
+import { DataTable } from '@/components/ui/data-table';
 // import { 
 //   SensorDataPageSkeleton, 
 //   SensorTableCardSkeleton,
@@ -27,7 +28,11 @@ import { PHTable, TDSTable, DOTable, TemperatureTable } from './tables';
 import { useSensorDataPageQuery, useDevicesPageQuery } from '../hooks/useSensorDataPageQuery';
 
 // Import types
-import type { Device, DateRange, DataType } from '../types';
+import type { Device, DateRange, SensorReading } from '../types';
+import type { ColumnDef } from '@tanstack/react-table';
+import { formatSensorValue, formatTDSValue, formatDOValue, formatTemperatureValue } from '../utils/sensorDataFormatters';
+import { format } from 'date-fns';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Default date range (7 days)
 const getDefaultDateRange = (): DateRange => ({
@@ -38,15 +43,8 @@ const getDefaultDateRange = (): DateRange => ({
 export const SensorDataPage: React.FC = () => {
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
   const [dateRange, setDateRange] = useState<DateRange>(getDefaultDateRange());
-  const [dataTypeFilters, setDataTypeFilters] = useState<{
-    ph: DataType;
-    tds: DataType;
-    do_level: DataType;
-  }>({
-    ph: 'calibrated',
-    tds: 'calibrated',
-    do_level: 'calibrated'
-  });
+  const [limit, setLimit] = useState<number | 'all'>(50);
+  // Single-table design — no per-sensor data-type filters
 
   // Data fetching hooks
   const {
@@ -63,6 +61,7 @@ export const SensorDataPage: React.FC = () => {
   } = useSensorDataPageQuery({
     deviceId: selectedDevice?.device_id || '',
     dateRange,
+    limit,
     enabled: !!selectedDevice
   });
 
@@ -73,19 +72,80 @@ export const SensorDataPage: React.FC = () => {
     }
   }, [devices, selectedDevice]);
 
-  // Handle data type filter changes
-  const handleDataTypeChange = (sensorType: keyof typeof dataTypeFilters, dataType: DataType) => {
-    setDataTypeFilters(prev => ({
-      ...prev,
-      [sensorType]: dataType
-    }));
+  // Format date like: Monday. 08 Sep 2025 with time below
+  const formatPrettyDateParts = (ts: string | Date) => {
+    try {
+      const dt = typeof ts === 'string' ? new Date(ts) : ts;
+      return {
+        date: format(dt, 'EEEE. dd MMM yyyy'),
+        time: format(dt, 'HH:mm:ss'),
+      };
+    } catch {
+      return { date: 'Invalid Date', time: '-' };
+    }
   };
+
+  // Columns for the unified table
+  const columns: ColumnDef<SensorReading>[] = [
+    {
+      accessorKey: 'timestamp',
+      header: 'Date/Time',
+      cell: ({ row }) => {
+        const ts = row.original.timestamp || row.original.time;
+        const f = formatPrettyDateParts(ts);
+        return (
+          <div className="flex flex-col min-w-[140px]">
+            <span className="text-sm font-semibold">{f.date}</span>
+            <span className="text-xs text-muted-foreground leading-tight">{f.time}</span>
+          </div>
+        );
+      },
+    },
+    {
+      id: 'device',
+      header: 'Device',
+      cell: ({ row }) => (
+        <div className="flex flex-col">
+          <span className="text-sm font-medium">{selectedDevice?.name || row.original.device_id}</span>
+          <span className="text-xs text-muted-foreground">{row.original.device_id}</span>
+        </div>
+      ),
+    },
+    {
+      id: 'ph',
+      header: 'pH',
+      cell: ({ row }) => (
+        <span className="font-mono text-sm">{formatSensorValue(row.original.ph?.calibrated, { precision: 2, unit: 'pH' })}</span>
+      ),
+    },
+    {
+      id: 'tds',
+      header: 'TDS',
+      cell: ({ row }) => (
+        <span className="font-mono text-sm">{formatTDSValue(row.original.tds?.calibrated)}</span>
+      ),
+    },
+    {
+      id: 'do',
+      header: 'DO',
+      cell: ({ row }) => (
+        <span className="font-mono text-sm">{formatDOValue(row.original.do_level?.calibrated)}</span>
+      ),
+    },
+    {
+      id: 'temp',
+      header: 'Temp',
+      cell: ({ row }) => (
+        <span className="font-mono text-sm">{formatTemperatureValue(row.original.temperature?.value)}</span>
+      ),
+    },
+  ];
 
   // Handle device selection
   const handleDeviceSelect = (device: Device | null) => {
     setSelectedDevice(device);
     if (device) {
-      toast.success(`Perangkat ${device.name} dipilih`);
+      toast.success(`Selected device: ${device.name}`);
     }
   };
 
@@ -93,7 +153,7 @@ export const SensorDataPage: React.FC = () => {
   const handleDateRangeChange = (newDateRange: DateRange) => {
     setDateRange(newDateRange);
     if (selectedDevice) {
-      toast.info('Memuat data untuk rentang tanggal baru...');
+      toast.info('Loading data for the new date range...');
     }
   };
 
@@ -130,7 +190,7 @@ export const SensorDataPage: React.FC = () => {
             onClick={onRetry}
             className="text-sm underline hover:no-underline"
           >
-            Coba lagi
+            Try again
           </button>
         )}
       </AlertDescription>
@@ -173,10 +233,8 @@ export const SensorDataPage: React.FC = () => {
       <div className="flex flex-col space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Riwayat Data Sensor</h1>
-            <p className="text-muted-foreground">
-              Lihat dan analisis data historis sensor dari perangkat IoT akuarium Anda
-            </p>
+            <h1 className="text-3xl font-bold tracking-tight">Sensor Data History</h1>
+            <p className="text-muted-foreground">View and analyze historical sensor data from your IoT devices</p>
           </div>
           <div className="flex items-center gap-2">
             <Database className="h-5 w-5 text-muted-foreground" />
@@ -203,6 +261,22 @@ export const SensorDataPage: React.FC = () => {
               dateRange={dateRange}
               onDateRangeChange={handleDateRangeChange}
             />
+
+            {/* Page Size / Limit Selector */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Limit</span>
+              <Select value={String(limit)} onValueChange={(v) => setLimit(v === 'all' ? 'all' as any : Number(v))}>
+                <SelectTrigger className="h-8 w-[90px]">
+                  <SelectValue placeholder="Limit" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                  <SelectItem value="100">100</SelectItem>
+                  <SelectItem value="all">All</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {/* Export Button */}
@@ -221,14 +295,14 @@ export const SensorDataPage: React.FC = () => {
       {/* Error States */}
       {devicesError && (
         <ErrorDisplay 
-          error="Gagal memuat daftar perangkat. Periksa koneksi internet Anda."
+          error="Failed to load devices list. Please check your internet connection."
           onRetry={() => window.location.reload()}
         />
       )}
 
       {sensorDataError && selectedDevice && (
         <ErrorDisplay 
-          error="Gagal memuat data sensor. Silakan coba lagi."
+          error="Failed to load sensor data. Please try again."
           onRetry={() => refetchSensorData()}
         />
       )}
@@ -236,49 +310,27 @@ export const SensorDataPage: React.FC = () => {
       {/* Main Content */}
       {!selectedDevice ? (
         <EmptyState 
-          message="Pilih perangkat untuk melihat data sensor"
+          message="Select a device to view sensor data"
           icon={Database}
         />
       ) : sensorDataLoading ? (
         <LoadingSkeleton />
       ) : !sensorData || sensorData.length === 0 ? (
         <EmptyState 
-          message="Tidak ada data sensor untuk perangkat dan rentang tanggal yang dipilih"
+          message="No sensor data for the selected device and date range"
           icon={AlertCircle}
         />
       ) : (
-        /* Sensor Tables Grid */
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* pH Table */}
-          <PHTable
-            data={sensorData}
-            isLoading={sensorDataLoading}
-            dataType={dataTypeFilters.ph}
-            onDataTypeChange={(dataType) => handleDataTypeChange('ph', dataType)}
-          />
-
-          {/* TDS Table */}
-          <TDSTable
-            data={sensorData}
-            isLoading={sensorDataLoading}
-            dataType={dataTypeFilters.tds}
-            onDataTypeChange={(dataType) => handleDataTypeChange('tds', dataType)}
-          />
-
-          {/* DO Level Table */}
-          <DOTable
-            data={sensorData}
-            isLoading={sensorDataLoading}
-            dataType={dataTypeFilters.do_level}
-            onDataTypeChange={(dataType) => handleDataTypeChange('do_level', dataType)}
-          />
-
-          {/* Temperature Table */}
-          <TemperatureTable
-            data={sensorData}
-            isLoading={sensorDataLoading}
-          />
-        </div>
+        <Card>
+          <CardHeader />
+          <CardContent>
+            <DataTable<SensorReading, unknown>
+              columns={columns}
+              data={sensorData as SensorReading[]}
+              isLoading={sensorDataLoading}
+            />
+          </CardContent>
+        </Card>
       )}
 
       {/* Data Info Footer */}
@@ -287,13 +339,13 @@ export const SensorDataPage: React.FC = () => {
           <CardContent className="py-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-4">
-                <span>Perangkat: <strong>{selectedDevice.name}</strong></span>
-                <span>Total data: <strong>{sensorData.length}</strong></span>
+                <span>Device: <strong>{selectedDevice.name}</strong></span>
+                <span>Total rows: <strong>{sensorData.length}</strong></span>
               </div>
               <div className="flex items-center gap-4">
                 <span>
-                  Periode: <strong>
-                    {dateRange.from.toLocaleDateString('id-ID')} - {dateRange.to.toLocaleDateString('id-ID')}
+                  Period: <strong>
+                    {dateRange.from.toLocaleDateString('en-US')} - {dateRange.to.toLocaleDateString('en-US')}
                   </strong>
                 </span>
                 <ConnectionStatus />

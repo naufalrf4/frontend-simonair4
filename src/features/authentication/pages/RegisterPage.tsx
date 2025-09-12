@@ -26,13 +26,13 @@ import { useAuth } from '../hooks/useAuth';
 
 const registerSchema = z
   .object({
-    fullName: z.string().min(2, { message: 'Nama lengkap minimal 2 karakter' }),
-    email: z.string().email({ message: 'Format email tidak valid' }),
-    password: z.string().min(6, { message: 'Kata sandi minimal 6 karakter' }),
-    confirmPassword: z.string().min(6, { message: 'Konfirmasi sandi minimal 6 karakter' }),
+    fullName: z.string().min(2, { message: 'Full name must be at least 2 characters' }),
+    email: z.string().email({ message: 'Invalid email format' }),
+    password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
+    confirmPassword: z.string().min(6, { message: 'Confirm password must be at least 6 characters' }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'Konfirmasi sandi tidak cocok',
+    message: 'Confirm password does not match',
     path: ['confirmPassword'],
   });
 
@@ -63,7 +63,7 @@ export function RegisterPage() {
       navigate({ to: redirectTo, replace: true });
     } catch (error: any) {
       form.setError('root', {
-        message: error?.response?.data?.message || error?.message || 'Registrasi gagal. Coba lagi.',
+        message: error?.response?.data?.message || error?.message || 'Registration failed. Please try again.',
       });
     } finally {
       setIsRegistering(false);
@@ -87,11 +87,11 @@ export function RegisterPage() {
           <div className="flex flex-col items-center gap-2">
             <User className="w-10 h-10 text-primary drop-shadow" />
             <CardTitle className="text-2xl font-bold text-center text-primary drop-shadow-md">
-              Daftar Akun Baru
+              Create New Account
             </CardTitle>
           </div>
           <CardDescription className="text-center text-base font-normal text-muted-foreground">
-            Buat akun untuk mengakses dashboard.
+            Create an account to access the dashboard.
           </CardDescription>
         </CardHeader>
 
@@ -105,8 +105,8 @@ export function RegisterPage() {
                   <FormItem>
                     <div className="flex items-center gap-1 mb-1">
                       <FormLabel className="text-sm font-semibold text-primary flex items-center gap-1">
-                        Nama Lengkap
-                        <Tooltip message="Nama lengkap wajib diisi">
+                        Full Name
+                        <Tooltip message="Full name is required">
                           <span className="text-primary text-base font-bold cursor-help">*</span>
                         </Tooltip>
                       </FormLabel>
@@ -119,9 +119,9 @@ export function RegisterPage() {
                         <Input
                           {...field}
                           type="text"
-                          placeholder="Nama lengkap"
+                          placeholder="Full name"
                           className="bg-background border-input focus:border-primary focus:ring-2 focus:ring-primary/30 py-5 pl-11 text-base rounded-md outline-none transition-all"
-                          aria-label="Nama Lengkap"
+                          aria-label="Full Name"
                           autoFocus
                         />
                       </FormControl>
@@ -139,7 +139,7 @@ export function RegisterPage() {
                     <div className="flex items-center gap-1 mb-1">
                       <FormLabel className="text-sm font-semibold text-primary flex items-center gap-1">
                         Email
-                        <Tooltip message="Wajib diisi, gunakan email aktif">
+                        <Tooltip message="Required, use an active email">
                           <span className="text-primary text-base font-bold cursor-help">*</span>
                         </Tooltip>
                       </FormLabel>
@@ -152,7 +152,7 @@ export function RegisterPage() {
                         <Input
                           {...field}
                           type="email"
-                          placeholder="Alamat email"
+                          placeholder="Email address"
                           className="bg-background border-input focus:border-primary focus:ring-2 focus:ring-primary/30 py-5 pl-11 text-base rounded-md outline-none transition-all"
                           aria-label="Email"
                           autoComplete="email"
@@ -171,8 +171,8 @@ export function RegisterPage() {
                   <FormItem>
                     <div className="flex items-center gap-1 mb-1">
                       <FormLabel className="text-sm font-semibold text-primary flex items-center gap-1">
-                        Kata Sandi
-                        <Tooltip message="Minimal 6 karakter">
+                        Password
+                        <Tooltip message="Minimum 6 characters">
                           <span className="text-primary text-base font-bold cursor-help">*</span>
                         </Tooltip>
                       </FormLabel>
@@ -185,9 +185,9 @@ export function RegisterPage() {
                         <Input
                           {...field}
                           type="password"
-                          placeholder="Kata sandi"
+                          placeholder="Password"
                           className="bg-background border-input focus:border-primary focus:ring-2 focus:ring-primary/30 py-5 pl-11 text-base rounded-md outline-none transition-all"
-                          aria-label="Kata Sandi"
+                          aria-label="Password"
                           autoComplete="new-password"
                         />
                       </FormControl>
@@ -204,8 +204,8 @@ export function RegisterPage() {
                   <FormItem>
                     <div className="flex items-center gap-1 mb-1">
                       <FormLabel className="text-sm font-semibold text-primary flex items-center gap-1">
-                        Konfirmasi Kata Sandi
-                        <Tooltip message="Harus sama dengan sandi di atas">
+                        Confirm Password
+                        <Tooltip message="Must match the password above">
                           <span className="text-primary text-base font-bold cursor-help">*</span>
                         </Tooltip>
                       </FormLabel>
@@ -218,9 +218,9 @@ export function RegisterPage() {
                         <Input
                           {...field}
                           type="password"
-                          placeholder="Ulangi kata sandi"
+                          placeholder="Repeat password"
                           className="bg-background border-input focus:border-primary focus:ring-2 focus:ring-primary/30 py-5 pl-11 text-base rounded-md outline-none transition-all"
-                          aria-label="Konfirmasi Kata Sandi"
+                          aria-label="Confirm Password"
                           autoComplete="new-password"
                         />
                       </FormControl>
@@ -241,7 +241,7 @@ export function RegisterPage() {
                 type="submit"
                 className="w-full bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 py-5 text-base font-semibold rounded-md shadow-sm hover:shadow mt-6 flex items-center justify-center gap-2 focus:ring-2 focus:ring-primary/30"
                 disabled={isRegistering}
-                aria-label="Daftar akun"
+                aria-label="Register account"
               >
                 {isRegistering ? (
                   <div className="flex items-center justify-center" aria-hidden="true">
@@ -266,11 +266,11 @@ export function RegisterPage() {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       ></path>
                     </svg>
-                    <span className="text-base">Memproses...</span>
+                    <span className="text-base">Processing...</span>
                   </div>
                 ) : (
                   <>
-                    <span>Daftar</span>
+                    <span>Register</span>
                     <ArrowRight className="h-5 w-5 ml-1" />
                   </>
                 )}
@@ -281,12 +281,12 @@ export function RegisterPage() {
 
         <CardFooter className="flex flex-col items-center gap-2 pb-6 pt-2">
           <span className="text-base text-muted-foreground">
-            Sudah punya akun?{' '}
+            Already have an account?{' '}
             <Link
               to="/login"
               className="text-primary font-semibold hover:underline focus:underline transition-colors"
             >
-              Masuk disini
+              Login here
             </Link>
           </span>
         </CardFooter>

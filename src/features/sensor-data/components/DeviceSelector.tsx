@@ -9,7 +9,7 @@ import { SensorDataService, sensorDataKeys } from '../services/sensorDataService
 import type { Device } from '../types';
 
 interface DeviceSelectorProps {
-  devices: Device[];
+  devices?: Device[];
   selectedDevice: Device | null;
   onDeviceSelect: (device: Device | null) => void;
   error?: void;

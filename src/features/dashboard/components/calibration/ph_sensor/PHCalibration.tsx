@@ -147,14 +147,14 @@ const PHCalibration: React.FC<PHCalibrationProps> = ({
           </div>
         </div>
       )}
-      <div className="flex justify-end gap-3 pt-6 border-t">
-        <Button variant="outline" onClick={onBack} disabled={isCalibrating}>
+      <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t">
+        <Button variant="outline" onClick={onBack} disabled={isCalibrating} className="w-full sm:w-auto">
           Kembali
         </Button>
         <Button
           onClick={handleCalibrate}
           disabled={bufferPoints.length < 2 || isCalibrating || !isConnected}
-          className="min-w-[140px] h-12 text-base font-medium"
+          className="min-w-[140px] h-12 text-base font-medium w-full sm:w-auto"
         >
           {isCalibrating ? (
             <>

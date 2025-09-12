@@ -84,7 +84,7 @@ const CalibrationModal: React.FC<CalibrationModalProps> = ({
     <div className="space-y-6">
       <DeviceStatusCard deviceData={currentDeviceData} isReady={!!ready} deviceId={deviceId} />
       {!ready && (
-        <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+        <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-lg leading-relaxed">
           <AlertCircle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
           <div className="text-sm">
             <div className="font-medium text-amber-800 mb-1">Perangkat Tidak Siap</div>
@@ -179,11 +179,11 @@ const CalibrationModal: React.FC<CalibrationModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="w-[calc(100vw-1rem)] h-[calc(100vh-2rem)] max-w-4xl sm:h-auto sm:max-h-[90vh] overflow-y-auto p-4 sm:p-6 sm:rounded-lg sm:my-8">
+        <DialogHeader className="sm:pr-8 mb-2 sm:mb-0">
           <div className="flex items-center gap-3">
             {sensorType && (
-              <Button variant="ghost" size="sm" onClick={handleBack} className="p-2">
+              <Button variant="ghost" size="sm" onClick={handleBack} className="p-2 sm:flex hidden">
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             )}
@@ -201,7 +201,7 @@ const CalibrationModal: React.FC<CalibrationModalProps> = ({
             </DialogTitle>
           </div>
         </DialogHeader>
-        <div className="mt-4">{renderCalibrationComponent()}</div>
+        <div className="mt-3 sm:mt-4 space-y-4 sm:space-y-6">{renderCalibrationComponent()}</div>
       </DialogContent>
     </Dialog>
   );

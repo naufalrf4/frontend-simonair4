@@ -66,7 +66,7 @@ export const useDevices = (): UseDevicesReturn => {
     if (!lastSeen) return false;
     const lastSeenTime = new Date(lastSeen).getTime();
     const now = new Date().getTime();
-    return now - lastSeenTime < 5 * 60 * 1000; // 5 minutes in ms
+    return now - lastSeenTime < 5 * 60 * 1000;
   };
 
   const fetchDevices = async (retries = 3): Promise<void> => {
@@ -75,7 +75,7 @@ export const useDevices = (): UseDevicesReturn => {
       setError(null);
       
       const response = await apiClient.get('/devices');
-      
+
       if (!response.data || !response.data.data) {
         throw new Error('Invalid response structure');
       }
@@ -125,7 +125,6 @@ export const useDevices = (): UseDevicesReturn => {
     fetchDevices();
   }, []);
 
-  // Update online status periodically
   useEffect(() => {
     const interval = setInterval(() => {
       setDevices(prevDevices => 
@@ -134,7 +133,7 @@ export const useDevices = (): UseDevicesReturn => {
           online: computeOnlineStatus(device.last_seen)
         }))
       );
-    }, 30000); // Check every 30 seconds
+    }, 30000); 
 
     return () => clearInterval(interval);
   }, []);

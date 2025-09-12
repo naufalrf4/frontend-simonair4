@@ -274,9 +274,9 @@ const OffsetModal: React.FC<OffsetModalProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[95vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold flex items-center gap-3">
+      <DialogContent className="w-[calc(100vw-1rem)] h-[calc(100vh-2rem)] sm:h-auto max-w-6xl sm:max-h-[95vh] overflow-y-auto p-4 sm:p-6 sm:rounded-lg sm:my-8">
+        <DialogHeader className="sm:pr-8 mb-2 sm:mb-0">
+          <DialogTitle className="text-xl sm:text-2xl font-bold flex items-center gap-3">
             <Sliders className="h-6 w-6 text-purple-600" />
             Konfigurasi Ambang Batas Sensor
             <Badge variant="outline" className="ml-2">
@@ -285,7 +285,7 @@ const OffsetModal: React.FC<OffsetModalProps> = ({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="mt-6 space-y-6">
+        <div className="mt-4 sm:mt-6 space-y-6">
           {/* Device Status Header */}
           <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50">
             <CardHeader className="pb-4">
@@ -295,20 +295,20 @@ const OffsetModal: React.FC<OffsetModalProps> = ({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                 {(['ph', 'tds', 'do', 'temp'] as const).map((sensorType) => {
                   const config = getSensorConfig(sensorType);
                   const currentValue = sensorValues[sensorType];
                   
                   return (
-                    <div key={sensorType} className="text-center p-3 bg-white/70 rounded-lg">
+                    <div key={sensorType} className="text-center p-2 sm:p-3 bg-white/70 rounded-lg">
                       <div className="flex items-center justify-center mb-2">
                         {config.icon}
                       </div>
                       <div className="text-sm font-medium text-gray-700 mb-1">
                         {sensorType.toUpperCase()}
                       </div>
-                      <div className="text-lg font-bold text-gray-800">
+                      <div className="text-base sm:text-lg font-bold text-gray-800">
                         {currentValue || '--'} {config.unit}
                       </div>
                     </div>
@@ -334,8 +334,8 @@ const OffsetModal: React.FC<OffsetModalProps> = ({
             </div>
           </div>
 
-          {/* Threshold Configuration Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Threshold Configuration Grid - Responsive for mobile */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {(['ph', 'tds', 'do', 'temp'] as const).map((sensorType) => {
               const config = getSensorConfig(sensorType);
               const minField = `${sensorType}_min` as keyof ThresholdValues;
@@ -344,8 +344,8 @@ const OffsetModal: React.FC<OffsetModalProps> = ({
               
               return (
                 <Card key={sensorType} className={config.color}>
-                  <CardHeader className="pb-4">
-                    <CardTitle className="text-lg flex items-center justify-between">
+                  <CardHeader className="pb-3 sm:pb-4">
+                    <CardTitle className="text-base sm:text-lg flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         {config.icon}
                         {config.title}
@@ -356,14 +356,14 @@ const OffsetModal: React.FC<OffsetModalProps> = ({
                         </Badge>
                       )}
                     </CardTitle>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-xs sm:text-sm text-gray-600">
                       {config.description}
                     </p>
                   </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                  <CardContent className="space-y-3 sm:space-y-4">
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
                       <div>
-                        <Label className="text-sm font-medium">
+                        <Label className="text-xs sm:text-sm font-medium">
                           Minimum {config.unit}
                         </Label>
                         <Input
@@ -376,7 +376,7 @@ const OffsetModal: React.FC<OffsetModalProps> = ({
                         />
                       </div>
                       <div>
-                        <Label className="text-sm font-medium">
+                        <Label className="text-xs sm:text-sm font-medium">
                           Maksimum {config.unit}
                         </Label>
                         <Input
@@ -390,8 +390,8 @@ const OffsetModal: React.FC<OffsetModalProps> = ({
                       </div>
                     </div>
 
-                    {/* Quick Actions */}
-                    <div className="flex gap-2">
+                    {/* Quick Actions - Stacked on mobile */}
+                    <div className="flex flex-col sm:flex-row gap-2">
                       <Button 
                         size="sm" 
                         variant="outline"
@@ -399,7 +399,8 @@ const OffsetModal: React.FC<OffsetModalProps> = ({
                         className="flex-1 text-xs"
                       >
                         <Settings className="h-3 w-3 mr-1" />
-                        Gunakan Rekomendasi
+                        <span className="hidden xs:inline">Gunakan Rekomendasi</span>
+                        <span className="xs:hidden">Rekomendasi</span>
                       </Button>
                       <Button 
                         size="sm" 
@@ -413,7 +414,7 @@ const OffsetModal: React.FC<OffsetModalProps> = ({
                     </div>
 
                     {/* Current vs Recommended */}
-                    <div className="text-xs text-gray-600 bg-white/50 p-2 rounded">
+                    <div className="text-[11px] sm:text-xs text-gray-600 bg-white/50 p-2 rounded">
                       <div className="flex justify-between">
                         <span>Rekomendasi:</span>
                         <span className="font-mono">
@@ -459,7 +460,7 @@ const OffsetModal: React.FC<OffsetModalProps> = ({
 
           {/* Error Message */}
           {error && (
-            <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg leading-relaxed">
               <AlertCircle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
               <div className="text-sm">
                 <div className="font-medium text-red-800 mb-1">
@@ -474,7 +475,7 @@ const OffsetModal: React.FC<OffsetModalProps> = ({
 
           {/* Success Message */}
           {success && (
-            <div className="flex items-start gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="flex items-start gap-3 p-4 bg-green-50 border border-green-200 rounded-lg leading-relaxed">
               <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
               <div className="text-sm">
                 <div className="font-medium text-green-800 mb-1">
@@ -488,30 +489,31 @@ const OffsetModal: React.FC<OffsetModalProps> = ({
             </div>
           )}
 
-          {/* Action Buttons */}
-          <div className="flex justify-between items-center pt-6 border-t">
+          {/* Action Buttons - Stacked on mobile */}
+          <div className="flex flex-col sm:flex-row justify-between items-center pt-6 border-t gap-4">
             <Button 
               variant="outline" 
               onClick={clearAll}
               disabled={isSubmitting}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 w-full sm:w-auto"
             >
               <RotateCcw className="h-4 w-4" />
               Reset Semua
             </Button>
             
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
               <Button 
                 variant="outline" 
                 onClick={onClose} 
                 disabled={isSubmitting}
+                className="w-full sm:w-auto"
               >
                 Batal
               </Button>
               <Button 
                 onClick={handleSubmit}
                 disabled={isSubmitting || !isFormValid}
-                className="min-w-[140px] h-11"
+                className="min-w-[140px] h-11 w-full sm:w-auto"
               >
                 {isSubmitting ? (
                   <>

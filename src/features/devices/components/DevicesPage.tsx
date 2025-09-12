@@ -1,11 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { DevicesList } from './DevicesList';
-import { 
-  AddDeviceModal, 
-  EditDeviceModal, 
-  DeviceDetailsModal, 
-  DeleteConfirmModal 
-} from './modals';
+import { AddDeviceModal, EditDeviceModal, DeviceDetailsModal, DeleteConfirmModal } from './modals';
 import { useDevicesQuery } from '../hooks/useDevicesQuery';
 import { useDevicePagination } from '../hooks/useDevicePagination';
 import { DeviceErrorBoundary } from './ErrorBoundary';
@@ -18,27 +13,14 @@ export interface DevicesPageProps {
 }
 
 export const DevicesPage: React.FC<DevicesPageProps> = ({ className }) => {
-  // Pagination and search state
-  const { 
-    pagination, 
-    queryParams, 
-    setPage, 
-    setSearch, 
-    updatePaginationFromResponse 
-  } = useDevicePagination({
-    defaultLimit: 12, // Show more devices per page for grid layout
-    enableUrlSync: true,
-  });
+  const { pagination, queryParams, setPage, setSearch, updatePaginationFromResponse } =
+    useDevicePagination({
+      defaultLimit: 12,
+      enableUrlSync: true,
+    });
 
-  // Fetch devices data
-  const { 
-    data: devicesResponse, 
-    isLoading, 
-    error,
-    refetch 
-  } = useDevicesQuery(queryParams);
+  const { data: devicesResponse, isLoading, error, refetch } = useDevicesQuery(queryParams);
 
-  // Modal state management
   const [modalState, setModalState] = useState<DeviceModalState>({
     isAddModalOpen: false,
     isEditModalOpen: false,
@@ -47,16 +29,14 @@ export const DevicesPage: React.FC<DevicesPageProps> = ({ className }) => {
     selectedDevice: null,
   });
 
-  // Update pagination when response changes
   React.useEffect(() => {
     if (devicesResponse?.pagination) {
       updatePaginationFromResponse(devicesResponse);
     }
   }, [devicesResponse, updatePaginationFromResponse]);
 
-  // Modal control functions
   const openAddModal = useCallback(() => {
-    setModalState(prev => ({
+    setModalState((prev) => ({
       ...prev,
       isAddModalOpen: true,
       selectedDevice: null,
@@ -64,7 +44,7 @@ export const DevicesPage: React.FC<DevicesPageProps> = ({ className }) => {
   }, []);
 
   const openEditModal = useCallback((device: Device) => {
-    setModalState(prev => ({
+    setModalState((prev) => ({
       ...prev,
       isEditModalOpen: true,
       selectedDevice: device,
@@ -72,7 +52,7 @@ export const DevicesPage: React.FC<DevicesPageProps> = ({ className }) => {
   }, []);
 
   const openDetailsModal = useCallback((device: Device) => {
-    setModalState(prev => ({
+    setModalState((prev) => ({
       ...prev,
       isDetailsModalOpen: true,
       selectedDevice: device,
@@ -80,7 +60,7 @@ export const DevicesPage: React.FC<DevicesPageProps> = ({ className }) => {
   }, []);
 
   const openDeleteModal = useCallback((device: Device) => {
-    setModalState(prev => ({
+    setModalState((prev) => ({
       ...prev,
       isDeleteModalOpen: true,
       selectedDevice: device,
@@ -97,44 +77,56 @@ export const DevicesPage: React.FC<DevicesPageProps> = ({ className }) => {
     });
   }, []);
 
-  // Handle modal success callbacks
   const handleModalSuccess = useCallback(() => {
-    refetch(); // Refresh devices list
+    refetch();
     closeAllModals();
   }, [refetch, closeAllModals]);
 
-  // Device action handlers
-  const handleDeviceClick = useCallback((device: Device) => {
-    openDetailsModal(device);
-  }, [openDetailsModal]);
+  const handleDeviceClick = useCallback(
+    (device: Device) => {
+      openDetailsModal(device);
+    },
+    [openDetailsModal],
+  );
 
-  const handleEditDevice = useCallback((device: Device) => {
-    openEditModal(device);
-  }, [openEditModal]);
+  const handleEditDevice = useCallback(
+    (device: Device) => {
+      openEditModal(device);
+    },
+    [openEditModal],
+  );
 
-  const handleDeleteDevice = useCallback((device: Device) => {
-    openDeleteModal(device);
-  }, [openDeleteModal]);
+  const handleDeleteDevice = useCallback(
+    (device: Device) => {
+      openDeleteModal(device);
+    },
+    [openDeleteModal],
+  );
 
-  const handleViewDetails = useCallback((device: Device) => {
-    openDetailsModal(device);
-  }, [openDetailsModal]);
+  const handleViewDetails = useCallback(
+    (device: Device) => {
+      openDetailsModal(device);
+    },
+    [openDetailsModal],
+  );
 
-  // Search handler
-  const handleSearchChange = useCallback((value: string) => {
-    setSearch(value);
-  }, [setSearch]);
+  const handleSearchChange = useCallback(
+    (value: string) => {
+      setSearch(value);
+    },
+    [setSearch],
+  );
 
-  // Page change handler
-  const handlePageChange = useCallback((page: number) => {
-    setPage(page);
-  }, [setPage]);
+  const handlePageChange = useCallback(
+    (page: number) => {
+      setPage(page);
+    },
+    [setPage],
+  );
 
-  // Enhanced error handling
   const deviceError = error ? (error instanceof DeviceError ? error : parseApiError(error)) : null;
   const isInitialLoading = isLoading && !devicesResponse;
 
-  // Handle retry with proper error handling
   const handleRetry = useCallback(async () => {
     try {
       await refetch();
@@ -146,24 +138,13 @@ export const DevicesPage: React.FC<DevicesPageProps> = ({ className }) => {
   return (
     <DeviceErrorBoundary>
       <div className={className}>
-        {/* Enhanced error display */}
         {deviceError && !isInitialLoading && (
-          <ErrorDisplay
-            error={deviceError}
-            onRetry={handleRetry}
-            className="mb-6"
-          />
+          <ErrorDisplay error={deviceError} onRetry={handleRetry} className="mb-6" />
         )}
 
-        {/* Loading error state for initial load */}
         {deviceError && isInitialLoading ? (
-          <LoadingError
-            error={deviceError}
-            onRetry={handleRetry}
-            loading={isLoading}
-          />
+          <LoadingError error={deviceError} onRetry={handleRetry} loading={isLoading} />
         ) : (
-          /* Main devices list */
           <DevicesList
             devices={devicesResponse?.data || []}
             pagination={pagination}
@@ -179,7 +160,6 @@ export const DevicesPage: React.FC<DevicesPageProps> = ({ className }) => {
           />
         )}
 
-        {/* Add Device Modal */}
         <DeviceErrorBoundary>
           <AddDeviceModal
             isOpen={modalState.isAddModalOpen}
@@ -188,7 +168,6 @@ export const DevicesPage: React.FC<DevicesPageProps> = ({ className }) => {
           />
         </DeviceErrorBoundary>
 
-        {/* Edit Device Modal */}
         <DeviceErrorBoundary>
           <EditDeviceModal
             isOpen={modalState.isEditModalOpen}
@@ -198,18 +177,16 @@ export const DevicesPage: React.FC<DevicesPageProps> = ({ className }) => {
           />
         </DeviceErrorBoundary>
 
-        {/* Device Details Modal */}
         <DeviceErrorBoundary>
           <DeviceDetailsModal
             isOpen={modalState.isDetailsModalOpen}
             onClose={closeAllModals}
-            deviceId={modalState.selectedDevice?.device_id || null} // Changed from device_name to device_id
+            deviceId={modalState.selectedDevice?.device_id || null}
             onEdit={handleEditDevice}
             onDelete={handleDeleteDevice}
           />
         </DeviceErrorBoundary>
 
-        {/* Delete Confirmation Modal */}
         <DeviceErrorBoundary>
           <DeleteConfirmModal
             isOpen={modalState.isDeleteModalOpen}

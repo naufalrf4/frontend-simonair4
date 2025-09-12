@@ -31,8 +31,17 @@ export function RouteGuard({
   }
   
   if (isProtected && isAuthenticated && allowedRoles.length > 0) {
-    const userRole = user?.role as UserRole;
-    if (!userRole || !allowedRoles.includes(userRole)) {
+    // If profile not loaded yet, keep showing fallback instead of redirecting
+    if (!user) {
+      return <>{fallback}</>;
+    }
+
+    // Normalize role values: treat 'superadmin' as 'superuser'
+    const rawRole = (user.role || '').toString().toLowerCase();
+    const normalizedRole = (rawRole === 'superadmin') ? 'superuser' : rawRole;
+    const allowed = allowedRoles.map((r) => r.toLowerCase());
+
+    if (!normalizedRole || !allowed.includes(normalizedRole as UserRole)) {
       if (onUnauthorized) {
         onUnauthorized();
       }

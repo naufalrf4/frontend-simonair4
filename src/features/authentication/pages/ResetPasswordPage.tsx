@@ -29,14 +29,14 @@ const resetPasswordSchema = z
   .object({
     password: z
       .string()
-      .min(8, { message: 'Kata sandi minimal 8 karakter' })
+      .min(8, { message: 'Password must be at least 8 characters' })
       .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, {
-        message: 'Kata sandi harus mengandung huruf besar, huruf kecil, angka, dan karakter khusus',
+        message: 'Password must contain uppercase, lowercase, number, and special character',
       }),
-    confirmPassword: z.string().min(8, { message: 'Konfirmasi sandi minimal 8 karakter' }),
+    confirmPassword: z.string().min(8, { message: 'Confirm password must be at least 8 characters' }),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: 'Konfirmasi sandi tidak cocok',
+    message: 'Confirm password does not match',
     path: ['confirmPassword'],
   });
 
@@ -64,10 +64,10 @@ export function ResetPasswordPage() {
       }
 
       try {
-        const valid = await validateResetToken(token); // Panggil dari context
+        const valid = await validateResetToken(token);
         setIsTokenValid(valid);
         if (!valid) {
-          toast.error('Token tidak valid atau kadaluarsa');
+          toast.error('Token is invalid or expired');
           navigate({ to: '/forgot-password', replace: true });
         }
       } catch {
@@ -81,17 +81,17 @@ export function ResetPasswordPage() {
   const onSubmit = async (values: ResetPasswordValues) => {
     if (!token) {
       form.setError('root', {
-        message: 'Token tidak valid.',
+        message: 'Token is invalid.',
       });
       return;
     }
     try {
-      await resetPassword(token, values.password, values.confirmPassword); // Panggil dari context
-      toast.success('Password berhasil diubah. Silakan login.');
+      await resetPassword(token, values.password, values.confirmPassword);
+      toast.success('Password successfully changed. Please log in.');
       navigate({ to: '/login', replace: true });
     } catch (error: any) {
       form.setError('root', {
-        message: error?.response?.data?.message || 'Gagal reset password. Coba lagi.',
+        message: error?.response?.data?.message || 'Failed to reset password. Please try again.',
       });
     }
   };
@@ -117,11 +117,11 @@ export function ResetPasswordPage() {
             <div className="flex flex-col items-center gap-2">
               <AlertCircle className="w-10 h-10 text-destructive drop-shadow" />
               <CardTitle className="text-2xl font-bold text-center text-destructive drop-shadow-md">
-                Token Tidak Valid
+                Invalid Token
               </CardTitle>
             </div>
             <CardDescription className="text-center text-base font-normal text-muted-foreground">
-              Link reset password tidak valid atau sudah kedaluwarsa.
+              The reset password link is invalid or has expired.
             </CardDescription>
           </CardHeader>
           <CardFooter className="flex flex-col items-center gap-2 pb-6 pt-2">
@@ -129,7 +129,7 @@ export function ResetPasswordPage() {
               onClick={() => navigate({ to: '/forgot-password' })}
               className="w-full bg-primary hover:bg-primary/90"
             >
-              Kirim Ulang Link Reset
+              Resend Reset Link
             </Button>
           </CardFooter>
         </Card>
@@ -145,11 +145,11 @@ export function ResetPasswordPage() {
           <div className="flex flex-col items-center gap-2">
             <Lock className="w-10 h-10 text-primary drop-shadow" />
             <CardTitle className="text-2xl font-bold text-center text-primary drop-shadow-md">
-              Reset Kata Sandi
+              Reset Password
             </CardTitle>
           </div>
           <CardDescription className="text-center text-base font-normal text-muted-foreground">
-            Masukkan kata sandi baru Anda.
+            Enter your new password.
           </CardDescription>
         </CardHeader>
 
@@ -162,7 +162,7 @@ export function ResetPasswordPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-semibold text-primary flex items-center gap-1">
-                      Kata Sandi Baru
+                      New Password
                       <span className="text-primary text-base font-bold">*</span>
                     </FormLabel>
                     <div className="relative group">
@@ -173,9 +173,9 @@ export function ResetPasswordPage() {
                         <Input
                           {...field}
                           type="password"
-                          placeholder="Kata sandi baru"
+                          placeholder="New password"
                           className="bg-background border-input focus:border-primary focus:ring-2 focus:ring-primary/30 py-5 pl-11 text-base rounded-md outline-none transition-all"
-                          aria-label="Kata Sandi Baru"
+                          aria-label="New Password"
                           autoComplete="new-password"
                         />
                       </FormControl>
@@ -191,7 +191,7 @@ export function ResetPasswordPage() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-sm font-semibold text-primary flex items-center gap-1">
-                      Konfirmasi Kata Sandi
+                      Confirm Password
                       <span className="text-primary text-base font-bold">*</span>
                     </FormLabel>
                     <div className="relative group">
@@ -202,9 +202,9 @@ export function ResetPasswordPage() {
                         <Input
                           {...field}
                           type="password"
-                          placeholder="Ulangi kata sandi baru"
+                          placeholder="Repeat new password"
                           className="bg-background border-input focus:border-primary focus:ring-2 focus:ring-primary/30 py-5 pl-11 text-base rounded-md outline-none transition-all"
-                          aria-label="Konfirmasi Kata Sandi"
+                          aria-label="Confirm Password"
                           autoComplete="new-password"
                         />
                       </FormControl>
@@ -250,7 +250,7 @@ export function ResetPasswordPage() {
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       ></path>
                     </svg>
-                    <span>Memproses...</span>
+                    <span>Processing...</span>
                   </div>
                 ) : (
                   <>

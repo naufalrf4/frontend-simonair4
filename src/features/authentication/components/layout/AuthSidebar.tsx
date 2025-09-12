@@ -1,4 +1,4 @@
-import { Fish, Waves, Thermometer, BellRing } from 'lucide-react';
+import { Fish, Waves, Thermometer, FlaskConical, Droplets, Activity } from 'lucide-react';
 import FeatureCard from './FeatureCard';
 
 export default function AuthSidebar() {
@@ -32,24 +32,31 @@ export default function AuthSidebar() {
           </p>
           <div className="flex flex-wrap justify-center gap-4 mt-6">
             <FeatureCard
-              icon={<Waves className="w-6 h-6 text-accent" />}
-              label="Live Sensor Logs"
-            />
-            <FeatureCard
               icon={<Thermometer className="w-6 h-6 text-accent" />}
-              label="Temperature & pH"
+              label="Temperature"
             />
             <FeatureCard
-              icon={<BellRing className="w-6 h-6 text-accent" />}
-              label="Threshold Alerts"
+              icon={<FlaskConical className="w-6 h-6 text-accent" />}
+              label="pH"
+            />
+            <FeatureCard
+              icon={<Droplets className="w-6 h-6 text-accent" />}
+              label="TDS"
+            />
+            <FeatureCard
+              icon={<Fish className="w-6 h-6 text-accent" />}
+              label="Dissolved Oxygen"
+            />
+            <FeatureCard
+              icon={<Activity className="w-6 h-6 text-accent" />}
+              label="Live Sensor Logs"
             />
           </div>
         </div>
       </div>
       <footer className="absolute bottom-6 left-0 w-full text-center text-primary-foreground/70 text-xs sm:text-sm tracking-wide z-10">
-        © {new Date().getFullYear()} Simonair 4.0 ·{' '}
-        <span className="font-semibold text-accent">TEK 59</span> Sekolah Vokasi IPB. All rights
-        reserved.
+        © {new Date().getFullYear()}
+        <span className="font-semibold text-accent"> Simonair 4.0 · </span> All rights reserved.
       </footer>
     </aside>
   );

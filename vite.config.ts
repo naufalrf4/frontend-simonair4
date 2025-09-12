@@ -47,5 +47,13 @@ export default defineConfig({
   },
   server: {
     fs: { strict: true },
+    proxy: {
+      // Dev-only proxy to backend to simplify cookies/CORS for auth endpoints
+      '/auth': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
 })

@@ -38,7 +38,7 @@ const DeviceHeader: React.FC<DeviceHeaderProps> = ({ device, onCalibrateClick, o
                 variant={calibrationStatus.percentage === 100 ? "default" : "secondary"}
                 className="text-xs font-medium px-3 py-1 rounded-full shadow-sm"
               >
-                {calibrationStatus.percentage}% Terkalibrasi
+                {calibrationStatus.percentage}% Calibrated
               </Badge>
             )}
           </div>
@@ -66,14 +66,14 @@ const DeviceHeader: React.FC<DeviceHeaderProps> = ({ device, onCalibrateClick, o
               disabled={!device.online}
             >
               <Wrench className="h-4 w-4 text-blue-600 mr-2" />
-              <span>Kalibrasi Sensor</span>
+              <span>Calibrate Sensor</span>
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={onOffsetClick}
               disabled={!device.online}
             >
               <Sliders className="h-4 w-4 text-purple-600 mr-2" />
-              <span>Atur Threshold</span>
+              <span>Set Threshold</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

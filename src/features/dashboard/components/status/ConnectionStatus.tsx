@@ -16,7 +16,7 @@ const ConnectionStatus: React.FC<ConnectionStatusProps> = ({ device }) => {
           <WifiOff className="h-4 w-4 text-red-500" />
         )}
         <span className={`font-semibold ${device.online ? 'text-emerald-600' : 'text-red-600'}`}>
-          {device.online ? 'Terhubung' : 'Terputus'}
+          {device.online ? 'Connected' : 'Disconnected'}
         </span>
       </div>
       <div className="flex items-center gap-2 text-gray-600">

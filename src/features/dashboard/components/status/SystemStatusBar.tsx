@@ -1,6 +1,3 @@
-// @/src/features/dashboard/SystemStatusBar.tsx   
-// REFACTORED: Extracted from UserDashboard.tsx for SoC - Handles system status display
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Wifi, Activity, Clock } from 'lucide-react';
@@ -13,7 +10,6 @@ interface SystemStatusBarProps {
   lastUpdate: string;
 }
 
-// Internal ConnectionStatus sub-component for reuse
 const ConnectionStatus = ({ isConnected }: { isConnected: boolean }) => (
   <div className="flex items-center gap-2">
     <div className={cn(
@@ -24,7 +20,7 @@ const ConnectionStatus = ({ isConnected }: { isConnected: boolean }) => (
       "text-sm font-semibold",
       isConnected ? 'text-emerald-600' : 'text-red-600'
     )}>
-      {isConnected ? 'Terhubung' : 'Terputus'}
+      {isConnected ? 'Connected' : 'Disconnected'}
     </span>
   </div>
 );
@@ -40,7 +36,7 @@ const SystemStatusBar: React.FC<SystemStatusBarProps> = ({ isConnected, onlineDe
               <Wifi className="h-6 w-6 text-blue-600" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-600 mb-1">Koneksi</p>
+              <p className="text-sm font-semibold text-gray-600 mb-1">Connection</p>
               <ConnectionStatus isConnected={isConnected} />
             </div>
           </div>
@@ -50,7 +46,7 @@ const SystemStatusBar: React.FC<SystemStatusBarProps> = ({ isConnected, onlineDe
               <Activity className="h-6 w-6 text-emerald-600" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-600 mb-1">Perangkat Online</p>
+              <p className="text-sm font-semibold text-gray-600 mb-1">Device Online</p>
               <p className="text-lg font-bold text-gray-800">
                 {onlineDevices}/{totalDevices}
               </p>
@@ -62,8 +58,8 @@ const SystemStatusBar: React.FC<SystemStatusBarProps> = ({ isConnected, onlineDe
               <Clock className="h-6 w-6 text-purple-600" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-gray-600 mb-1">Terakhir</p>
-              <p className="text-base font-bold text-gray-800">{lastUpdate || 'Menunggu...'}</p>
+              <p className="text-sm font-semibold text-gray-600 mb-1">Last Seen</p>
+              <p className="text-base font-bold text-gray-800">{lastUpdate || 'Waiting...'}</p>
             </div>
             </div>
         </div>

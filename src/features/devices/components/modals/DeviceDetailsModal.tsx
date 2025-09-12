@@ -20,7 +20,6 @@ import {
   Ruler, 
   Fish, 
   Droplets,
-  Thermometer,
   Activity,
   User
 } from 'lucide-react';
@@ -28,8 +27,6 @@ import { useDeviceQuery } from '../../hooks/useDevicesQuery';
 import StatusDot from '../../../dashboard/components/status/StatusDot';
 import { 
   formatDeviceStatus, 
-  formatSensorValue, 
-  formatTimestamp, 
   parseAquariumSize, 
   formatAquariumVolume 
 } from '../../utils/deviceFormatters';
@@ -74,117 +71,34 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
     }
   };
 
-  const renderSensorData = () => {
-    if (!device?.latestSensorData) {
-      return (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5" />
-              {DEVICE_MESSAGES.SENSOR_DATA}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8">
-              <Activity className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">
-                Data sensor tidak tersedia
-              </p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Perangkat mungkin offline atau belum mengirim data
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      );
+  // Format date in English with WIB suffix for this page
+  const formatWIB = (dateString?: string | null) => {
+    if (!dateString) return '-';
+    try {
+      const d = new Date(dateString);
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Jakarta',
+        weekday: 'long',
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      });
+      // Example: Monday, 08 September 2025 16:00 WIB
+      const parts = formatter.formatToParts(d);
+      const get = (type: string) => parts.find((p) => p.type === type)?.value || '';
+      const weekday = get('weekday');
+      const day = get('day');
+      const month = get('month');
+      const year = get('year');
+      const hour = get('hour');
+      const minute = get('minute');
+      return `${weekday}, ${day} ${month} ${year} ${hour}:${minute} WIB`;
+    } catch {
+      return dateString || '-';
     }
-
-    const sensorData = device.latestSensorData;
-    const sensors = [
-      {
-        label: DEVICE_MESSAGES.PH_LEVEL,
-        value: sensorData.ph,
-        unit: DEVICE_MESSAGES.SENSOR_UNITS.PH,
-        icon: Droplets,
-        bgColor: 'bg-gradient-to-br from-blue-50 to-blue-100',
-        borderColor: 'border-blue-200',
-        textColor: 'text-blue-800',
-        iconColor: 'text-blue-600',
-        labelColor: 'text-blue-700',
-      },
-      {
-        label: DEVICE_MESSAGES.TDS,
-        value: sensorData.tds,
-        unit: DEVICE_MESSAGES.SENSOR_UNITS.TDS,
-        icon: Droplets,
-        bgColor: 'bg-gradient-to-br from-green-50 to-green-100',
-        borderColor: 'border-green-200',
-        textColor: 'text-green-800',
-        iconColor: 'text-green-600',
-        labelColor: 'text-green-700',
-      },
-      {
-        label: DEVICE_MESSAGES.DISSOLVED_OXYGEN,
-        value: sensorData.do,
-        unit: DEVICE_MESSAGES.SENSOR_UNITS.DISSOLVED_OXYGEN,
-        icon: Activity,
-        bgColor: 'bg-gradient-to-br from-cyan-50 to-cyan-100',
-        borderColor: 'border-cyan-200',
-        textColor: 'text-cyan-800',
-        iconColor: 'text-cyan-600',
-        labelColor: 'text-cyan-700',
-      },
-      {
-        label: DEVICE_MESSAGES.TEMPERATURE,
-        value: sensorData.temperature,
-        unit: DEVICE_MESSAGES.SENSOR_UNITS.TEMPERATURE,
-        icon: Thermometer,
-        bgColor: 'bg-gradient-to-br from-orange-50 to-orange-100',
-        borderColor: 'border-orange-200',
-        textColor: 'text-orange-800',
-        iconColor: 'text-orange-600',
-        labelColor: 'text-orange-700',
-      },
-    ];
-
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="h-5 w-5" />
-            {DEVICE_MESSAGES.SENSOR_DATA}
-            {device.online && (
-              <Badge variant="secondary" className="ml-auto text-emerald-600 border-emerald-200">
-                Live
-              </Badge>
-            )}
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Terakhir diperbarui: {formatTimestamp(sensorData.timestamp)}
-          </p>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {sensors.map((sensor) => {
-              const Icon = sensor.icon;
-              if (sensor.value === undefined || sensor.value === null) return null;
-              
-              return (
-                <div key={sensor.label} className={`p-4 rounded-lg border ${sensor.bgColor} ${sensor.borderColor}`}>
-                  <div className="flex items-center gap-3 mb-2">
-                    <Icon className={`h-5 w-5 ${sensor.iconColor}`} />
-                    <span className={`text-sm font-medium ${sensor.labelColor}`}>{sensor.label}</span>
-                  </div>
-                  <div className={`text-2xl font-bold ${sensor.textColor}`}>
-                    {formatSensorValue(sensor.value, sensor.unit, 1)}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </CardContent>
-      </Card>
-    );
   };
 
   const renderDeviceInfo = () => {
@@ -203,24 +117,24 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-muted-foreground" />
                 <div>
-                  <p className="text-sm font-medium">Nama Perangkat</p>
-                  <p className="text-sm text-muted-foreground">{device.device_name}</p>
+                    <p className="text-sm font-medium">Device Name</p>
+                    <p className="text-sm text-muted-foreground">{device.device_name}</p>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <Activity className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <p className="text-sm font-medium">ID Perangkat</p>
-                  <p className="text-sm text-muted-foreground font-mono">{device.device_id}</p>
+                
+                <div className="flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium">Device ID</p>
+                    <p className="text-sm text-muted-foreground font-mono">{device.device_id}</p>
+                  </div>
                 </div>
-              </div>
 
               {device.location && (
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
                   <div>
-                    <p className="text-sm font-medium">Lokasi</p>
+                    <p className="text-sm font-medium">Location</p>
                     <p className="text-sm text-muted-foreground">{device.location}</p>
                   </div>
                 </div>
@@ -232,7 +146,7 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
                 <div className="flex items-center gap-2">
                   <Ruler className="h-4 w-4 text-muted-foreground" />
                   <div>
-                    <p className="text-sm font-medium">Ukuran Akuarium</p>
+                    <p className="text-sm font-medium">Aquarium Size</p>
                     <p className="text-sm text-muted-foreground">
                       {device.aquarium_size}
                     </p>
@@ -247,8 +161,8 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
                 <div className="flex items-center gap-2">
                   <Fish className="h-4 w-4 text-muted-foreground" />
                   <div>
-                    <p className="text-sm font-medium">Jumlah Ikan</p>
-                    <p className="text-sm text-muted-foreground">{device.fish_count} ekor</p>
+                    <p className="text-sm font-medium">Fish Count</p>
+                    <p className="text-sm text-muted-foreground">{device.fish_count}</p>
                   </div>
                 </div>
               )}
@@ -257,7 +171,7 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
                 <div className="flex items-center gap-2">
                   <Droplets className="h-4 w-4 text-muted-foreground" />
                   <div>
-                    <p className="text-sm font-medium">Jenis Kaca</p>
+                    <p className="text-sm font-medium">Glass Type</p>
                     <p className="text-sm text-muted-foreground">{device.glass_type}</p>
                   </div>
                 </div>
@@ -281,7 +195,7 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
             ) : (
               <WifiOff className="h-5 w-5 text-red-500" />
             )}
-            Status Koneksi
+            Connection Status
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -293,12 +207,12 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
                   {formatDeviceStatus(device.online, device.last_seen)}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {device.online ? 'Perangkat sedang online' : 'Perangkat sedang offline'}
+                  {device.online ? 'Device is online' : 'Device is offline'}
                 </p>
               </div>
             </div>
             <Badge variant={device.online ? 'default' : 'secondary'}>
-              {device.online ? DEVICE_MESSAGES.STATUS_ONLINE : DEVICE_MESSAGES.STATUS_OFFLINE}
+              {device.online ? 'Online' : 'Offline'}
             </Badge>
           </div>
           
@@ -306,19 +220,14 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
           
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Terakhir Terlihat:</span>
-              <span>{formatTimestamp(device.last_seen)}</span>
+              <span className="text-muted-foreground">Last Seen:</span>
+              <span>{formatWIB(device.last_seen)}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Dibuat:</span>
-              <span>{formatTimestamp(device.created_at)}</span>
+              <span className="text-muted-foreground">Created:</span>
+              <span>{formatWIB(device.created_at)}</span>
             </div>
-            {device.updated_at && (
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Terakhir Diperbarui:</span>
-                <span>{formatTimestamp(device.updated_at)}</span>
-              </div>
-            )}
+            {/* Removed Last Updated to avoid duplication with Last Seen */}
           </div>
         </CardContent>
       </Card>
@@ -330,14 +239,14 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Kesalahan Memuat Perangkat</DialogTitle>
+            <DialogTitle>Failed to Load Device</DialogTitle>
             <DialogDescription>
-              Gagal memuat detail perangkat. Silakan coba lagi.
+              Unable to load device details. Please try again.
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-center py-8">
             <Button onClick={() => refetch()} variant="outline">
-              Coba Lagi
+              Retry
             </Button>
           </div>
         </DialogContent>
@@ -351,18 +260,18 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {isLoading ? (
-              'Memuat Detail Perangkat...'
+              'Loading Device Details...'
             ) : (
               <>
                 <StatusDot online={device?.online || false} size="sm" />
-                {device?.device_name || 'Detail Perangkat'}
+                {device?.device_name || 'Device Details'}
               </>
             )}
           </DialogTitle>
           <DialogDescription>
             {isLoading 
-              ? 'Harap tunggu sementara kami mengambil informasi perangkat.'
-              : 'Informasi lengkap tentang perangkat monitoring akuarium Anda.'
+              ? 'Please wait while we fetch the device information.'
+              : 'Complete information about your aquarium monitoring device.'
             }
           </DialogDescription>
         </DialogHeader>
@@ -378,7 +287,6 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
         ) : device ? (
           <div className="space-y-6">
             {renderConnectionStatus()}
-            {renderSensorData()}
             {renderDeviceInfo()}
           </div>
         ) : null}
@@ -393,10 +301,10 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
                 disabled={isLoading}
               >
                 <Edit className="h-4 w-4 mr-2" />
-                {DEVICE_MESSAGES.EDIT_DEVICE}
+                Edit Device
               </Button>
             )}
-            {device && onDelete && (
+            {/* {device && onDelete && (
               <Button
                 onClick={handleDelete}
                 variant="destructive"
@@ -404,12 +312,12 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
                 disabled={isLoading}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
-                {DEVICE_MESSAGES.DELETE_DEVICE}
+                Delete Device
               </Button>
-            )}
+            )} */}
           </div>
           <Button onClick={onClose} variant="secondary" className="w-full sm:w-auto">
-            {DEVICE_MESSAGES.CANCEL}
+            Close
           </Button>
         </DialogFooter>
       </DialogContent>

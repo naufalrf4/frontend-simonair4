@@ -179,7 +179,7 @@ export const DevicesList: React.FC<DevicesListProps> = ({
           <span>{offlineCount} {DEVICE_MESSAGES.STATUS_OFFLINE.toLowerCase()}</span>
         </div>
         <div>
-          Total: {pagination.total} perangkat
+          Total: {pagination.total} devices
         </div>
       </div>
     );

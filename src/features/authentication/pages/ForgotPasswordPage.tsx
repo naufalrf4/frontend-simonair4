@@ -26,7 +26,7 @@ import { toast } from 'sonner';
 import { useAuth } from '../hooks/useAuth';
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email({ message: 'Format email tidak valid' }),
+  email: z.string().email({ message: 'Invalid email format' }),
 });
 type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
 
@@ -47,10 +47,10 @@ export function ForgotPasswordPage() {
     try {
       await forgotPassword(values.email);
       setEmailSent(true);
-      toast.success('Link reset password telah dikirim ke email jika terdaftar.');
+      toast.success('Password reset link has been sent to your email if registered.');
     } catch (error) {
       form.setError('root', {
-        message: 'Terjadi kesalahan, coba lagi.',
+        message: 'An error occurred, please try again.',
       });
     } finally {
       setIsLoading(false);
@@ -66,11 +66,11 @@ export function ForgotPasswordPage() {
           <div className="flex flex-col items-center gap-2">
             <Mail className="w-10 h-10 text-primary drop-shadow" />
             <CardTitle className="text-2xl font-bold text-center text-primary drop-shadow-md">
-              Lupa Kata Sandi
+              Forgot Password
             </CardTitle>
           </div>
           <CardDescription className="text-center text-base font-normal text-muted-foreground">
-            Masukkan email akun Anda, kami akan mengirim link reset password.
+            Enter your account email, we will send a password reset link.
           </CardDescription>
         </CardHeader>
 
@@ -80,10 +80,10 @@ export function ForgotPasswordPage() {
               <div className="flex flex-col items-center gap-2">
                 <ArrowRight className="w-7 h-7 mb-1 text-accent" />
                 <span className="font-semibold text-base">
-                  Cek email Anda untuk link reset password.
+                  Check your email for the password reset link.
                 </span>
                 <span className="text-sm text-muted-foreground">
-                  Belum menerima email? Periksa folder spam/junk.
+                  Didn't receive the email? Check your spam/junk folder.
                 </span>
               </div>
             </div>
@@ -107,7 +107,7 @@ export function ForgotPasswordPage() {
                           <Input
                             {...field}
                             type="email"
-                            placeholder="Masukkan email Anda"
+                            placeholder="Enter your email"
                             className="bg-background border-input focus:border-primary focus:ring-2 focus:ring-primary/30 py-5 pl-11 text-base rounded-md outline-none transition-all"
                             aria-label="Email"
                             autoComplete="email"
@@ -130,7 +130,7 @@ export function ForgotPasswordPage() {
                   type="submit"
                   className="w-full bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 py-5 text-base font-semibold rounded-md shadow-sm hover:shadow mt-2 flex items-center justify-center gap-2 focus:ring-2 focus:ring-primary/30"
                   disabled={isLoading}
-                  aria-label="Kirim Email Reset"
+                  aria-label="Send Reset Email"
                 >
                   {isLoading ? (
                     <div className="flex items-center justify-center" aria-hidden="true">
@@ -155,11 +155,11 @@ export function ForgotPasswordPage() {
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         ></path>
                       </svg>
-                      <span>Kirim...</span>
+                      <span>Sending...</span>
                     </div>
                   ) : (
                     <>
-                      <span>Kirim Email Reset</span>
+                      <span>Send Reset Email</span>
                       <ArrowRight size={20} className="ml-1" />
                     </>
                   )}
@@ -171,12 +171,12 @@ export function ForgotPasswordPage() {
 
         <CardFooter className="flex flex-col items-center gap-2 pb-6 pt-2">
           <span className="text-base text-muted-foreground">
-            Ingat password?{' '}
+            Remember password?{' '}
             <Link
               to="/login"
               className="text-primary font-semibold hover:underline focus:underline transition-colors"
             >
-              Masuk disini
+              Login here
             </Link>
           </span>
         </CardFooter>

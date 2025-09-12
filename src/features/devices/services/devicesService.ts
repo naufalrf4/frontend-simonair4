@@ -12,62 +12,101 @@ import {
   DeviceErrorType,
   isRetryableError,
   calculateRetryDelay,
+  getMaxRetryCount,
   sleep,
+  createErrorContext,
+  logErrorWithContext,
+  deviceCircuitBreaker,
   RETRY_CONFIG,
 } from '../utils/errorHandling';
 
 export class DevicesService {
   /**
-   * Execute API call with retry logic
+   * Execute API call with enhanced retry logic and circuit breaker
    */
   private static async executeWithRetry<T>(
     operation: () => Promise<T>,
-    operationName: string
+    operationName: string,
+    url?: string,
+    method?: string
   ): Promise<T> {
-    let lastError: DeviceError;
-    
-    for (let attempt = 1; attempt <= RETRY_CONFIG.maxRetries; attempt++) {
-      try {
-        return await operation();
-      } catch (error) {
-        const deviceError = parseApiError(error);
-        lastError = deviceError;
+    return deviceCircuitBreaker.execute(async () => {
+      let lastError: DeviceError;
+      const maxRetries = RETRY_CONFIG.maxRetries;
+      
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        const context = createErrorContext(operationName, attempt, maxRetries, {
+          url,
+          method,
+          requestId: `${operationName}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        });
         
-        // Don't retry if error is not retryable or if this is the last attempt
-        if (!isRetryableError(deviceError) || attempt === RETRY_CONFIG.maxRetries) {
-          console.error(`${operationName} failed after ${attempt} attempts:`, deviceError);
-          throw deviceError;
+        try {
+          const result = await operation();
+          
+          // Log successful retry if this wasn't the first attempt
+          if (attempt > 1) {
+            console.info(`${operationName} succeeded on attempt ${attempt}/${maxRetries}`);
+          }
+          
+          return result;
+        } catch (error) {
+          const deviceError = parseApiError(error);
+          lastError = deviceError;
+          
+          // Log error with context
+          logErrorWithContext(deviceError, context);
+          
+          // Get max retry count for this specific error type
+          const maxRetriesForError = getMaxRetryCount(deviceError.type);
+          const shouldRetry = isRetryableError(deviceError) && attempt < Math.min(maxRetries, maxRetriesForError);
+          
+          if (!shouldRetry) {
+            console.error(`${operationName} failed permanently after ${attempt} attempts:`, {
+              error: deviceError.message,
+              type: deviceError.type,
+              statusCode: deviceError.statusCode,
+              context,
+            });
+            throw deviceError;
+          }
+          
+          // Calculate delay with error-type specific adjustments
+          const delay = calculateRetryDelay(attempt, deviceError.type);
+          console.warn(`${operationName} failed (attempt ${attempt}/${maxRetriesForError}), retrying in ${delay}ms:`, {
+            error: deviceError.message,
+            type: deviceError.type,
+            statusCode: deviceError.statusCode,
+            nextRetryIn: `${delay}ms`,
+          });
+          
+          await sleep(delay);
         }
-        
-        // Calculate delay and wait before retry
-        const delay = calculateRetryDelay(attempt);
-        console.warn(`${operationName} failed (attempt ${attempt}/${RETRY_CONFIG.maxRetries}), retrying in ${delay}ms:`, deviceError.message);
-        await sleep(delay);
       }
-    }
-    
-    throw lastError!;
+      
+      throw lastError!;
+    });
   }
 
   /**
    * Fetch devices with pagination and search
    */
   static async getDevices(params: GetDevicesParams = {}): Promise<DevicesResponse> {
+    const { page = 1, limit = 10, search = '' } = params;
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+      ...(search && { search }),
+    });
+    const url = `/devices?${queryParams}`;
+    
     return this.executeWithRetry(async () => {
-      const { page = 1, limit = 10, search = '' } = params;
-      
-      const queryParams = new URLSearchParams({
-        page: page.toString(),
-        limit: limit.toString(),
-        ...(search && { search }),
-      });
-
       try {
-        const response = await apiClient.get(`/devices?${queryParams}`);
+        const response = await apiClient.get(url);
         // Handle the nested response structure from the API
-        const { data } = response.data;
-        
-        // Sort devices: online devices first, then by name
+        const { data, metadata } = response.data;
+
+        // Sort devices: online devices first, then by name (client-side convenience)
         const sortedData = data.sort((a: any, b: any) => {
           const aOnline = !!a.last_seen && new Date(a.last_seen) > new Date(Date.now() - 5 * 60 * 1000);
           const bOnline = !!b.last_seen && new Date(b.last_seen) > new Date(Date.now() - 5 * 60 * 1000);
@@ -81,34 +120,60 @@ export class DevicesService {
           return a.device_name.localeCompare(b.device_name);
         });
         
-        return {
-          data: sortedData.map((device: any) => ({
+        const normalized = sortedData.map((device: any) => {
+          const lsd = device.latestSensorData;
+          const normalizedLsd = lsd
+            ? {
+                id: device.device_id,
+                device_id: device.device_id,
+                timestamp: lsd.timestamp,
+                // Accept both numeric and object shapes per docs/api/devices.md
+                ph:
+                  typeof lsd.ph === 'number'
+                    ? lsd.ph
+                    : lsd?.ph?.calibrated ?? lsd?.ph?.raw,
+                tds:
+                  typeof lsd.tds === 'number'
+                    ? lsd.tds
+                    : lsd?.tds?.calibrated ?? lsd?.tds?.raw,
+                do:
+                  typeof lsd.do_level === 'number'
+                    ? lsd.do_level
+                    : lsd?.do_level?.calibrated ?? lsd?.do_level?.raw,
+                temperature:
+                  typeof lsd.temperature === 'number'
+                    ? lsd.temperature
+                    : lsd?.temperature?.value,
+                created_at: lsd.time ?? lsd.timestamp,
+              }
+            : null;
+
+          return {
             ...device,
-            // Transform latestSensorData if needed
-            latestSensorData: device.latestSensorData ? {
-              id: device.device_id, // Use device_id
-              device_id: device.device_id,
-              timestamp: device.latestSensorData.timestamp,
-              ph: device.latestSensorData.ph?.calibrated || device.latestSensorData.ph?.raw,
-              tds: device.latestSensorData.tds?.calibrated || device.latestSensorData.tds?.raw,
-              do: device.latestSensorData.do_level?.calibrated || device.latestSensorData.do_level?.raw,
-              temperature: device.latestSensorData.temperature?.value,
-              created_at: device.latestSensorData.time,
-            } : null,
+            latestSensorData: normalizedLsd,
             // Add online property based on last_seen (5 minutes threshold)
-            online: !!device.last_seen && new Date(device.last_seen) > new Date(Date.now() - 5 * 60 * 1000), // 5 minutes
-          })),
+            online: !!device.last_seen && new Date(device.last_seen) > new Date(Date.now() - 5 * 60 * 1000),
+          };
+        });
+
+        // Use metadata from API for pagination (align with docs)
+        const totalFromMeta = metadata?.total ?? normalized.length;
+        const pageFromMeta = metadata?.page ?? page;
+        const limitFromMeta = metadata?.limit ?? limit;
+
+        return {
+          data: normalized,
           pagination: {
-            page,
-            limit,
-            total: data.length,
-            totalPages: Math.ceil(data.length / limit),
-          }
+            page: pageFromMeta,
+            limit: limitFromMeta,
+            total: totalFromMeta,
+            totalPages: Math.ceil(totalFromMeta / limitFromMeta),
+          },
         };
       } catch (error) {
         throw parseApiError(error);
       }
-    }, 'getDevices');
+    }, 'getDevices', url, 'GET');
   }
 
   /**
@@ -122,31 +187,37 @@ export class DevicesService {
       );
     }
 
+    const url = `/devices/${deviceId}`;
     return this.executeWithRetry(async () => {
       try {
-        const response = await apiClient.get(`/devices/${deviceId}`); // Using device_id in URL
+        const response = await apiClient.get(url); // Using device_id in URL
         const device = response.data.data;
-        
+
+        const lsd = device.latestSensorData;
+        const normalizedLsd = lsd
+          ? {
+              id: device.device_id,
+              device_id: device.device_id,
+              timestamp: lsd.timestamp,
+              ph: typeof lsd.ph === 'number' ? lsd.ph : lsd?.ph?.calibrated ?? lsd?.ph?.raw,
+              tds: typeof lsd.tds === 'number' ? lsd.tds : lsd?.tds?.calibrated ?? lsd?.tds?.raw,
+              do:
+                typeof lsd.do_level === 'number' ? lsd.do_level : lsd?.do_level?.calibrated ?? lsd?.do_level?.raw,
+              temperature:
+                typeof lsd.temperature === 'number' ? lsd.temperature : lsd?.temperature?.value,
+              created_at: lsd.time ?? lsd.timestamp,
+            }
+          : null;
+
         return {
           ...device,
-          // Add online property based on last_seen (5 minutes threshold)
-          online: !!device.last_seen && new Date(device.last_seen) > new Date(Date.now() - 5 * 60 * 1000), // 5 minutes
-          // Transform latestSensorData if needed
-          latestSensorData: device.latestSensorData ? {
-            id: device.device_id, // Use device_id
-            device_id: device.device_id,
-            timestamp: device.latestSensorData.timestamp,
-            ph: device.latestSensorData.ph?.calibrated || device.latestSensorData.ph?.raw,
-            tds: device.latestSensorData.tds?.calibrated || device.latestSensorData.tds?.raw,
-            do: device.latestSensorData.do_level?.calibrated || device.latestSensorData.do_level?.raw,
-            temperature: device.latestSensorData.temperature?.value,
-            created_at: device.latestSensorData.time,
-          } : null,
+          online: !!device.last_seen && new Date(device.last_seen) > new Date(Date.now() - 5 * 60 * 1000),
+          latestSensorData: normalizedLsd,
         };
       } catch (error) {
         throw parseApiError(error);
       }
-    }, 'getDevice');
+    }, 'getDevice', url, 'GET');
   }
 
   /**
@@ -161,9 +232,10 @@ export class DevicesService {
       );
     }
 
+    const url = '/devices';
     return this.executeWithRetry(async () => {
       try {
-        const response = await apiClient.post('/devices', data);
+        const response = await apiClient.post(url, data);
         const device = response.data.data;
         
         return {
@@ -173,7 +245,7 @@ export class DevicesService {
       } catch (error) {
         throw parseApiError(error);
       }
-    }, 'createDevice');
+    }, 'createDevice', url, 'POST');
   }
 
   /**
@@ -187,10 +259,11 @@ export class DevicesService {
       );
     }
 
+    const url = `/devices/${deviceId}`;
     return this.executeWithRetry(async () => {
       try {
         // API uses PATCH method for updates
-        const response = await apiClient.patch(`/devices/${deviceId}`, data); // Using device_id in URL
+        const response = await apiClient.patch(url, data); // Using device_id in URL
         const device = response.data.data;
         
         return {
@@ -200,7 +273,7 @@ export class DevicesService {
       } catch (error) {
         throw parseApiError(error);
       }
-    }, 'updateDevice');
+    }, 'updateDevice', url, 'PATCH');
   }
 
   /**

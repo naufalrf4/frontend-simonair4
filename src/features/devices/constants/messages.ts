@@ -1,111 +1,98 @@
 import { DeviceErrorType } from '../utils/errorHandling';
 
-/**
- * Indonesian language constants for device management
- */
 export const DEVICE_MESSAGES = {
-  // Page titles and headers
-  DEVICES_PAGE_TITLE: 'Manajemen Perangkat',
-  DEVICES_PAGE_SUBTITLE: 'Kelola perangkat monitoring akuarium Anda',
+  DEVICES_PAGE_TITLE: 'Device Management',
+  DEVICES_PAGE_SUBTITLE: 'Manage your SIMONAIR 4.0 devices',
   
-  // Device actions
-  ADD_DEVICE: 'Tambah Perangkat',
-  EDIT_DEVICE: 'Edit Perangkat',
-  DELETE_DEVICE: 'Hapus Perangkat',
-  VIEW_DETAILS: 'Lihat Detail',
-  SAVE_CHANGES: 'Simpan Perubahan',
-  CANCEL: 'Batal',
-  CONFIRM: 'Konfirmasi',
+  ADD_DEVICE: 'Add Device',
+  EDIT_DEVICE: 'Edit Device',
+  DELETE_DEVICE: 'Delete Device',
+  VIEW_DETAILS: 'View Details',
+  SAVE_CHANGES: 'Save Changes',
+  CANCEL: 'Cancel',
+  CONFIRM: 'Confirm',
   
-  // Modal titles and descriptions
-  ADD_DEVICE_TITLE: 'Tambah Perangkat Baru',
-  ADD_DEVICE_DESCRIPTION: 'Pasangkan perangkat monitoring akuarium baru ke akun Anda. Isi detail perangkat di bawah ini untuk memulai.',
+  ADD_DEVICE_TITLE: 'Add New Device',
+  ADD_DEVICE_DESCRIPTION: 'Pair a new SIMONAIR 4.0 device to your account. Fill in the device details below to get started.',
   
-  EDIT_DEVICE_TITLE: 'Edit Perangkat',
-  EDIT_DEVICE_DESCRIPTION: 'Perbarui informasi dan pengaturan perangkat "{device_name}".',
+  EDIT_DEVICE_TITLE: 'Edit Device',
+  EDIT_DEVICE_DESCRIPTION: 'Update information and settings for device "{device_name}".',
   
-  DEVICE_DETAILS_TITLE: 'Detail Perangkat',
-  DEVICE_DETAILS_DESCRIPTION: 'Informasi lengkap dan data sensor perangkat Anda.',
+  DEVICE_DETAILS_TITLE: 'Device Details',
+  DEVICE_DETAILS_DESCRIPTION: 'Complete information and sensor data for your device.',
   
-  DELETE_DEVICE_TITLE: 'Hapus Perangkat',
-  DELETE_DEVICE_DESCRIPTION: 'Apakah Anda yakin ingin menghapus perangkat ini?',
-  DELETE_WARNING: 'Tindakan ini tidak dapat dibatalkan. Semua data historis perangkat akan hilang permanen.',
+  DELETE_DEVICE_TITLE: 'Delete Device',
+  DELETE_DEVICE_DESCRIPTION: 'Are you sure you want to delete this device?',
+  DELETE_WARNING: 'This action cannot be undone. All historical data for the device will be permanently lost.',
   
-  // Form labels
-  DEVICE_ID_LABEL: 'ID Perangkat',
-  DEVICE_ID_PLACEHOLDER: 'Masukkan ID perangkat unik',
-  DEVICE_ID_HELP: 'ID unik yang tertera pada perangkat Anda (6-20 karakter)',
-  DEVICE_ID_LOCKED: 'ID perangkat tidak dapat diubah setelah pembuatan',
+  DEVICE_ID_LABEL: 'Device ID',
+  DEVICE_ID_PLACEHOLDER: 'Enter unique device ID',
+  DEVICE_ID_HELP: 'Unique ID printed on your device (6-20 characters)',
+  DEVICE_ID_LOCKED: 'Device ID cannot be changed after creation',
   
-  DEVICE_NAME_LABEL: 'Nama Perangkat',
-  DEVICE_NAME_PLACEHOLDER: 'Contoh: Akuarium Ruang Tamu',
-  DEVICE_NAME_HELP: 'Nama yang mudah diingat untuk perangkat ini (3-50 karakter)',
+  DEVICE_NAME_LABEL: 'Device Name',
+  DEVICE_NAME_PLACEHOLDER: 'Example: Living Room Aquarium',
+  DEVICE_NAME_HELP: 'Easy-to-remember name for this device (3-50 characters)',
   
-  LOCATION_LABEL: 'Lokasi',
-  LOCATION_PLACEHOLDER: 'Contoh: Ruang Tamu, Kamar Tidur',
-  LOCATION_HELP: 'Lokasi penempatan akuarium untuk memudahkan identifikasi',
+  LOCATION_LABEL: 'Location',
+  LOCATION_PLACEHOLDER: 'Example: Living Room, Bedroom',
+  LOCATION_HELP: 'Aquarium placement location for easy identification',
   
-  AQUARIUM_SIZE_LABEL: 'Ukuran Akuarium',
-  AQUARIUM_SIZE_HELP: 'Dimensi akuarium dalam sentimeter',
-  LENGTH_LABEL: 'Panjang (cm)',
-  WIDTH_LABEL: 'Lebar (cm)',
-  HEIGHT_LABEL: 'Tinggi (cm)',
-  DIMENSIONS: 'Dimensi',
+  AQUARIUM_SIZE_LABEL: 'Aquarium Size',
+  AQUARIUM_SIZE_HELP: 'Aquarium dimensions in centimeters',
+  LENGTH_LABEL: 'Length (cm)',
+  WIDTH_LABEL: 'Width (cm)',
+  HEIGHT_LABEL: 'Height (cm)',
+  DIMENSIONS: 'Dimensions',
   VOLUME: 'Volume',
   
-  GLASS_TYPE_LABEL: 'Jenis Kaca',
-  GLASS_TYPE_PLACEHOLDER: 'Pilih jenis kaca',
-  GLASS_TYPE_HELP: 'Jenis kaca akuarium mempengaruhi pembacaan sensor',
+  GLASS_TYPE_LABEL: 'Glass Type',
+  GLASS_TYPE_PLACEHOLDER: 'Select glass type',
+  GLASS_TYPE_HELP: 'Aquarium glass type affects sensor readings',
   
-  FISH_COUNT_LABEL: 'Jumlah Ikan',
+  FISH_COUNT_LABEL: 'Fish Count',
   FISH_COUNT_PLACEHOLDER: '0',
-  FISH_COUNT_HELP: 'Perkiraan jumlah ikan dalam akuarium',
+  FISH_COUNT_HELP: 'Estimated number of fish in the aquarium',
   
-  // Glass type options
   GLASS_TYPES: {
-    CLEAR: 'Kaca Bening',
-    TINTED: 'Kaca Berwarna',
-    TEMPERED: 'Kaca Tempered',
-    ACRYLIC: 'Akrilik',
+    CLEAR: 'Clear Glass',
+    TINTED: 'Tinted Glass',
+    TEMPERED: 'Tempered Glass',
+    ACRYLIC: 'Acrylic',
   },
   
-  // Device status
   STATUS_ONLINE: 'Online',
   STATUS_OFFLINE: 'Offline',
-  STATUS_CONNECTING: 'Menghubungkan...',
+  STATUS_CONNECTING: 'Connecting...',
   STATUS_ERROR: 'Error',
   
-  LAST_SEEN: 'Terakhir Terlihat',
-  NEVER_CONNECTED: 'Belum Pernah Terhubung',
-  CONNECTED_NOW: 'Terhubung Sekarang',
+  LAST_SEEN: 'Last Seen',
+  NEVER_CONNECTED: 'Never Connected',
+  CONNECTED_NOW: 'Connected Now',
   
-  // Search and pagination
-  SEARCH_PLACEHOLDER: 'Cari perangkat...',
-  SEARCH_HELP: 'Cari berdasarkan nama, ID, atau lokasi perangkat',
-  NO_DEVICES_FOUND: 'Tidak ada perangkat ditemukan',
-  NO_DEVICES_MESSAGE: 'Belum ada perangkat yang terdaftar. Tambahkan perangkat pertama Anda!',
+  SEARCH_PLACEHOLDER: 'Search devices...',
+  SEARCH_HELP: 'Search by device name, ID, or location',
+  NO_DEVICES_FOUND: 'No devices found',
+  NO_DEVICES_MESSAGE: 'No devices registered yet. Add your first device!',
   
-  SHOWING_RESULTS: 'Menampilkan {{start}} - {{end}} dari {{total}} perangkat',
-  PAGE_OF: 'Halaman {{current}} dari {{total}}',
+  SHOWING_RESULTS: 'Showing {{start}} - {{end}} of {{total}} devices',
+  PAGE_OF: 'Page {{current}} of {{total}}',
   
-  // Loading states
-  LOADING_DEVICES: 'Memuat daftar perangkat...',
-  LOADING_DEVICE_DETAILS: 'Memuat detail perangkat...',
-  SAVING_DEVICE: 'Menyimpan perangkat...',
-  DELETING_DEVICE: 'Menghapus perangkat...',
-  CONNECTING_DEVICE: 'Menghubungkan perangkat...',
+  LOADING_DEVICES: 'Loading device list...',
+  LOADING_DEVICE_DETAILS: 'Loading device details...',
+  SAVING_DEVICE: 'Saving device...',
+  DELETING_DEVICE: 'Deleting device...',
+  CONNECTING_DEVICE: 'Connecting device...',
   
-  // Success messages
-  DEVICE_ADDED_SUCCESS: 'Perangkat berhasil ditambahkan dan siap digunakan!',
-  DEVICE_UPDATED_SUCCESS: 'Perangkat berhasil diperbarui!',
-  DEVICE_DELETED_SUCCESS: 'Perangkat berhasil dihapus dari sistem!',
-
-  // Sensor data labels
-  TEMPERATURE: 'Suhu',
-  PH_LEVEL: 'Tingkat pH',
-  DISSOLVED_OXYGEN: 'Oksigen Terlarut',
+  DEVICE_ADDED_SUCCESS: 'Device added successfully and ready to use!',
+  DEVICE_UPDATED_SUCCESS: 'Device updated successfully!',
+  DEVICE_DELETED_SUCCESS: 'Device deleted from the system!',
+  
+  TEMPERATURE: 'Temperature',
+  PH_LEVEL: 'pH Level',
+  DISSOLVED_OXYGEN: 'Dissolved Oxygen',
   TDS: 'Total Dissolved Solids',
-  TURBIDITY: 'Kekeruhan',
+  TURBIDITY: 'Turbidity',
   
   SENSOR_UNITS: {
     TEMPERATURE: '°C',
@@ -115,138 +102,127 @@ export const DEVICE_MESSAGES = {
     TURBIDITY: 'NTU',
   },
   
-  // Device info
-  DEVICE_INFO: 'Informasi Perangkat',
-  SENSOR_DATA: 'Data Sensor',
-  CONNECTION_HISTORY: 'Riwayat Koneksi',
-  DEVICE_SETTINGS: 'Pengaturan Perangkat',
+  DEVICE_INFO: 'Device Information',
+  SENSOR_DATA: 'Sensor Data',
+  CONNECTION_HISTORY: 'Connection History',
+  DEVICE_SETTINGS: 'Device Settings',
   
-  // Unsaved changes
-  UNSAVED_CHANGES_TITLE: 'Perubahan Belum Disimpan',
-  UNSAVED_CHANGES_DESCRIPTION: 'Anda memiliki perubahan yang belum disimpan. Apakah Anda yakin ingin menutup tanpa menyimpan? Perubahan Anda akan hilang.',
-  CONTINUE_EDITING: 'Lanjutkan Mengedit',
-  DISCARD_CHANGES: 'Buang Perubahan',
+  UNSAVED_CHANGES_TITLE: 'Unsaved Changes',
+  UNSAVED_CHANGES_DESCRIPTION: 'You have unsaved changes. Are you sure you want to close without saving? Your changes will be lost.',
+  CONTINUE_EDITING: 'Continue Editing',
+  DISCARD_CHANGES: 'Discard Changes',
   
-  // Validation messages
   VALIDATION: {
-    REQUIRED: 'Field ini wajib diisi',
-    DEVICE_ID_REQUIRED: 'ID perangkat wajib diisi',
-    DEVICE_ID_FORMAT: 'ID perangkat harus berupa kombinasi huruf dan angka (tanpa spasi)',
-    DEVICE_ID_LENGTH: 'ID perangkat harus 6-20 karakter',
-    DEVICE_NAME_REQUIRED: 'Nama perangkat wajib diisi',
-    DEVICE_NAME_LENGTH: 'Nama perangkat harus 3-50 karakter',
-    LOCATION_REQUIRED: 'Lokasi wajib diisi',
-    AQUARIUM_SIZE_REQUIRED: 'Ukuran akuarium wajib diisi',
-    AQUARIUM_SIZE_MIN: 'Ukuran minimal 10 cm untuk setiap dimensi',
-    AQUARIUM_SIZE_MAX: 'Ukuran maksimal 500 cm untuk setiap dimensi',
-    FISH_COUNT_MIN: 'Jumlah ikan tidak boleh negatif',
-    FISH_COUNT_MAX: 'Jumlah ikan maksimal 1000 ekor',
+    REQUIRED: 'This field is required',
+    DEVICE_ID_REQUIRED: 'Device ID is required',
+    DEVICE_ID_FORMAT: 'Device ID must be a combination of letters and numbers (no spaces)',
+    DEVICE_ID_LENGTH: 'Device ID must be 6-20 characters',
+    DEVICE_NAME_REQUIRED: 'Device name is required',
+    DEVICE_NAME_LENGTH: 'Device name must be 3-50 characters',
+    LOCATION_REQUIRED: 'Location is required',
+    AQUARIUM_SIZE_REQUIRED: 'Aquarium size is required',
+    AQUARIUM_SIZE_MIN: 'Minimum size is 10 cm for each dimension',
+    AQUARIUM_SIZE_MAX: 'Maximum size is 500 cm for each dimension',
+    FISH_COUNT_MIN: 'Fish count cannot be negative',
+    FISH_COUNT_MAX: 'Maximum fish count is 1000',
   },
   
-  // Error messages by operation
   ERRORS: {
     CREATE_DEVICE: {
-      NETWORK_ERROR: 'Tidak dapat menambahkan perangkat karena masalah jaringan. Periksa koneksi internet Anda.',
-      VALIDATION_ERROR: 'Periksa kembali informasi perangkat yang Anda masukkan.',
-      CONFLICT_ERROR: 'ID perangkat sudah terdaftar. Gunakan ID perangkat yang berbeda.',
-      AUTHORIZATION_ERROR: 'Anda tidak memiliki izin untuk menambahkan perangkat.',
-      SERVER_ERROR: 'Tidak dapat menambahkan perangkat karena masalah server. Coba lagi nanti.',
-      TIMEOUT_ERROR: 'Waktu habis saat menambahkan perangkat. Coba lagi.',
-      NOT_FOUND_ERROR: 'Layanan tidak ditemukan.',
-      UNKNOWN_ERROR: 'Terjadi kesalahan tidak dikenal saat menambahkan perangkat.',
-      DEFAULT: 'Gagal menambahkan perangkat. Silakan coba lagi.',
+      NETWORK_ERROR: 'Unable to add device due to network issues. Check your internet connection.',
+      VALIDATION_ERROR: 'Please review the device information you entered.',
+      CONFLICT_ERROR: 'Device ID is already registered. Use a different device ID.',
+      AUTHORIZATION_ERROR: 'You do not have permission to add devices.',
+      SERVER_ERROR: 'Unable to add device due to server issues. Try again later.',
+      TIMEOUT_ERROR: 'Timeout while adding device. Try again.',
+      NOT_FOUND_ERROR: 'Service not found.',
+      UNKNOWN_ERROR: 'An unknown error occurred while adding the device.',
+      DEFAULT: 'Failed to add device. Please try again.',
     },
     
     UPDATE_DEVICE: {
-      NETWORK_ERROR: 'Tidak dapat memperbarui perangkat karena masalah jaringan. Periksa koneksi internet Anda.',
-      VALIDATION_ERROR: 'Periksa kembali informasi perangkat yang Anda masukkan.',
-      NOT_FOUND_ERROR: 'Perangkat tidak ditemukan. Mungkin sudah dihapus.',
-      AUTHORIZATION_ERROR: 'Anda tidak memiliki izin untuk memperbarui perangkat ini.',
-      SERVER_ERROR: 'Tidak dapat memperbarui perangkat karena masalah server. Coba lagi nanti.',
-      TIMEOUT_ERROR: 'Waktu habis saat memperbarui perangkat. Coba lagi.',
-      CONFLICT_ERROR: 'Konflik data saat memperbarui perangkat.',
-      UNKNOWN_ERROR: 'Terjadi kesalahan tidak dikenal saat memperbarui perangkat.',
-      DEFAULT: 'Gagal memperbarui perangkat. Silakan coba lagi.',
+      NETWORK_ERROR: 'Unable to update device due to network issues. Check your internet connection.',
+      VALIDATION_ERROR: 'Please review the device information you entered.',
+      NOT_FOUND_ERROR: 'Device not found. It may have been deleted.',
+      AUTHORIZATION_ERROR: 'You do not have permission to update this device.',
+      SERVER_ERROR: 'Unable to update device due to server issues. Try again later.',
+      TIMEOUT_ERROR: 'Timeout while updating device. Try again.',
+      CONFLICT_ERROR: 'Data conflict while updating device.',
+      UNKNOWN_ERROR: 'An unknown error occurred while updating the device.',
+      DEFAULT: 'Failed to update device. Please try again.',
     },
     
     DELETE_DEVICE: {
-      NETWORK_ERROR: 'Tidak dapat menghapus perangkat karena masalah jaringan. Periksa koneksi internet Anda.',
-      NOT_FOUND_ERROR: 'Perangkat tidak ditemukan. Mungkin sudah dihapus.',
-      AUTHORIZATION_ERROR: 'Anda tidak memiliki izin untuk menghapus perangkat ini.',
-      SERVER_ERROR: 'Tidak dapat menghapus perangkat karena masalah server. Coba lagi nanti.',
-      TIMEOUT_ERROR: 'Waktu habis saat menghapus perangkat. Coba lagi.',
-      VALIDATION_ERROR: 'Data tidak valid untuk penghapusan.',
-      CONFLICT_ERROR: 'Tidak dapat menghapus perangkat karena masih digunakan.',
-      UNKNOWN_ERROR: 'Terjadi kesalahan tidak dikenal saat menghapus perangkat.',
-      DEFAULT: 'Gagal menghapus perangkat. Silakan coba lagi.',
+      NETWORK_ERROR: 'Unable to delete device due to network issues. Check your internet connection.',
+      NOT_FOUND_ERROR: 'Device not found. It may have been deleted.',
+      AUTHORIZATION_ERROR: 'You do not have permission to delete this device.',
+      SERVER_ERROR: 'Unable to delete device due to server issues. Try again later.',
+      TIMEOUT_ERROR: 'Timeout while deleting device. Try again.',
+      VALIDATION_ERROR: 'Invalid data for deletion.',
+      CONFLICT_ERROR: 'Cannot delete device as it is still in use.',
+      UNKNOWN_ERROR: 'An unknown error occurred while deleting the device.',
+      DEFAULT: 'Failed to delete device. Please try again.',
     },
     
     FETCH_DEVICES: {
-      NETWORK_ERROR: 'Tidak dapat memuat perangkat karena masalah jaringan. Periksa koneksi internet Anda.',
-      AUTHORIZATION_ERROR: 'Anda tidak memiliki izin untuk melihat perangkat. Silakan login kembali.',
-      SERVER_ERROR: 'Tidak dapat memuat perangkat karena masalah server. Coba lagi nanti.',
-      TIMEOUT_ERROR: 'Waktu habis saat memuat perangkat. Coba lagi.',
-      VALIDATION_ERROR: 'Parameter pencarian tidak valid.',
-      NOT_FOUND_ERROR: 'Tidak ada perangkat ditemukan.',
-      CONFLICT_ERROR: 'Konflik saat mengambil data perangkat.',
-      UNKNOWN_ERROR: 'Terjadi kesalahan tidak dikenal saat memuat perangkat.',
-      DEFAULT: 'Gagal memuat perangkat. Silakan coba lagi.',
+      NETWORK_ERROR: 'Unable to load devices due to network issues. Check your internet connection.',
+      AUTHORIZATION_ERROR: 'You do not have permission to view devices. Please log in again.',
+      SERVER_ERROR: 'Unable to load devices due to server issues. Try again later.',
+      TIMEOUT_ERROR: 'Timeout while loading devices. Try again.',
+      VALIDATION_ERROR: 'Invalid search parameters.',
+      NOT_FOUND_ERROR: 'No devices found.',
+      CONFLICT_ERROR: 'Conflict while fetching device data.',
+      UNKNOWN_ERROR: 'An unknown error occurred while loading devices.',
+      DEFAULT: 'Failed to load devices. Please try again.',
     },
     
     FETCH_DEVICE: {
-      NETWORK_ERROR: 'Tidak dapat memuat detail perangkat karena masalah jaringan. Periksa koneksi internet Anda.',
-      NOT_FOUND_ERROR: 'Perangkat tidak ditemukan. Mungkin sudah dihapus atau Anda tidak memiliki akses.',
-      AUTHORIZATION_ERROR: 'Anda tidak memiliki izin untuk melihat perangkat ini.',
-      SERVER_ERROR: 'Tidak dapat memuat detail perangkat karena masalah server. Coba lagi nanti.',
-      TIMEOUT_ERROR: 'Waktu habis saat memuat detail perangkat. Coba lagi.',
-      VALIDATION_ERROR: 'ID perangkat tidak valid.',
-      CONFLICT_ERROR: 'Konflik saat mengambil detail perangkat.',
-      UNKNOWN_ERROR: 'Terjadi kesalahan tidak dikenal saat memuat detail perangkat.',
-      DEFAULT: 'Gagal memuat detail perangkat. Silakan coba lagi.',
+      NETWORK_ERROR: 'Unable to load device details due to network issues. Check your internet connection.',
+      NOT_FOUND_ERROR: 'Device not found. It may have been deleted or you do not have access.',
+      AUTHORIZATION_ERROR: 'You do not have permission to view this device.',
+      SERVER_ERROR: 'Unable to load device details due to server issues. Try again later.',
+      TIMEOUT_ERROR: 'Timeout while loading device details. Try again.',
+      VALIDATION_ERROR: 'Invalid device ID.',
+      CONFLICT_ERROR: 'Conflict while fetching device details.',
+      UNKNOWN_ERROR: 'An unknown error occurred while loading device details.',
+      DEFAULT: 'Failed to load device details. Please try again.',
     },
   },
   
-  // Error titles
   ERROR_TITLES: {
-    [DeviceErrorType.NETWORK_ERROR]: 'Masalah Koneksi',
-    [DeviceErrorType.TIMEOUT_ERROR]: 'Waktu Habis',
-    [DeviceErrorType.AUTHORIZATION_ERROR]: 'Akses Ditolak',
-    [DeviceErrorType.VALIDATION_ERROR]: 'Data Tidak Valid',
-    [DeviceErrorType.CONFLICT_ERROR]: 'Konflik Data',
-    [DeviceErrorType.NOT_FOUND_ERROR]: 'Tidak Ditemukan',
-    [DeviceErrorType.SERVER_ERROR]: 'Error Server',
-    [DeviceErrorType.UNKNOWN_ERROR]: 'Terjadi Kesalahan',
+    [DeviceErrorType.NETWORK_ERROR]: 'Connection Issue',
+    [DeviceErrorType.TIMEOUT_ERROR]: 'Timeout',
+    [DeviceErrorType.AUTHORIZATION_ERROR]: 'Access Denied',
+    [DeviceErrorType.VALIDATION_ERROR]: 'Invalid Data',
+    [DeviceErrorType.CONFLICT_ERROR]: 'Data Conflict',
+    [DeviceErrorType.NOT_FOUND_ERROR]: 'Not Found',
+    [DeviceErrorType.SERVER_ERROR]: 'Server Error',
+    [DeviceErrorType.UNKNOWN_ERROR]: 'An Error Occurred',
   },
   
-  // Action buttons
-  TRY_AGAIN: 'Coba Lagi',
-  CHECK_CONNECTION: 'Periksa Koneksi',
-  RELOAD_PAGE: 'Muat Ulang Halaman',
-  DISMISS: 'Tutup',
-  CONTACT_SUPPORT: 'Hubungi Dukungan',
+  TRY_AGAIN: 'Try Again',
+  CHECK_CONNECTION: 'Check Connection',
+  RELOAD_PAGE: 'Reload Page',
+  DISMISS: 'Close',
+  CONTACT_SUPPORT: 'Contact Support',
   
-  // Empty states
-  EMPTY_STATE_TITLE: 'Belum Ada Perangkat',
-  EMPTY_STATE_DESCRIPTION: 'Mulai monitoring akuarium Anda dengan menambahkan perangkat pertama.',
-  EMPTY_SEARCH_TITLE: 'Tidak Ada Hasil',
-  EMPTY_SEARCH_DESCRIPTION: 'Tidak ditemukan perangkat yang sesuai dengan pencarian Anda.',
+  EMPTY_STATE_TITLE: 'No Devices Yet',
+  EMPTY_STATE_DESCRIPTION: 'Start monitoring your aquarium by adding your first device.',
+  EMPTY_SEARCH_TITLE: 'No Results',
+  EMPTY_SEARCH_DESCRIPTION: 'No devices match your search.',
   
-  // Accessibility labels
   A11Y: {
-    DEVICE_CARD: 'Kartu perangkat {{name}}',
-    DEVICE_STATUS: 'Status perangkat: {{status}}',
-    DEVICE_ACTIONS: 'Aksi perangkat',
-    SEARCH_INPUT: 'Cari perangkat',
-    PAGINATION_BUTTON: 'Halaman {{page}}',
-    CLOSE_MODAL: 'Tutup modal',
-    LOADING: 'Sedang memuat',
-    ERROR: 'Pesan error',
+    DEVICE_CARD: 'Device card {{name}}',
+    DEVICE_STATUS: 'Device status: {{status}}',
+    DEVICE_ACTIONS: 'Device actions',
+    SEARCH_INPUT: 'Search devices',
+    PAGINATION_BUTTON: 'Page {{page}}',
+    CLOSE_MODAL: 'Close modal',
+    LOADING: 'Loading',
+    ERROR: 'Error message',
   },
 } as const;
 
-/**
- * Get localized error message for specific operation
- */
 export function getLocalizedErrorMessage(
   operation: keyof typeof DEVICE_MESSAGES.ERRORS,
   errorType: DeviceErrorType
@@ -256,9 +232,6 @@ export function getLocalizedErrorMessage(
   return operationErrors[errorKey] || operationErrors.DEFAULT;
 }
 
-/**
- * Get localized error title
- */
 export function getLocalizedErrorTitle(errorType: DeviceErrorType): string {
   return DEVICE_MESSAGES.ERROR_TITLES[errorType] || DEVICE_MESSAGES.ERROR_TITLES[DeviceErrorType.UNKNOWN_ERROR];
 }

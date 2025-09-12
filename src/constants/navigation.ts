@@ -10,6 +10,7 @@ import {
   Thermometer,
   Database,
   AlertTriangle,
+  LineChart,
 } from 'lucide-react';
 
 export const roleConfigs: Record<UserRole, { title: string }> = {
@@ -22,7 +23,7 @@ export const defaultNavigation: NavigationGroup[] = [
   {
     items: [
       {
-        title: 'Beranda',
+        title: 'Home',
         path: '/dashboard',
         icon: Home,
         roles: ['superuser', 'admin', 'user'],
@@ -31,30 +32,30 @@ export const defaultNavigation: NavigationGroup[] = [
     ],
   },
   {
-    groupName: 'Perangkat',
+    groupName: 'Devices',
     items: [
       {
-        title: 'Perangkat',
+        title: 'Devices',
         path: '/devices',
         icon: Thermometer,
         roles: ['superuser', 'admin', 'user'],
         children: [
           {
-            title: 'Kelola Perangkat',
+            title: 'Manage Devices',
             path: '/devices/manage',
             icon: Wrench,
             roles: ['superuser', 'admin', 'user'],
           },
           {
-            title: 'Data Sensor',
-            path: '/devices/sensor-data',
-            icon: Thermometer,
+            title: 'Sensor Trends',
+            path: '/devices/sensor-trends',
+            icon: LineChart,
             roles: ['superuser', 'admin', 'user'],
           },
           {
-            title: 'Data Manual',
-            path: '/devices/manual-data',
-            icon: ChefHat,
+            title: 'Sensor Table',
+            path: '/devices/sensor-data',
+            icon: Thermometer,
             roles: ['superuser', 'admin', 'user'],
           },
         ],
@@ -62,35 +63,41 @@ export const defaultNavigation: NavigationGroup[] = [
     ],
   },
   {
-    groupName: 'Data Budidaya',
+    groupName: 'Farming Data',
     items: [
       {
-        title: 'Budidaya',
-        path: '/fish-farming',
+        title: 'Farming',
+        path: '/farming',
         icon: Fish,
         roles: ['superuser', 'admin', 'user'],
         children: [
           {
-            title: 'Pertumbuhan',
-            path: '/fish-growth',
+            title: 'Growth',
+            path: '/farming/fish-growth',
             icon: Fish,
             roles: ['superuser', 'admin', 'user'],
           },
           {
-            title: 'Pakan Ikan',
-            path: '/feeds',
+            title: 'Feed',
+            path: '/farming/feeds',
             icon: Database,
             roles: ['superuser', 'admin', 'user'],
           },
           {
-            title: 'Kematian Ikan',
-            path: '/fish-mortality',
+            title: 'Mortality',
+            path: '/farming/fish-mortality',
             icon: AlertTriangle,
             roles: ['superuser', 'admin', 'user'],
           },
           {
-            title: 'Log Kualitas Air',
-            path: '/water-events',
+            title: 'Manual Data',
+            path: '/farming/manual-data',
+            icon: ChefHat,
+            roles: ['superuser', 'admin', 'user'],
+          },
+          {
+            title: 'Water Change',
+            path: '/farming/water-change',
             icon: Calendar,
             roles: ['superuser', 'admin', 'user'],
           },
@@ -108,8 +115,8 @@ export const defaultNavigation: NavigationGroup[] = [
         roles: ['superuser'],
         children: [
           {
-            title: 'Data User',
-            path: '/users',
+            title: 'User Data',
+            path: '/admin/users',
             icon: Users,
             roles: ['superuser'],
           },
