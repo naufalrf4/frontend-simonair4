@@ -6,7 +6,7 @@ import { jwtDecode } from 'jwt-decode';
 import { API_BASE_URL } from './constants';
 
 // Toggle debug logging
-const DEBUG = false;
+const DEBUG = true;
 
 class ApiClient {
   private client: AxiosInstance;

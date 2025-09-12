@@ -111,6 +111,7 @@ export interface SensorHistoryParams {
   from: string; // ISO 8601 format
   to: string;   // ISO 8601 format
   orderBy: 'ASC' | 'DESC';
+  granularity?: 'hourly' | 'daily';
 }
 
 // Table configuration interface

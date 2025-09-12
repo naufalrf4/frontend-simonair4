@@ -167,18 +167,23 @@ export class SensorDataService {
 
     return this.executeWithRetry(async () => {
       try {
+        // Determine granularity for aggregate endpoint
+        const fromMs = new Date(params.from).getTime();
+        const toMs = new Date(params.to).getTime();
+        const rangeDays = Math.max(1, Math.floor((toMs - fromMs) / (24 * 60 * 60 * 1000)));
+        const effectiveGranularity: 'hourly' | 'daily' = params.granularity ?? (rangeDays <= 31 ? 'hourly' : 'daily');
+
         const queryParams = new URLSearchParams({
           page: params.page.toString(),
           limit: params.limit.toString(),
           from: params.from,
           to: params.to,
+          granularity: effectiveGranularity,
           orderBy: params.orderBy,
-          // Ensure flat numeric format with all metrics to match docs
-          format: 'flat',
-          fields: 'temperature,ph,tds,do_level',
         });
 
-        const response = await apiClient.get(`/sensors/${params.deviceId}/history?${queryParams}`);
+        // Use aggregate endpoint per docs for table data
+        const response = await apiClient.get(`/sensors/${params.deviceId}/aggregate?${queryParams}`);
         
         // Validate response structure
         if (!response.data || typeof response.data !== 'object') {
@@ -190,26 +195,8 @@ export class SensorDataService {
         }
 
         const payload = response.data;
-        const status = payload.status ?? 'success';
-        // Extract rows from multiple possible shapes
-        let rows: any[] | undefined = undefined;
-        if (Array.isArray(payload)) {
-          rows = payload as any[];
-        } else if (Array.isArray(payload.data)) {
-          rows = payload.data;
-        } else if (payload.data && Array.isArray(payload.data.rows)) {
-          rows = payload.data.rows;
-        } else if (payload.data && payload.data.points && Array.isArray(payload.data.points)) {
-          // series flat format: points: [[time, temp, ph, tds, do], ...]
-          const metrics: string[] = payload.data.metrics || ['temperature', 'ph', 'tds', 'do_level'];
-          rows = payload.data.points.map((p: any[]) => {
-            const obj: Record<string, any> = { time: p[0] };
-            metrics.forEach((m, i) => {
-              obj[m] = p[i + 1];
-            });
-            return obj;
-          });
-        }
+        const status = payload?.status ?? 'success';
+        const rows: any[] = Array.isArray(payload?.data) ? payload.data : [];
 
         if (!Array.isArray(rows)) {
           throw {
@@ -219,13 +206,13 @@ export class SensorDataService {
           } as SensorDataError;
         }
 
-        // Normalize flat/named rows into UI's SensorReading shape
+        // Normalize aggregate rows (bucket + avg_* fields) into UI's SensorReading shape
         const normalized: SensorReading[] = rows.map((row: any) => {
-          const time = row.time || row.timestamp;
-          const phVal = typeof row.ph === 'number' ? row.ph : (row.ph_calibrated ?? row.phValue ?? null);
-          const tdsVal = typeof row.tds === 'number' ? row.tds : (row.tds_calibrated ?? row.tdsValue ?? null);
-          const doVal = typeof row.do_level === 'number' ? row.do_level : (row.do_calibrated ?? row.do ?? row.doValue ?? null);
-          const tempVal = typeof row.temperature === 'number' ? row.temperature : (row.temperature_value ?? row.temp ?? null);
+          const time = row.bucket || row.time || row.timestamp;
+          const phVal = row.avg_ph;
+          const tdsVal = row.avg_tds;
+          const doVal = row.avg_do_level ?? row.avg_do;
+          const tempVal = row.avg_temperature ?? row.temperature;
 
           return {
             time: String(time),
@@ -244,7 +231,7 @@ export class SensorDataService {
           data: normalized,
           metadata: payload.metadata || payload.pagination || {
             timestamp: new Date().toISOString(),
-            path: `/sensors/${params.deviceId}/history`,
+            path: `/sensors/${params.deviceId}/aggregate`,
             executionTime: 0
           }
         };
@@ -262,6 +249,7 @@ export class SensorDataService {
     from: string;
     to: string;
     orderBy?: 'ASC' | 'DESC';
+    granularity?: 'hourly' | 'daily';
   }): Promise<SensorHistoryResponse> {
     const orderBy = args.orderBy || 'DESC';
     const pageLimit = 100; // max allowed per docs
@@ -281,6 +269,7 @@ export class SensorDataService {
         from: args.from,
         to: args.to,
         orderBy,
+        granularity: args.granularity,
       });
 
       allRows = allRows.concat(chunk.data);
@@ -304,7 +293,7 @@ export class SensorDataService {
       data: allRows,
       metadata: {
         timestamp: new Date().toISOString(),
-        path: `/sensors/${args.deviceId}/history`,
+        path: `/sensors/${args.deviceId}/aggregate`,
         executionTime: 0,
         total: allRows.length,
         page: 1,

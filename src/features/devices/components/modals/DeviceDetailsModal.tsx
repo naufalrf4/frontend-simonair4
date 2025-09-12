@@ -20,7 +20,8 @@ import {
   Fish, 
   Droplets,
   Activity,
-  User
+  User,
+  Trash2
 } from 'lucide-react';
 import { useDeviceQuery } from '../../hooks/useDevicesQuery';
 import StatusDot from '../../../dashboard/components/status/StatusDot';
@@ -45,6 +46,7 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
   onClose,
   deviceId,
   onEdit,
+  onDelete,
 }) => {
   const { data: device, isLoading, error, refetch } = useDeviceQuery(
     deviceId || '',
@@ -63,11 +65,11 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
     }
   };
 
-  // const handleDelete = () => {
-  //   if (device && onDelete) {
-  //     onDelete(device);
-  //   }
-  // };
+  const handleDelete = () => {
+    if (device && onDelete) {
+      onDelete(device);
+    }
+  };
 
   // Format date in English with WIB suffix for this page
   const formatWIB = (dateString?: string | null) => {
@@ -302,7 +304,7 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
                 Edit Device
               </Button>
             )}
-            {/* {device && onDelete && (
+            {device && onDelete && (
               <Button
                 onClick={handleDelete}
                 variant="destructive"
@@ -312,7 +314,7 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
                 <Trash2 className="h-4 w-4 mr-2" />
                 Delete Device
               </Button>
-            )} */}
+            )}
           </div>
           <Button onClick={onClose} variant="secondary" className="w-full sm:w-auto">
             Close

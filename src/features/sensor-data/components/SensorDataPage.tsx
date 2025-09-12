@@ -44,6 +44,8 @@ export const SensorDataPage: React.FC = () => {
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
   const [dateRange, setDateRange] = useState<DateRange>(getDefaultDateRange());
   const [limit, setLimit] = useState<number | 'all'>(50);
+  const [aggGranularity, setAggGranularity] = useState<'auto' | 'hourly' | 'daily'>('auto');
+  const [page, setPage] = useState<number>(1);
   // Single-table design — no per-sensor data-type filters
 
   // Data fetching hooks
@@ -57,11 +59,14 @@ export const SensorDataPage: React.FC = () => {
     data: sensorData,
     isLoading: sensorDataLoading,
     error: sensorDataError,
-    refetch: refetchSensorData
+    refetch: refetchSensorData,
+    metadata: sensorMeta,
   } = useSensorDataPageQuery({
     deviceId: selectedDevice?.device_id || '',
     dateRange,
+    page,
     limit,
+    granularity: aggGranularity,
     enabled: !!selectedDevice
   });
 
@@ -144,6 +149,7 @@ export const SensorDataPage: React.FC = () => {
   // Handle device selection
   const handleDeviceSelect = (device: Device | null) => {
     setSelectedDevice(device);
+    setPage(1);
     if (device) {
       toast.success(`Selected device: ${device.name}`);
     }
@@ -152,9 +158,15 @@ export const SensorDataPage: React.FC = () => {
   // Handle date range change
   const handleDateRangeChange = (newDateRange: DateRange) => {
     setDateRange(newDateRange);
+    setPage(1);
     if (selectedDevice) {
       toast.info('Loading data for the new date range...');
     }
+  };
+
+  // Handle manual pagination change from DataTable (0-based index)
+  const handlePageChange = (pageIndex: number) => {
+    setPage(pageIndex + 1);
   };
 
   // Loading state component
@@ -262,10 +274,25 @@ export const SensorDataPage: React.FC = () => {
               onDateRangeChange={handleDateRangeChange}
             />
 
+            {/* Granularity Selector */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Granularity</span>
+              <Select value={aggGranularity} onValueChange={(v) => { setAggGranularity(v as any); setPage(1); }}>
+                <SelectTrigger className="h-8 w-[130px]">
+                  <SelectValue placeholder="Granularity" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="auto">Auto</SelectItem>
+                  <SelectItem value="hourly">Hourly</SelectItem>
+                  <SelectItem value="daily">Daily</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Page Size / Limit Selector */}
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">Limit</span>
-              <Select value={String(limit)} onValueChange={(v) => setLimit(v === 'all' ? 'all' as any : Number(v))}>
+              <Select value={String(limit)} onValueChange={(v) => { setLimit(v === 'all' ? 'all' as any : Number(v)); setPage(1); }}>
                 <SelectTrigger className="h-8 w-[90px]">
                   <SelectValue placeholder="Limit" />
                 </SelectTrigger>
@@ -328,6 +355,20 @@ export const SensorDataPage: React.FC = () => {
               columns={columns}
               data={sensorData as SensorReading[]}
               isLoading={sensorDataLoading}
+              pagination={
+                limit === 'all'
+                  ? undefined
+                  : {
+                      pageIndex: Math.max(0, page - 1),
+                      pageSize: typeof limit === 'number' ? limit : 50,
+                      pageCount:
+                        (sensorMeta?.totalPages as number | undefined) ??
+                        (typeof sensorMeta?.hasNext === 'boolean'
+                          ? (sensorMeta.hasNext ? page + 1 : page)
+                          : 1),
+                      onPageChange: handlePageChange,
+                    }
+              }
             />
           </CardContent>
         </Card>
@@ -340,7 +381,7 @@ export const SensorDataPage: React.FC = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-4">
                 <span>Device: <strong>{selectedDevice.name}</strong></span>
-                <span>Total rows: <strong>{sensorData.length}</strong></span>
+                <span>Total rows: <strong>{sensorMeta?.total ?? sensorData.length}</strong></span>
               </div>
               <div className="flex items-center gap-4">
                 <span>

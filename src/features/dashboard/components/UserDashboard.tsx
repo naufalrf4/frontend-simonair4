@@ -322,7 +322,7 @@ const UserDashboard: React.FC = () => {
           <div className="fixed bottom-4 right-4 bg-blue-100 border border-blue-300 rounded-lg p-3 shadow-lg">
             <div className="flex items-center gap-2">
               <div className="animate-pulse rounded-full h-4 w-4 bg-blue-600"></div>
-              <span className="text-sm text-blue-800">Mempersiapkan koneksi real-time...</span>
+              <span className="text-sm text-blue-800">Initializing real-time data...</span>
             </div>
           </div>
         )}
@@ -331,7 +331,7 @@ const UserDashboard: React.FC = () => {
           <div className="fixed bottom-4 right-4 bg-yellow-100 border border-yellow-300 rounded-lg p-3 shadow-lg">
             <div className="flex items-center gap-2">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-600"></div>
-              <span className="text-sm text-yellow-800">Menghubungkan ke data real-time...</span>
+              <span className="text-sm text-yellow-800">Connecting to real-time data...</span>
             </div>
           </div>
         )}
@@ -340,7 +340,7 @@ const UserDashboard: React.FC = () => {
           <div className="fixed bottom-4 right-4 bg-green-100 border green-300 rounded-lg p-3 shadow-lg">
             <div className="flex items-center gap-2">
               <div className="rounded-full h-4 w-4 bg-green-600"></div>
-              <span className="text-sm text-green-800">Data real-time aktif</span>
+              <span className="text-sm text-green-800">Real-time data active</span>
             </div>
           </div>
         )}

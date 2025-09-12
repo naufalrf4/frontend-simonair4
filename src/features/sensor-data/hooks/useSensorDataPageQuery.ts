@@ -9,6 +9,7 @@ interface UseSensorDataQueryOptions {
   page?: number;
   limit?: number | 'all';
   orderBy?: 'ASC' | 'DESC';
+  granularity?: 'auto' | 'hourly' | 'daily';
   enabled?: boolean;
 }
 
@@ -21,8 +22,16 @@ export const useSensorDataPageQuery = ({
   page = 1,
   limit = 100,
   orderBy = 'DESC',
+  granularity: granularityPref = 'auto',
   enabled = true
 }: UseSensorDataQueryOptions) => {
+  // Determine granularity for aggregated table per docs: ≤31 days -> hourly, else daily
+  const rangeMs = dateRange?.to?.getTime?.() - dateRange?.from?.getTime?.();
+  const days = isFinite(rangeMs) ? Math.max(1, Math.floor(rangeMs / (24 * 60 * 60 * 1000))) : 7;
+  const computedGranularity: 'hourly' | 'daily' = days <= 31 ? 'hourly' : 'daily';
+  const granularity: 'hourly' | 'daily' = granularityPref === 'hourly' || granularityPref === 'daily'
+    ? granularityPref
+    : computedGranularity;
   if (limit === 'all') {
     // Fetch all pages within range
     const result = useQuery({
@@ -30,12 +39,14 @@ export const useSensorDataPageQuery = ({
         from: dateRange.from.toISOString(),
         to: dateRange.to.toISOString(),
         orderBy,
+        granularity,
       }],
       queryFn: () => SensorDataService.getAllSensorData({
         deviceId,
         from: dateRange.from.toISOString(),
         to: dateRange.to.toISOString(),
         orderBy,
+        granularity,
       }),
       enabled: enabled && !!deviceId,
       staleTime: 30 * 1000,
@@ -45,7 +56,8 @@ export const useSensorDataPageQuery = ({
     return {
       ...result,
       data: result.data?.data,
-    };
+      metadata: result.data?.metadata,
+    } as typeof result & { data: any; metadata: any };
   }
 
   const params: SensorHistoryParams = {
@@ -54,7 +66,8 @@ export const useSensorDataPageQuery = ({
     limit,
     from: dateRange.from.toISOString(),
     to: dateRange.to.toISOString(),
-    orderBy
+    orderBy,
+    granularity,
   };
 
   const result = useSensorDataQuery(params, enabled);
@@ -62,7 +75,8 @@ export const useSensorDataPageQuery = ({
   return {
     ...result,
     data: result.data?.data, // Extract the data array from the response
-  };
+    metadata: result.data?.metadata,
+  } as typeof result & { data: any; metadata: any };
 };
 
 /**

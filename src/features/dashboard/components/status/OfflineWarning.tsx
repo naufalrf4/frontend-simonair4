@@ -11,11 +11,11 @@ const OfflineWarning: React.FC<OfflineWarningProps> = ({ lastOnline }) => {
       <div className="flex items-center gap-2 text-red-700 mb-1">
         <AlertTriangle className="h-4 w-4 flex-shrink-0" />
         <span className="text-sm font-bold">
-          Perangkat Terputus
+          Device Offline
         </span>
       </div>
       <p className="text-sm text-red-600 ml-6">
-        Terakhir terlihat: <span className="font-semibold">{lastOnline}</span>
+        Last seen: <span className="font-semibold">{lastOnline}</span>
       </p>
     </div>
   );

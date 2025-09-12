@@ -17,10 +17,10 @@ const NoDevicesFallback: React.FC<NoDevicesFallbackProps> = () => (
         <Waves className="h-14 w-14 sm:h-20 sm:w-20 text-cyan-300 animate-wave" />
       </div>
       <h3 className="text-xl sm:text-3xl font-bold text-gray-700 mb-3 sm:mb-4">
-        Tidak ada perangkat yang terhubung
+        No Devices Paired
       </h3>
       <p className="text-gray-500 text-base sm:text-lg max-w-md sm:max-w-2xl mx-auto mb-6 sm:mb-8 leading-relaxed">
-        Silakan lakukan Pair Device untuk menghubungkan perangkat baru ke sistem.
+        Please pair a device to connect a new device to the system.
       </p>
       <div className="space-y-3 sm:space-y-4">
         <div className="flex items-center justify-center gap-2 sm:gap-4 text-sm sm:text-base">
@@ -31,7 +31,7 @@ const NoDevicesFallback: React.FC<NoDevicesFallbackProps> = () => (
           >
             <Link to="/devices">
               <PlusCircle className="h-5 w-5 sm:h-6 sm:w-6 mr-2" />
-              Pair Device Baru
+              Pair New Device
             </Link>
           </Button>
         </div>

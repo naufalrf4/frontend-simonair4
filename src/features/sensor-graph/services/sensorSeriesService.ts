@@ -68,8 +68,11 @@ export class SensorSeriesService {
       order,
       maxPoints: String(maxPoints),
       fill,
-      format,
     });
+    // Some backends reject 'format=series'; only send when explicitly 'flat'
+    if (format === 'flat') {
+      search.set('format', 'flat');
+    }
     // Many backends default to all metrics; only send when subset is requested
     const ALL: SeriesMetric[] = ['temperature', 'ph', 'tds', 'do_level'];
     const isAll = !metrics || metrics.length === 0 || ALL.every((m) => metrics.includes(m));
