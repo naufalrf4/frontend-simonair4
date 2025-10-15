@@ -12,6 +12,7 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  accessToken: string | null;
   login: (credentials: { email: string; password: string }) => Promise<void>;
   register: (data: { fullName: string; email: string; password: string }) => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
@@ -27,6 +28,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
   const [fingerprint, setFingerprint] = useState<string>('');
   const [isInitialized, setIsInitialized] = useState(false);
   const [fetchProfileDebounceTimeout, setFetchProfileDebounceTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -65,6 +67,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const token = await decryptToken(simonairToken, fp);
           if (token && !isTokenExpired(token)) {
             setIsAuthenticated(true);
+            setAccessToken(token);
             scheduleTokenRefresh(token); // Schedule automatic refresh
             emitDebouncedProfileFetch();
           } else {
@@ -94,6 +97,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const cleanupTokenRefreshed = eventBus.on('token-refreshed', async ({ token }) => {
       // console.log('🔄 Token refreshed, updating storage and scheduling next refresh');
+      setAccessToken(token);
       await saveTokenToStorage(token);
       scheduleTokenRefresh(token);
       emitDebouncedProfileFetch();
@@ -250,6 +254,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const clearAuthStorage = () => {
     localStorage.removeItem('simonairToken');
     localStorage.removeItem('simonairUser');
+    setAccessToken(null);
     
     // Clear refresh timeout
     if (refreshTimeoutRef.current) {
@@ -282,6 +287,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const token = data?.data?.accessToken ?? data?.accessToken;
       await saveTokenToStorage(token);
       setIsAuthenticated(true);
+      setAccessToken(token);
       scheduleTokenRefresh(token); // Schedule refresh for new token
       emitDebouncedProfileFetch();
       toast.success('Login berhasil');
@@ -300,6 +306,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const token = data?.data?.accessToken ?? data?.accessToken;
       await saveTokenToStorage(token);
       setIsAuthenticated(true);
+      setAccessToken(token);
       scheduleTokenRefresh(token); // Schedule refresh for new token
       emitDebouncedProfileFetch();
       toast.success('Registrasi berhasil. Selamat datang!');
@@ -327,6 +334,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     onSuccess: async ({ data }) => {
       const token = data?.data?.accessToken ?? data?.accessToken;
       // console.log('✅ Token refresh successful');
+      setAccessToken(token);
       eventBus.emit('token-refreshed', { token });
     },
     onError: (error: any) => {
@@ -353,6 +361,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     user,
     isAuthenticated,
     isLoading,
+    accessToken,
     login: async (data) => {
       await loginMutation.mutateAsync(data);
     },

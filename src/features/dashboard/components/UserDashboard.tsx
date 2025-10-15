@@ -8,13 +8,18 @@ import NoDevicesFallback from './devices/NoDevicesFallback';
 import CalibrationModal from './calibration/CalibrationModal';
 import OffsetModal from './calibration/OffsetModal';
 import { useDevices } from '../hooks/useDevices';
-import { determineDeviceStatus, parseSensorData, updateDeviceData } from './utils/dashboardUtils';
+import {
+  determineDeviceStatus,
+  parseSensorData,
+  updateDeviceData,
+  ONLINE_THRESHOLD_MS,
+  formatIndonesianDate,
+} from './utils/dashboardUtils';
 import { toast } from 'sonner';
 import { useNavigate } from '@tanstack/react-router';
-import { useWebSocket } from '../hooks/useWebSocket';
+import { useWebSocket, type SensorUpdateData } from '../hooks/useWebSocket';
 import { useAuth } from '@/features/authentication/hooks/useAuth';
 import { apiClient } from '@/utils/apiClient';
-import { getBrowserFingerprint, decryptToken } from '@/utils/fingerprint';
 import type { UserRole } from '@/features/users/types';
 
 interface CalibrationModalState {
@@ -29,15 +34,13 @@ interface OffsetModalState {
 }
 
 const UserDashboard: React.FC = () => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading, accessToken } = useAuth();
   const navigate = useNavigate();
 
   const [devices, setDevices] = useState<Record<string, Device>>({});
   const [lastUpdate, setLastUpdate] = useState<string>('');
   const [hasInitialData, setHasInitialData] = useState(false);
   const [isWebSocketReady, setIsWebSocketReady] = useState(false);
-  const [decryptedToken, setDecryptedToken] = useState<string | null>(null);
-  const [tokenReady, setTokenReady] = useState(false);
   const [calibrationModal, setCalibrationModal] = useState<CalibrationModalState>({
     open: false,
     deviceId: '',
@@ -57,32 +60,27 @@ const UserDashboard: React.FC = () => {
 
   // Step 1: Get devices and sensor data via HTTP
   const { devices: initialDevices, loading: devicesLoading } = useDevices();
-
-  useEffect(() => {
-    if (tokenReady) return;
-
-    const getToken = async () => {
-      try {
-        const encrypted = localStorage.getItem('simonairToken');
-        if (!encrypted) {
-          // console.log('🔑 No token found in storage');
-          setTokenReady(true);
-          return;
-        }
-
-        const fingerprint = await getBrowserFingerprint();
-        const decrypted = await decryptToken(encrypted, fingerprint);
-        // console.log('🔑 Token decrypted successfully');
-        setDecryptedToken(decrypted);
-      } catch (error) {
-        // console.error('🔑 Failed to decrypt token:', error);
-      } finally {
-        setTokenReady(true);
-      }
-    };
-
-    getToken();
-  }, []);
+  const initialSnapshots = useMemo(() => {
+    if (!initialDevices || initialDevices.length === 0) return {};
+    return initialDevices.reduce((acc, device) => {
+      const latest = device.latestSensorData as Partial<SensorUpdateData> | undefined;
+      if (!latest) return acc;
+      const timestamp =
+        latest.timestamp ||
+        latest.time ||
+        new Date().toISOString();
+      const snapshot: SensorUpdateData = {
+        ...latest,
+        device_id: device.device_id,
+        timestamp,
+        time: latest.time || timestamp,
+        realtime: latest.realtime ?? false,
+        source: latest.source ?? 'database',
+      };
+      acc[device.device_id] = snapshot;
+      return acc;
+    }, {} as Record<string, SensorUpdateData>);
+  }, [initialDevices]);
 
   // Step 3: Process initial devices and sensor data
   useEffect(() => {
@@ -90,6 +88,14 @@ const UserDashboard: React.FC = () => {
       // console.log('📱 Step 3: Processing initial devices with sensor data');
 
       const devicesMap = initialDevices.reduce((acc, device) => {
+        const lastSeenIso = device.lastSeenIso || device.last_seen || null;
+        const baseOnline = lastSeenIso
+          ? Date.now() - new Date(lastSeenIso).getTime() < ONLINE_THRESHOLD_MS
+          : false;
+        const formattedLastOnline = lastSeenIso
+          ? formatIndonesianDate(lastSeenIso)
+          : '-';
+
         const deviceData: Device = {
           id: device.id,
           device_id: device.device_id,
@@ -100,18 +106,9 @@ const UserDashboard: React.FC = () => {
           location: device.location || 'Unknown',
           aquarium_size: device.aquarium_size || 'Unknown',
           glass_type: device.glass_type || 'Unknown',
-          online: device.online,
-          lastOnline: device.last_seen
-            ? new Date(device.last_seen).toLocaleDateString('en-US', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-          timeZoneName: 'short',
-              })
-            : '-',
+          online: baseOnline,
+          lastSeenIso,
+          lastOnline: formattedLastOnline,
           lastData: '',
           sensors: [],
         };
@@ -120,28 +117,18 @@ const UserDashboard: React.FC = () => {
           const sensorData = device.latestSensorData;
           deviceData.sensors = parseSensorData(sensorData);
           deviceData.status = determineDeviceStatus(deviceData.sensors);
-            deviceData.lastData = new Date(sensorData.timestamp).toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-            timeZoneName: 'short',
-            });
+          const sensorIso = sensorData.timestamp || sensorData.time;
+          if (sensorIso) {
+            const normalized = new Date(sensorIso).toISOString();
+            deviceData.lastData = formatIndonesianDate(normalized);
+            deviceData.lastSeenIso = normalized;
+            deviceData.lastOnline = formatIndonesianDate(normalized);
+            deviceData.online =
+              Date.now() - new Date(normalized).getTime() < ONLINE_THRESHOLD_MS;
+          }
 
-          if (!lastUpdate) {
-            setLastUpdate(
-              new Date(sensorData.timestamp).toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                timeZoneName: 'short',
-              }),
-            );
+          if (!lastUpdate && deviceData.lastSeenIso) {
+            setLastUpdate(formatIndonesianDate(deviceData.lastSeenIso));
           }
         }
 
@@ -157,7 +144,7 @@ const UserDashboard: React.FC = () => {
 
   // Step 4: Enable WebSocket when both conditions are met
   useEffect(() => {
-    if (hasInitialData && tokenReady && decryptedToken && !isWebSocketReady) {
+    if (hasInitialData && accessToken && !isWebSocketReady) {
       // console.log('🔌 Step 4: All prerequisites met, enabling WebSocket in 1 second...');
       const timer = setTimeout(() => {
         setIsWebSocketReady(true);
@@ -166,31 +153,30 @@ const UserDashboard: React.FC = () => {
 
       return () => clearTimeout(timer);
     }
-  }, [hasInitialData, tokenReady, decryptedToken, isWebSocketReady]);
+  }, [hasInitialData, accessToken, isWebSocketReady]);
 
   // Step 5: Connect WebSocket with stable dependencies
   const webSocketEnabled = isWebSocketReady && 
-                           tokenReady && 
                            !devicesLoading && 
-                           !!decryptedToken && 
+                           !!accessToken && 
                            hasInitialData && 
                            (initialDevices?.length ?? 0) > 0;
 
   // console.log('🔌 WebSocket conditions:', {
   //   isWebSocketReady,
-  //   tokenReady,
   //   devicesLoading,
-  //   hasToken: !!decryptedToken,
+  //   hasToken: !!accessToken,
   //   hasInitialData,
   //   deviceCount: initialDevices?.length ?? 0,
   //   enabled: webSocketEnabled
   // });
 
   const { isConnected, sensorData, calibrationAck, thresholdAck } = useWebSocket({
-    token: decryptedToken,
+    token: accessToken,
     devices: initialDevices || [],
     role: user?.role as UserRole | undefined,
     enabled: webSocketEnabled,
+    initialSnapshots,
   });
 
   // Step 6: Handle real-time WebSocket updates
@@ -205,17 +191,48 @@ const UserDashboard: React.FC = () => {
           setLastUpdate,
           parseSensorData,
           determineDeviceStatus,
+          ONLINE_THRESHOLD_MS,
         );
       });
     }
   }, [sensorData, hasInitialData, isConnected]);
 
   useEffect(() => {
+    const interval = setInterval(() => {
+      setDevices((prev) => {
+        if (!prev) return prev;
+        const now = Date.now();
+        let mutated = false;
+        const next: Record<string, Device> = { ...prev };
+
+        Object.entries(prev).forEach(([deviceId, device]) => {
+          const iso = device.lastSeenIso;
+          const isOnline = iso
+            ? now - new Date(iso).getTime() < ONLINE_THRESHOLD_MS
+            : false;
+          if (device.online !== isOnline) {
+            mutated = true;
+            next[deviceId] = { ...device, online: isOnline };
+          }
+        });
+
+        return mutated ? next : prev;
+      });
+    }, 60_000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
     if (calibrationAck) {
-      toast.success(`Calibration: ${calibrationAck.message}`);
+      const fn =
+        calibrationAck.ack_status === 'success' ? toast.success : toast.error;
+      fn(`Calibration: ${calibrationAck.message}`);
     }
     if (thresholdAck) {
-      toast.success(`Threshold: ${thresholdAck.message}`);
+      const fn =
+        thresholdAck.ack_status === 'success' ? toast.success : toast.error;
+      fn(`Threshold: ${thresholdAck.message}`);
     }
   }, [calibrationAck, thresholdAck]);
 
@@ -272,7 +289,7 @@ const UserDashboard: React.FC = () => {
   // Show loading until we have initial data for existing devices.
   // If there are no devices, show the dashboard with the empty state immediately.
   const hasDevices = (initialDevices?.length ?? 0) > 0;
-  const isLoading = !user || devicesLoading || (hasDevices ? (!tokenReady || !hasInitialData) : false);
+  const isLoading = authLoading || !user || devicesLoading || (hasDevices ? (!accessToken || !hasInitialData) : false);
 
   if (isLoading) {
     return (
@@ -282,7 +299,7 @@ const UserDashboard: React.FC = () => {
           <p className="mt-4 text-gray-600">
             {!user ? 'Authenticating...' :
              devicesLoading ? 'Loading devices...' :
-             hasDevices && !tokenReady ? 'Preparing connection...' :
+             hasDevices && !accessToken ? 'Preparing connection...' :
              hasDevices && !hasInitialData ? 'Loading sensor data...' :
              'Loading...'}
           </p>

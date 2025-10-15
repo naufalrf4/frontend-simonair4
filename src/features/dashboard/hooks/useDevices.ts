@@ -5,29 +5,32 @@ interface SensorData {
   time: string;
   timestamp: string;
   temperature?: {
-    value: number;
-    status: 'GOOD' | 'BAD';
+    value?: number;
+    voltage?: number;
+    calibrated?: number;
+    calibrated_ok?: boolean;
+    status?: 'GOOD' | 'BAD';
   };
   ph?: {
-    raw: number;
-    voltage: number;
-    calibrated: number;
-    calibrated_ok: boolean;
-    status: 'GOOD' | 'BAD';
+    value?: number;
+    voltage?: number;
+    calibrated?: number;
+    calibrated_ok?: boolean;
+    status?: 'GOOD' | 'BAD';
   };
   tds?: {
-    raw: number;
-    voltage: number;
-    calibrated: number;
-    calibrated_ok: boolean;
-    status: 'GOOD' | 'BAD';
+    value?: number;
+    voltage?: number;
+    calibrated?: number;
+    calibrated_ok?: boolean;
+    status?: 'GOOD' | 'BAD';
   };
   do_level?: {
-    raw: number;
-    voltage: number;
-    calibrated: number;
-    calibrated_ok: boolean;
-    status: 'GOOD' | 'BAD';
+    value?: number;
+    voltage?: number;
+    calibrated?: number;
+    calibrated_ok?: boolean;
+    status?: 'GOOD' | 'BAD';
   };
 }
 
@@ -40,6 +43,7 @@ interface Device {
   glass_type?: string;
   fish_count?: number;
   last_seen: string;
+  lastSeenIso?: string | null;
   is_active: boolean;
   created_at: string;
   user?: {
@@ -80,21 +84,29 @@ export const useDevices = (): UseDevicesReturn => {
         throw new Error('Invalid response structure');
       }
 
-      const enrichedDevices = response.data.data.map((device: any) => ({
-        id: device.id,
-        device_id: device.device_id,
-        device_name: device.device_name,
-        location: device.location,
-        aquarium_size: device.aquarium_size,
-        glass_type: device.glass_type,
-        fish_count: device.fish_count,
-        last_seen: device.last_seen,
-        is_active: device.is_active,
-        created_at: device.created_at,
-        user: device.user,
-        online: computeOnlineStatus(device.last_seen),
-        latestSensorData: device.latestSensorData,
-      }));
+      const enrichedDevices = response.data.data.map((device: any) => {
+        const lastSeenIso = device.last_seen ?? null;
+        const computedOnline = lastSeenIso ? computeOnlineStatus(lastSeenIso) : false;
+        const isOnline =
+          typeof device.online === 'boolean' ? device.online : computedOnline;
+
+        return {
+          id: device.id,
+          device_id: device.device_id,
+          device_name: device.device_name,
+          location: device.location,
+          aquarium_size: device.aquarium_size,
+          glass_type: device.glass_type,
+          fish_count: device.fish_count,
+          last_seen: device.last_seen,
+          is_active: device.is_active,
+          created_at: device.created_at,
+          user: device.user,
+          online: isOnline,
+          lastSeenIso,
+          latestSensorData: device.latestSensorData,
+        };
+      });
 
       setDevices(enrichedDevices);
       console.log(`📱 Loaded ${enrichedDevices.length} devices with sensor data`);
@@ -130,7 +142,8 @@ export const useDevices = (): UseDevicesReturn => {
       setDevices(prevDevices => 
         prevDevices.map(device => ({
           ...device,
-          online: computeOnlineStatus(device.last_seen)
+          online: computeOnlineStatus(device.lastSeenIso ?? device.last_seen),
+          lastSeenIso: device.lastSeenIso ?? device.last_seen
         }))
       );
     }, 30000); 

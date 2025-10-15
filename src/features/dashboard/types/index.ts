@@ -20,6 +20,7 @@ export interface Device {
   glass_type?: string;
   fish_count?: number;
   online: boolean;
+  lastSeenIso?: string | null;
   lastOnline: string;
   lastData: string;
   sensors: Sensor[];

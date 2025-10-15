@@ -2,46 +2,49 @@ import type { UserRole } from '@/features/users/types';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import io, { Socket } from 'socket.io-client';
 
-interface UseWebSocketProps {
-  token: string | null;
-  devices: Array<{ device_id: string; id?: string }>;
-  role?: UserRole;
-  enabled?: boolean;
-}
-
-interface SensorUpdateData {
+export interface SensorUpdateData {
   device_id: string;
   timestamp: string;
+  time?: string;
+  realtime?: boolean;
+  source?: 'database' | 'mqtt' | string;
   temperature?: {
-    value: number;
-    status: 'GOOD' | 'BAD';
-    raw?: number;
+    value?: number;
+    status?: 'GOOD' | 'BAD';
     voltage?: number;
     calibrated?: number;
     calibrated_ok?: boolean;
   };
   ph?: {
-    raw: number;
-    voltage: number;
-    calibrated: number;
-    calibrated_ok: boolean;
-    status: 'GOOD' | 'BAD';
+    value?: number;
+    voltage?: number;
+    calibrated?: number;
+    calibrated_ok?: boolean;
+    status?: 'GOOD' | 'BAD';
   };
   tds?: {
-    raw: number;
-    voltage: number;
-    calibrated: number;
-    calibrated_ok: boolean;
-    status: 'GOOD' | 'BAD';
+    value?: number;
+    voltage?: number;
+    calibrated?: number;
+    calibrated_ok?: boolean;
+    status?: 'GOOD' | 'BAD';
   };
   do_level?: {
-    raw: number;
-    voltage: number;
-    calibrated: number;
-    calibrated_ok: boolean;
-    status: 'GOOD' | 'BAD';
+    value?: number;
+    voltage?: number;
+    calibrated?: number;
+    calibrated_ok?: boolean;
+    status?: 'GOOD' | 'BAD';
   };
   [key: string]: any;
+}
+
+interface UseWebSocketProps {
+  token: string | null;
+  devices: Array<{ device_id: string; id?: string }>;
+  role?: UserRole;
+  enabled?: boolean;
+  initialSnapshots?: Record<string, SensorUpdateData>;
 }
 
 interface AckData {
@@ -49,9 +52,17 @@ interface AckData {
   ack_status: 'success' | 'failed';
   message: string;
   timestamp?: string;
+  sensor_type?: string;
+  thresholds?: Record<string, number> | null;
 }
 
-export const useWebSocket = ({ token, devices, role, enabled = true }: UseWebSocketProps) => {
+export const useWebSocket = ({
+  token,
+  devices,
+  role,
+  enabled = true,
+  initialSnapshots,
+}: UseWebSocketProps) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [sensorData, setSensorData] = useState<Record<string, SensorUpdateData>>({});
@@ -64,10 +75,19 @@ export const useWebSocket = ({ token, devices, role, enabled = true }: UseWebSoc
   const connectedRef = useRef(false);
   const enabledRef = useRef(enabled);
   const maxReconnectAttempts = 5;
+  const snapshotAppliedRef = useRef(false);
 
   useEffect(() => {
     enabledRef.current = enabled;
   }, [enabled]);
+
+  useEffect(() => {
+    if (snapshotAppliedRef.current) return;
+    if (!initialSnapshots) return;
+    if (Object.keys(initialSnapshots).length === 0) return;
+    setSensorData(initialSnapshots);
+    snapshotAppliedRef.current = true;
+  }, [initialSnapshots]);
 
   const clearTimeouts = useCallback(() => {
     if (reconnectTimeoutRef.current) {
@@ -204,27 +224,18 @@ export const useWebSocket = ({ token, devices, role, enabled = true }: UseWebSoc
       }
     });
 
-    socketInstance.on('sensorUpdate', (data: SensorUpdateData) => {
-      // console.log(`📡 Received sensor update for device: ${data.device_id}`, data);
+    socketInstance.on('sensorUpdate', (data: SensorUpdateData & { realtime?: boolean }) => {
+      const device_id = data.device_id || (data as any).deviceId;
+      if (!device_id) return;
+      const timestamp = data.timestamp || (data as any).time || new Date().toISOString();
+
       setSensorData((prevData) => ({
         ...prevData,
-        [data.device_id]: {
-          ...data,
-          timestamp: data.timestamp || new Date().toISOString(),
-        },
-      }));
-    });
-
-    socketInstance.on('realtimeSensorUpdate', (data: any) => {
-      const device_id = data.device_id || data.deviceId;
-      const timestamp = data.timestamp || data.time || new Date().toISOString();
-      setSensorData((prev) => ({
-        ...prev,
         [device_id]: {
           ...data,
           device_id,
           timestamp,
-        } as any,
+        },
       }));
     });
 
