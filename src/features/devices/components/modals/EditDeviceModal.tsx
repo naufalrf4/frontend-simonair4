@@ -19,7 +19,6 @@ import {
 import { DeviceForm } from '../forms/DeviceForm';
 import { useUpdateDeviceMutation } from '../../hooks/useDeviceMutations';
 import { formatDeviceForForm } from '../../utils/deviceFormatters';
-import { DEVICE_MESSAGES } from '../../constants/messages';
 import type { Device, DeviceFormData } from '../../types';
 import { Edit, Save, AlertTriangle, User as UserIcon } from 'lucide-react';
 import { useAuth } from '@/features/authentication/hooks/useAuth';
@@ -32,6 +31,7 @@ import {
   SelectContent,
   SelectItem,
 } from '@/components/ui/select';
+import { useTranslation } from 'react-i18next';
 
 export interface EditDeviceModalProps {
   isOpen: boolean;
@@ -46,6 +46,7 @@ export const EditDeviceModal: React.FC<EditDeviceModalProps> = ({
   device,
   onSuccess,
 }) => {
+  const { t } = useTranslation('devices');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showUnsavedWarning, setShowUnsavedWarning] = useState(false);
   const [initialFormData, setInitialFormData] = useState<DeviceFormData | null>(null);
@@ -148,13 +149,10 @@ export const EditDeviceModal: React.FC<EditDeviceModalProps> = ({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Edit className="h-5 w-5" />
-              {DEVICE_MESSAGES.EDIT_DEVICE_TITLE}
+              {t('modals.edit.title')}
             </DialogTitle>
             <DialogDescription>
-              {DEVICE_MESSAGES.EDIT_DEVICE_DESCRIPTION.replace(
-                '{device_name}',
-                device?.device_name || '',
-              )}
+              {t('modals.edit.description', { name: device?.device_name || '' })}
             </DialogDescription>
           </DialogHeader>
 
@@ -166,8 +164,8 @@ export const EditDeviceModal: React.FC<EditDeviceModalProps> = ({
               isLoading={updateDeviceMutation.isPending}
               submitLabel={
                 updateDeviceMutation.isPending
-                  ? DEVICE_MESSAGES.SAVING_DEVICE
-                  : DEVICE_MESSAGES.SAVE_CHANGES
+                  ? t('loading.saving')
+                  : t('buttons.save')
               }
               submitIcon={<Save className="mr-2 h-4 w-4" />}
               showCancel={true}
@@ -180,7 +178,7 @@ export const EditDeviceModal: React.FC<EditDeviceModalProps> = ({
           {isPrivileged && (
             <div className="mt-4 space-y-2">
               <label className="text-sm font-medium flex items-center gap-2">
-                <UserIcon className="h-4 w-4" /> Owner
+                <UserIcon className="h-4 w-4" /> {t('ownership.label')}
               </label>
               <Select
                 value={ownerUserId}
@@ -188,7 +186,11 @@ export const EditDeviceModal: React.FC<EditDeviceModalProps> = ({
                 disabled={usersLoading}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={usersLoading ? 'Loading users...' : 'Select owner'} />
+                  <SelectValue
+                    placeholder={
+                      usersLoading ? t('ownership.loading') : t('ownership.placeholder')
+                    }
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {users.map((u) => {
@@ -201,7 +203,7 @@ export const EditDeviceModal: React.FC<EditDeviceModalProps> = ({
                   })}
                 </SelectContent>
               </Select>
-              <p className="text-xs text-muted-foreground">Admins can reassign device ownership.</p>
+              <p className="text-xs text-muted-foreground">{t('ownership.help')}</p>
             </div>
           )}
         </DialogContent>
@@ -210,25 +212,25 @@ export const EditDeviceModal: React.FC<EditDeviceModalProps> = ({
       <AlertDialog open={showUnsavedWarning} onOpenChange={setShowUnsavedWarning}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <div className="flex items-center gap-2 text-amber-600 mb-2">
-              <AlertTriangle className="h-5 w-5" />
-              <AlertDialogTitle>{DEVICE_MESSAGES.UNSAVED_CHANGES_TITLE}</AlertDialogTitle>
-            </div>
-            <AlertDialogDescription>
-              {DEVICE_MESSAGES.UNSAVED_CHANGES_DESCRIPTION}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancelClose}>
-              {DEVICE_MESSAGES.CONTINUE_EDITING}
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmClose}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {DEVICE_MESSAGES.DISCARD_CHANGES}
-            </AlertDialogAction>
-          </AlertDialogFooter>
+          <div className="flex items-center gap-2 text-amber-600 mb-2">
+            <AlertTriangle className="h-5 w-5" />
+            <AlertDialogTitle>{t('modals.unsaved.title')}</AlertDialogTitle>
+          </div>
+          <AlertDialogDescription>
+            {t('modals.unsaved.description')}
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={handleCancelClose}>
+            {t('buttons.continueEditing')}
+          </AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleConfirmClose}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {t('buttons.discard')}
+          </AlertDialogAction>
+        </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </>

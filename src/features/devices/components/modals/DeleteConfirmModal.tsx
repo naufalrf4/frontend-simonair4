@@ -12,9 +12,9 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { useDeleteDeviceMutation } from '../../hooks/useDeviceMutations';
 import { formatDeviceStatus } from '../../utils/deviceFormatters';
-import { DEVICE_MESSAGES } from '../../constants/messages';
 import type { Device } from '../../types';
 import { Trash2, AlertTriangle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export interface DeleteConfirmModalProps {
   isOpen: boolean;
@@ -29,6 +29,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
   device,
   onSuccess,
 }) => {
+  const { t } = useTranslation('devices');
   const deleteDeviceMutation = useDeleteDeviceMutation();
 
   const handleConfirmDelete = async () => {
@@ -64,12 +65,12 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
         <AlertDialogHeader>
           <div className="flex items-center gap-2 text-destructive mb-2">
             <AlertTriangle className="h-5 w-5" />
-            <AlertDialogTitle>{DEVICE_MESSAGES.DELETE_DEVICE_TITLE}</AlertDialogTitle>
+            <AlertDialogTitle>{t('delete.title')}</AlertDialogTitle>
           </div>
           <AlertDialogDescription asChild>
             <div className="space-y-4">
               <p>
-                {DEVICE_MESSAGES.DELETE_DEVICE_DESCRIPTION}
+                {t('delete.description')}
               </p>
               
               {/* Device Information Display */}
@@ -85,27 +86,27 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
                 
                 <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
-                    <span className="text-muted-foreground">ID Perangkat:</span>
+                    <span className="text-muted-foreground">{t('card.labels.deviceId')}:</span>
                     <p className="font-mono">{device.device_id}</p>
                   </div>
                   
                   {device.location && (
                     <div>
-                      <span className="text-muted-foreground">Lokasi:</span>
+                      <span className="text-muted-foreground">{t('card.labels.location')}:</span>
                       <p>{device.location}</p>
                     </div>
                   )}
                   
                   {device.aquarium_size && (
                     <div>
-                      <span className="text-muted-foreground">Ukuran:</span>
+                      <span className="text-muted-foreground">{t('card.labels.size')}:</span>
                       <p>{device.aquarium_size}</p>
                     </div>
                   )}
                   
                   {device.fish_count && device.fish_count > 0 && (
                     <div>
-                      <span className="text-muted-foreground">Jumlah Ikan:</span>
+                      <span className="text-muted-foreground">{t('forms.fishCount.label')}:</span>
                       <p>{device.fish_count}</p>
                     </div>
                   )}
@@ -114,14 +115,14 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
 
               <div className="text-sm text-muted-foreground">
                 <p className="font-medium text-destructive mb-1">
-                  {DEVICE_MESSAGES.DELETE_WARNING}
+                  {t('delete.warning')}
                 </p>
-                <p className="mt-2">Tindakan ini akan menghapus:</p>
+                <p className="mt-2">{t('delete.impactTitle')}</p>
                 <ul className="list-disc list-inside space-y-1 ml-2 mt-1">
-                  <li>Semua konfigurasi dan pengaturan perangkat</li>
-                  <li>Data historis sensor dan pembacaan</li>
-                  <li>Riwayat koneksi dan log</li>
-                  <li>Data kalibrasi yang terkait</li>
+                  <li>{t('delete.impact.config')}</li>
+                  <li>{t('delete.impact.history')}</li>
+                  <li>{t('delete.impact.connections')}</li>
+                  <li>{t('delete.impact.calibrations')}</li>
                 </ul>
               </div>
             </div>
@@ -133,7 +134,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
             onClick={handleCancel}
             disabled={deleteDeviceMutation.isPending}
           >
-            {DEVICE_MESSAGES.CANCEL}
+            {t('buttons.cancel')}
           </AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirmDelete}
@@ -141,7 +142,7 @@ export const DeleteConfirmModal: React.FC<DeleteConfirmModalProps> = ({
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             <Trash2 className="mr-2 h-4 w-4" />
-            {deleteDeviceMutation.isPending ? DEVICE_MESSAGES.DELETING_DEVICE : DEVICE_MESSAGES.DELETE_DEVICE}
+            {deleteDeviceMutation.isPending ? t('loading.deleting') : t('delete.confirm')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -13,20 +13,23 @@ import { DeviceSelector } from '@/features/sensor-data/components/DeviceSelector
 import type { Device } from '@/features/sensor-data/types';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { useTranslation } from 'react-i18next';
 
-function formatWIB(iso?: string | null): string {
+function formatWIB(iso?: string | null, locale: string = 'en-US'): string {
   if (!iso) return '-';
   const d = new Date(iso);
   if (isNaN(d.getTime())) return '-';
-  const dayName = new Intl.DateTimeFormat('en-US', { weekday: 'long', timeZone: 'Asia/Jakarta' }).format(d);
-  const dayNum = new Intl.DateTimeFormat('en-US', { day: '2-digit', timeZone: 'Asia/Jakarta' }).format(d);
-  const monthName = new Intl.DateTimeFormat('en-US', { month: 'long', timeZone: 'Asia/Jakarta' }).format(d);
-  const year = new Intl.DateTimeFormat('en-US', { year: 'numeric', timeZone: 'Asia/Jakarta' }).format(d);
-  const hm = new Intl.DateTimeFormat('en-US', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Jakarta' }).format(d);
+  const dayName = new Intl.DateTimeFormat(locale, { weekday: 'long', timeZone: 'Asia/Jakarta' }).format(d);
+  const dayNum = new Intl.DateTimeFormat(locale, { day: '2-digit', timeZone: 'Asia/Jakarta' }).format(d);
+  const monthName = new Intl.DateTimeFormat(locale, { month: 'long', timeZone: 'Asia/Jakarta' }).format(d);
+  const year = new Intl.DateTimeFormat(locale, { year: 'numeric', timeZone: 'Asia/Jakarta' }).format(d);
+  const hm = new Intl.DateTimeFormat(locale, { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Jakarta' }).format(d);
   return `${dayName}, ${dayNum} ${monthName} ${year} ${hm} WIB`;
 }
 
 export const FeedsPage: React.FC = () => {
+  const { t, i18n } = useTranslation('farming');
+  const locale = i18n.language === 'id' ? 'id-ID' : 'en-US';
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
   const deviceId = selectedDevice?.device_id || '';
   const [pageIndex, setPageIndex] = useState(0);
@@ -59,14 +62,14 @@ export const FeedsPage: React.FC = () => {
   const columns = useMemo<ColumnDef<FeedRecord>[]>(() => [
     {
       accessorKey: 'fedAt',
-      header: 'Event Time',
+      header: t('feeds.table.eventTime'),
       cell: ({ row }) => (
-        <span className="text-sm font-medium">{formatWIB(row.original.fedAt || row.original.createdAt)}</span>
+        <span className="text-sm font-medium">{formatWIB(row.original.fedAt || row.original.createdAt, locale)}</span>
       ),
     },
     {
       accessorKey: 'feedName',
-      header: 'Feed Name',
+      header: t('feeds.table.feedName'),
       cell: ({ row }) => (
         <div className="flex flex-col">
           <span className="font-medium">{row.original.feedName}</span>
@@ -76,29 +79,28 @@ export const FeedsPage: React.FC = () => {
     },
     {
       accessorKey: 'feedType',
-      header: 'Type',
+      header: t('feeds.table.type'),
       meta: { hideOnMobile: true },
       cell: ({ row }) => <span className="text-sm capitalize">{row.original.feedType}</span>,
     },
     {
       accessorKey: 'feedAmountKg',
-      header: 'Amount (kg)',
+      header: t('feeds.table.amount'),
       cell: ({ row }) => <span className="text-sm">{row.original.feedAmountKg.toFixed(2)}</span>,
       meta: { hideOnMobile: true },
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: t('common.table.actions'),
       cell: ({ row }) => (
         <div className="flex gap-2">
-          {null}
           <Button variant="outline" size="sm" onClick={() => setOpenUpsert({ open: true, mode: 'edit', feed: row.original })}>
-            Edit
+            {t('common.buttons.edit')}
           </Button>
         </div>
       ),
     },
-  ], []);
+  ], [locale, t]);
 
   return (
     <div className="space-y-4">
@@ -109,14 +111,14 @@ export const FeedsPage: React.FC = () => {
             <Database className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold">Feed Data</h1>
-            <p className="text-sm text-muted-foreground">Manage and review feed records per device</p>
+            <h1 className="text-xl font-semibold">{t('feeds.title')}</h1>
+            <p className="text-sm text-muted-foreground">{t('feeds.description')}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <Button onClick={() => setOpenUpsert({ open: true, mode: 'create' })} disabled={!deviceId}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Feed Record
+            {t('feeds.buttons.add')}
           </Button>
         </div>
       </div>
@@ -124,26 +126,28 @@ export const FeedsPage: React.FC = () => {
       {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Filters</CardTitle>
+          <CardTitle className="text-lg font-semibold">{t('feeds.cards.filters')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4">
             <div className="space-y-2">
-              <Label>Device</Label>
+              <Label>{t('common.filters.device')}</Label>
               <DeviceSelector selectedDevice={selectedDevice} onDeviceSelect={setSelectedDevice} />
             </div>
             <div className="space-y-2">
-              <Label className="flex items-center gap-2"><CalendarIcon className="h-4 w-4" />Start</Label>
+              <Label className="flex items-center gap-2"><CalendarIcon className="h-4 w-4" />{t('feeds.filters.start')}</Label>
               <Input type="datetime-local" value={startDate} onChange={(e) => { setStartDate(e.target.value); setPageIndex(0); }} />
-              <p className="text-xs text-muted-foreground">Timezone: WIB (UTC+7)</p>
+              <p className="text-xs text-muted-foreground">{t('common.filters.timezone')}</p>
             </div>
             <div className="space-y-2">
-              <Label className="flex items-center gap-2"><CalendarIcon className="h-4 w-4" />End</Label>
+              <Label className="flex items-center gap-2"><CalendarIcon className="h-4 w-4" />{t('feeds.filters.end')}</Label>
               <Input type="datetime-local" value={endDate} onChange={(e) => { setEndDate(e.target.value); setPageIndex(0); }} />
-              <p className="text-xs text-muted-foreground">Timezone: WIB (UTC+7)</p>
+              <p className="text-xs text-muted-foreground">{t('common.filters.timezone')}</p>
             </div>
             <div className="flex items-end gap-2">
-              <Button variant="outline" className="w-full md:w-auto" onClick={() => { setStartDate(''); setEndDate(''); setPageIndex(0); }}>Clear</Button>
+              <Button variant="outline" className="w-full md:w-auto" onClick={() => { setStartDate(''); setEndDate(''); setPageIndex(0); }}>
+                {t('feeds.buttons.clear')}
+              </Button>
             </div>
           </div>
         </CardContent>
@@ -153,7 +157,7 @@ export const FeedsPage: React.FC = () => {
       {/* Desktop Table */}
       <Card className="hidden md:block">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Feed Records</CardTitle>
+          <CardTitle className="text-lg font-semibold">{t('feeds.cards.table')}</CardTitle>
         </CardHeader>
         <CardContent>
           <DataTable
@@ -178,7 +182,7 @@ export const FeedsPage: React.FC = () => {
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-semibold truncate">{item.feedName}</div>
                 <div className="text-xs text-muted-foreground truncate">{item.deviceId}</div>
-                <div className="text-xs mt-1">{formatWIB(item.fedAt || item.createdAt)}</div>
+                <div className="text-xs mt-1">{formatWIB(item.fedAt || item.createdAt, locale)}</div>
               </div>
               <div className="flex flex-col items-end gap-2">
                 <Badge variant="secondary" className="capitalize">{item.feedType}</Badge>
@@ -187,7 +191,9 @@ export const FeedsPage: React.FC = () => {
             </div>
             <Separator className="my-2" />
             <div className="flex justify-end gap-2">
-              <Button variant="outline" size="sm" onClick={() => setOpenUpsert({ open: true, mode: 'edit', feed: item })}>Edit</Button>
+              <Button variant="outline" size="sm" onClick={() => setOpenUpsert({ open: true, mode: 'edit', feed: item })}>
+                {t('common.buttons.edit')}
+              </Button>
             </div>
           </Card>
         ))}

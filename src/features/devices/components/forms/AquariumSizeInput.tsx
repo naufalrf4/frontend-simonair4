@@ -4,8 +4,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import type { DeviceFormData } from '../../types';
-import { DEVICE_MESSAGES } from '../../constants/messages';
 import { formatAquariumVolume } from '../../utils/deviceFormatters';
+import { useTranslation } from 'react-i18next';
 
 interface AquariumSizeInputProps {
   control: Control<DeviceFormData>;
@@ -18,10 +18,12 @@ interface AquariumSizeInputProps {
 export const AquariumSizeInput: React.FC<AquariumSizeInputProps> = ({
   control,
   name,
-  label = DEVICE_MESSAGES.AQUARIUM_SIZE_LABEL,
+  label,
   className,
   disabled = false,
 }) => {
+  const { t } = useTranslation('devices');
+  const resolvedLabel = label || t('forms.aquariumSize.label');
   const {
     field: { value, onChange, onBlur },
   } = useController({
@@ -49,12 +51,12 @@ export const AquariumSizeInput: React.FC<AquariumSizeInputProps> = ({
 
   return (
     <FormItem className={className}>
-      <FormLabel>{label}</FormLabel>
+      <FormLabel>{resolvedLabel}</FormLabel>
       <div className="space-y-3">
         <div className="grid grid-cols-3 gap-3">
           <div className="space-y-1">
             <Label htmlFor={`${name}-length`} className="text-xs text-muted-foreground">
-              {DEVICE_MESSAGES.LENGTH_LABEL}
+              {t('forms.aquariumSize.length')}
             </Label>
             <Input
               id={`${name}-length`}
@@ -71,7 +73,7 @@ export const AquariumSizeInput: React.FC<AquariumSizeInputProps> = ({
           </div>
           <div className="space-y-1">
             <Label htmlFor={`${name}-width`} className="text-xs text-muted-foreground">
-              {DEVICE_MESSAGES.WIDTH_LABEL}
+              {t('forms.aquariumSize.width')}
             </Label>
             <Input
               id={`${name}-width`}
@@ -88,7 +90,7 @@ export const AquariumSizeInput: React.FC<AquariumSizeInputProps> = ({
           </div>
           <div className="space-y-1">
             <Label htmlFor={`${name}-height`} className="text-xs text-muted-foreground">
-              {DEVICE_MESSAGES.HEIGHT_LABEL}
+              {t('forms.aquariumSize.height')}
             </Label>
             <Input
               id={`${name}-height`}
@@ -109,12 +111,12 @@ export const AquariumSizeInput: React.FC<AquariumSizeInputProps> = ({
         {formatDisplayValue() && (
           <div className="text-sm text-muted-foreground bg-muted/50 rounded-md px-3 py-2 flex justify-between">
             <span>
-              <span className="font-medium">{DEVICE_MESSAGES.DIMENSIONS}: </span>
+              <span className="font-medium">{t('forms.aquariumSize.dimensions')}: </span>
               {formatDisplayValue()}
             </span>
             {showVolume && (
               <span>
-                <span className="font-medium">{DEVICE_MESSAGES.VOLUME}: </span>
+                <span className="font-medium">{t('forms.aquariumSize.volume')}: </span>
                 {formatAquariumVolume(value)}
               </span>
             )}
@@ -122,7 +124,7 @@ export const AquariumSizeInput: React.FC<AquariumSizeInputProps> = ({
         )}
         
         <FormDescription>
-          {DEVICE_MESSAGES.AQUARIUM_SIZE_HELP}
+          {t('forms.aquariumSize.help')}
         </FormDescription>
       </div>
       <FormMessage />

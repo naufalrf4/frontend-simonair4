@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { DevicesPage } from '@/features/devices/components/DevicesPage'
 import { ErrorPage } from '@/components/common/error-page'
-import { DEVICE_MESSAGES } from '@/features/devices/constants/messages'
+import { useTranslation } from 'react-i18next'
 
 export const Route = createFileRoute('/_dashboard/devices/manage')({
   component: RouteComponent,
@@ -10,14 +10,15 @@ export const Route = createFileRoute('/_dashboard/devices/manage')({
 })
 
 function RouteComponent() {
+  const { t } = useTranslation('devices')
   return (
     <div className="space-y-6">
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">{DEVICE_MESSAGES.DEVICES_PAGE_TITLE}</h1>
+          <h1 className="text-2xl font-bold text-foreground">{t('page.title')}</h1>
           <p className="text-muted-foreground mt-1">
-            {DEVICE_MESSAGES.DEVICES_PAGE_SUBTITLE}
+            {t('page.subtitle')}
           </p>
         </div>
       </div>

@@ -1,0 +1,347 @@
+{
+  "common": {
+    "filters": {
+      "title": "Filters",
+      "device": "Device",
+      "start": "Start",
+      "end": "End",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "startDateTime": "Start",
+      "endDateTime": "End",
+      "cause": "Cause",
+      "clear": "Clear",
+      "timezone": "Timezone: WIB (UTC+7)"
+    },
+    "table": {
+      "actions": "Actions"
+    },
+    "buttons": {
+      "add": "Add",
+      "edit": "Edit",
+      "save": "Save",
+      "update": "Update",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "log": "Log",
+      "compare": "Compare",
+      "run": "Run"
+    },
+    "labels": {
+      "device": "Device",
+      "notes": "Notes",
+      "cause": "Cause",
+      "description": "Description",
+      "reason": "Reason"
+    },
+    "statuses": {
+      "yes": "Yes",
+      "no": "No",
+      "available": "Available"
+    },
+    "messages": {
+      "requireValue": "Please provide at least one measurement value.",
+      "noData": "No records found for this filter."
+    },
+    "confirm": {
+      "delete": "Are you sure you want to delete this record?"
+    }
+  },
+  "growth": {
+    "title": "Fish Growth",
+    "description": "Manage and analyze growth measurements per device",
+    "buttons": {
+      "add": "Add Measurement",
+      "save": "Save",
+      "update": "Update",
+      "cancel": "Cancel"
+    },
+    "cards": {
+      "filters": "Filters",
+      "table": "Measurements"
+    },
+    "filters": {
+      "start": "Start",
+      "end": "End"
+    },
+    "table": {
+      "measuredAt": "Measured At",
+      "weight": "Weight (g)",
+      "length": "Length (cm)",
+      "condition": "Condition",
+      "notes": "Notes",
+      "actions": "Actions"
+    },
+    "form": {
+      "titleCreate": "Add Measurement",
+      "titleEdit": "Edit Measurement",
+      "measurementDate": "Measurement Date",
+      "weight": "Weight (g)",
+      "length": "Length (cm)",
+      "notes": "Notes",
+      "condition": "Condition",
+      "conditionPlaceholder": "Select condition",
+      "conditionOptions": {
+        "excellent": "Excellent",
+        "good": "Good",
+        "poor": "Poor"
+      },
+      "hint": "Provide at least one value (weight or length)."
+    },
+    "toasts": {
+      "created": "Measurement created",
+      "updated": "Measurement updated"
+    }
+  },
+  "feeds": {
+    "title": "Feed Data",
+    "description": "Manage and review feed records per device",
+    "buttons": {
+      "add": "Add Feed Record",
+      "edit": "Edit",
+      "clear": "Clear"
+    },
+    "cards": {
+      "filters": "Filters",
+      "table": "Feed Records"
+    },
+    "filters": {
+      "start": "Start",
+      "end": "End",
+      "timezone": "Timezone: WIB (UTC+7)"
+    },
+    "table": {
+      "eventTime": "Event Time",
+      "feedName": "Feed Name",
+      "type": "Type",
+      "amount": "Amount (kg)",
+      "actions": "Actions"
+    },
+    "empty": {
+      "list": "No feed records yet."
+    },
+    "modal": {
+      "createTitle": "Add Feed Record",
+      "editTitle": "Edit Feed Record",
+      "fields": {
+        "feedName": "Feed Name",
+        "feedType": "Feed Type",
+        "feedAmount": "Amount (kg)",
+        "eventTime": "Event Time",
+        "typePlaceholder": "Select type"
+      },
+      "options": {
+        "natural": "Natural",
+        "artificial": "Artificial"
+      },
+      "errors": {
+        "feedName": "Feed name is required",
+        "feedNameLength": "Minimum 2 characters",
+        "amount": "Amount is required",
+        "amountMin": "Must be greater than or equal to 0"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "create": "Create",
+        "save": "Save Changes"
+      },
+      "errorMessage": "Failed to save feed record."
+    },
+    "toasts": {
+      "created": "Feed record created",
+      "updated": "Feed record updated"
+    }
+  },
+  "mortality": {
+    "title": "Fish Mortality",
+    "description": "Log and review fish death events",
+    "buttons": {
+      "log": "Log Mortality",
+      "clear": "Clear"
+    },
+    "cards": {
+      "filters": "Filters",
+      "table": "Mortality Records"
+    },
+    "table": {
+      "date": "Event Date",
+      "dead": "Dead",
+      "cause": "Cause",
+      "description": "Description",
+      "reportedBy": "Reported By",
+      "actions": "Actions"
+    },
+    "modal": {
+      "createTitle": "Log Fish Mortality",
+      "editTitle": "Edit Fish Mortality",
+      "fields": {
+        "eventDate": "Event Date",
+        "deadCount": "Dead Count",
+        "cause": "Cause (optional)",
+        "description": "Description (optional)"
+      },
+      "errors": {
+        "required": "This field is required",
+        "minDead": "Minimum value is 1"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "create": "Create",
+        "save": "Save Changes"
+      }
+    },
+    "confirm": {
+      "delete": "Delete this mortality record?"
+    },
+    "toasts": {
+      "created": "Mortality record created",
+      "updated": "Mortality record updated",
+      "deleted": "Mortality record deleted",
+      "deleteFailed": "Failed to delete record"
+    }
+  },
+  "manual": {
+    "title": "Manual Measurements",
+    "description": "Record and compare manual water quality data",
+    "buttons": {
+      "add": "Add Manual Measurement"
+    },
+    "cards": {
+      "filters": "Filters",
+      "table": "Manual Measurement Records"
+    },
+    "filters": {
+      "startDate": "Start Date",
+      "endDate": "End Date"
+    },
+    "table": {
+      "timestamp": "Timestamp",
+      "temperature": "Temp (°C)",
+      "ph": "pH",
+      "tds": "TDS",
+      "do": "DO",
+      "notes": "Notes",
+      "compare": "Compare",
+      "actions": "Actions"
+    },
+    "form": {
+      "titleCreate": "Add Manual Measurement",
+      "titleEdit": "Edit Manual Measurement",
+      "fields": {
+        "timestamp": "Timestamp",
+        "temperature": "Temperature (°C)",
+        "ph": "pH",
+        "tds": "TDS",
+        "do": "DO",
+        "notes": "Notes"
+      },
+      "compareToggleCreate": "Compare with sensor after save",
+      "compareToggleEdit": "Compare after update",
+      "hint": "Provide timestamp and at least one value (temperature, pH, TDS, or DO).",
+      "buttons": {
+        "cancel": "Cancel",
+        "save": "Save",
+        "update": "Update",
+        "saving": "Saving..."
+      }
+    },
+    "compare": {
+      "title": "Compare Manual vs Sensor",
+      "description": "Device {{device}} • Manual at {{time}}",
+      "timeWindow": "Time window (minutes)",
+      "run": "Run Compare",
+      "empty": "No comparison yet. Set a time window and run comparison.",
+      "manualValues": "Manual Values",
+      "sensorValues": "Sensor Values",
+      "accuracy": "Accuracy",
+      "delta": {
+        "temperature": "Δ Temp",
+        "ph": "Δ pH",
+        "tds": "Δ TDS",
+        "do": "Δ DO"
+      },
+      "flags": "Flags"
+    }
+  },
+  "waterChanges": {
+    "title": "Water Changes",
+    "description": "Log and manage water change events",
+    "buttons": {
+      "log": "Log Water Change",
+      "clear": "Clear"
+    },
+    "cards": {
+      "filters": "Filters",
+      "table": "Water Change Records"
+    },
+    "table": {
+      "changedAt": "Changed At",
+      "device": "Device",
+      "type": "Type",
+      "reason": "Reason",
+      "notes": "Notes",
+      "actions": "Actions"
+    },
+    "modal": {
+      "createTitle": "Log Water Change",
+      "editTitle": "Edit Water Change",
+      "fields": {
+        "changedAt": "Event Time",
+        "changeType": "Change Type",
+        "reason": "Reason",
+        "notes": "Notes"
+      },
+      "errors": {
+        "required": "This field is required"
+      },
+      "options": {
+        "partial": "Partial",
+        "full": "Full",
+        "rutin": "Routine",
+        "kualitas_air": "Water Quality",
+        "penyakit": "Disease",
+        "lainnya": "Other"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "create": "Create",
+        "save": "Save Changes"
+      }
+    },
+    "confirm": {
+      "delete": "Delete this water change record?"
+    },
+    "toasts": {
+      "created": "Water change logged",
+      "updated": "Water change updated",
+      "deleted": "Water change deleted",
+      "deleteFailed": "Failed to delete record"
+    }
+  },
+  "mobileMenu": {
+    "title": "Farming Management",
+    "subtitle": "Comprehensive aquaculture farming data and operations management",
+    "cards": {
+      "growth": {
+        "title": "Fish Growth",
+        "description": "Track and monitor fish growth progress and health metrics"
+      },
+      "feeds": {
+        "title": "Feed Management",
+        "description": "Manage feeding schedules and monitor feed consumption"
+      },
+      "mortality": {
+        "title": "Fish Mortality",
+        "description": "Monitor fish mortality rates and health incidents"
+      },
+      "manual": {
+        "title": "Manual Data Entry",
+        "description": "Record manual observations and farm data entries"
+      },
+      "waterChanges": {
+        "title": "Water Change",
+        "description": "Schedule and track water quality management tasks"
+      }
+    }
+  }
+}

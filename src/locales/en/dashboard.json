@@ -1,0 +1,117 @@
+{
+  "header": {
+    "subtitle": "Water Quality Monitoring System (SIMONAIR 4.0)"
+  },
+  "greetings": {
+    "morning": "Good Morning",
+    "afternoon": "Good Afternoon",
+    "evening": "Good Evening",
+    "night": "Good Night"
+  },
+  "statusBar": {
+    "connection": "Connection",
+    "devicesOnline": "Devices Online",
+    "lastSeen": "Last Seen",
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "waiting": "Waiting..."
+  },
+  "connectionStatus": {
+    "deviceId": "ID: {{id}}"
+  },
+  "offlineWarning": {
+    "title": "Device Offline",
+    "lastSeen": "Last seen {{time}}"
+  },
+  "noDevices": {
+    "title": "No Devices Paired",
+    "description": "Pair a device to start monitoring your tanks in real time.",
+    "button": "Pair New Device"
+  },
+  "deviceCard": {
+    "status": {
+      "online": "Online",
+      "offline": "Offline",
+      "waiting": "Waiting for data",
+      "justNow": "Just now",
+      "unknown": "Unknown"
+    },
+    "buttons": {
+      "calibration": "Calibration",
+      "threshold": "Threshold"
+    }
+  },
+  "deviceHeader": {
+    "calibrated": "{{percentage}}% Calibrated",
+    "fishCountLabel": "{{count}} fish",
+    "actions": {
+      "menuLabel": "Device actions",
+      "calibrate": "Calibrate Sensor",
+      "threshold": "Set Threshold"
+    }
+  },
+  "sensorCard": {
+    "calibratedOk": "Calibrated",
+    "needsCalibration": "Needs Calibration",
+    "mobileOk": "OK",
+    "mobileWarn": "Check",
+    "lastUpdate": "Updated {{time}}",
+    "deviceOffline": "Device Offline"
+  },
+  "sensors": {
+    "labels": {
+      "ph": "pH Level",
+      "tds": "Total Dissolved Solids",
+      "do": "Dissolved Oxygen",
+      "temperature": "Water Temperature",
+      "generic": "Sensor"
+    }
+  },
+  "sensorStatus": {
+    "good": "Normal",
+    "bad": "Attention",
+    "offline": "Offline",
+    "unknown": "Unknown"
+  },
+  "toasts": {
+    "calibrationSuccess": "Calibration submitted successfully",
+    "calibrationError": "Failed to submit calibration",
+    "offsetSuccess": "Thresholds updated successfully",
+    "offsetError": "Failed to submit thresholds"
+  },
+  "banners": {
+    "initializing": "Initializing real-time data...",
+    "connecting": "Connecting to real-time data...",
+    "active": "Real-time data active"
+  },
+  "loading": {
+    "auth": "Authenticating...",
+    "devices": "Loading devices...",
+    "preparing": "Preparing connection...",
+    "sensors": "Loading sensor data...",
+    "generic": "Loading..."
+  },
+  "sidebar": {
+    "empty": "No menu items available for your role.",
+    "groups": {
+      "devices": "Devices",
+      "farming": "Farming Data",
+      "admin": "Admin Panel"
+    },
+    "items": {
+      "home": "Home",
+      "devicesRoot": "Devices",
+      "manageDevices": "Manage Devices",
+      "sensorTrends": "Sensor Trends",
+      "sensorTable": "Sensor Table",
+      "farmingRoot": "Farming",
+      "growth": "Growth",
+      "feeds": "Feeds",
+      "mortality": "Mortality",
+      "manualData": "Manual Data",
+      "waterChange": "Water Change",
+      "adminRoot": "Admin",
+      "userData": "User Data"
+    }
+  }
+}

@@ -8,6 +8,7 @@ import { useDeleteUserMutation } from '../hooks/useUserMutations';
 import { AlertTriangle, Trash2, Loader2 } from 'lucide-react';
 import { UserAvatar } from './UserStatusBadge';
 import type { User } from '../types';
+import { useTranslation } from 'react-i18next';
 
 export interface DeleteUserDialogProps {
   open: boolean;
@@ -18,6 +19,7 @@ export interface DeleteUserDialogProps {
 
 export const DeleteUserDialog: React.FC<DeleteUserDialogProps> = ({ open, user, onClose, onSuccess }) => {
   const deleteMutation = useDeleteUserMutation();
+  const { t } = useTranslation('admin');
 
   const handleDelete = async () => {
     if (!user) return;
@@ -28,13 +30,15 @@ export const DeleteUserDialog: React.FC<DeleteUserDialogProps> = ({ open, user, 
 
   if (!user) return null;
 
+  const deleteItems = t('users.delete.items', { returnObjects: true }) as string[];
+
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3 text-destructive">
             <AlertTriangle className="h-5 w-5" />
-            Delete User Account
+            {t('users.delete.title')}
           </DialogTitle>
         </DialogHeader>
         
@@ -42,7 +46,7 @@ export const DeleteUserDialog: React.FC<DeleteUserDialogProps> = ({ open, user, 
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              This action cannot be undone. The user account and all associated data will be permanently removed from the system.
+              {t('users.delete.warning')}
             </AlertDescription>
           </Alert>
 
@@ -55,11 +59,11 @@ export const DeleteUserDialog: React.FC<DeleteUserDialogProps> = ({ open, user, 
                 <p className="text-sm text-muted-foreground">{user.email}</p>
                 <div className="flex items-center gap-2 mt-2">
                   <Badge variant={user.role === 'superuser' ? 'destructive' : user.role === 'admin' ? 'default' : 'secondary'}>
-                    {user.role.toUpperCase()}
+                    {t(`users.roles.${user.role}`)}
                   </Badge>
                   {user.emailVerified && (
                     <Badge variant="outline" className="text-green-600">
-                      Verified
+                      {t('common.verification.verified')}
                     </Badge>
                   )}
                 </div>
@@ -69,12 +73,11 @@ export const DeleteUserDialog: React.FC<DeleteUserDialogProps> = ({ open, user, 
 
           {/* Warning Details */}
           <div className="space-y-2">
-            <h4 className="text-sm font-medium">What will be deleted:</h4>
+            <h4 className="text-sm font-medium">{t('users.delete.detailsTitle')}</h4>
             <ul className="text-sm text-muted-foreground space-y-1">
-              <li>• User account and login credentials</li>
-              <li>• User profile and personal information</li>
-              <li>• Associated permissions and role assignments</li>
-              <li>• User activity history and logs</li>
+              {deleteItems.map((item) => (
+                <li key={item}>• {item}</li>
+              ))}
             </ul>
           </div>
 
@@ -82,7 +85,7 @@ export const DeleteUserDialog: React.FC<DeleteUserDialogProps> = ({ open, user, 
             <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
-                {deleteMutation.error.message || 'Failed to delete user. Please try again.'}
+                {deleteMutation.error.message || t('users.delete.error')}
               </AlertDescription>
             </Alert>
           )}
@@ -96,7 +99,7 @@ export const DeleteUserDialog: React.FC<DeleteUserDialogProps> = ({ open, user, 
             onClick={onClose}
             disabled={deleteMutation.isPending}
           >
-            Cancel
+            {t('common.buttons.cancel')}
           </Button>
           <Button 
             variant="destructive" 
@@ -107,12 +110,12 @@ export const DeleteUserDialog: React.FC<DeleteUserDialogProps> = ({ open, user, 
             {deleteMutation.isPending ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Deleting...
+                {t('common.buttons.deleting')}
               </>
             ) : (
               <>
                 <Trash2 className="h-4 w-4 mr-2" />
-                Delete User
+                {t('common.buttons.deleteUser')}
               </>
             )}
           </Button>

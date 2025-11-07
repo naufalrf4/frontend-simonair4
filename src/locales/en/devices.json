@@ -1,0 +1,411 @@
+{
+  "page": {
+    "title": "Device Management",
+    "subtitle": "Manage, monitor, and configure your SIMONAIR devices"
+  },
+  "ownership": {
+    "label": "Owner",
+    "placeholder": "Select owner",
+    "loading": "Loading users...",
+    "help": "Admins can reassign device ownership."
+  },
+  "buttons": {
+    "add": "Add Device",
+    "save": "Save Changes",
+    "saveNew": "Add Device",
+    "cancel": "Cancel",
+    "close": "Close",
+    "continueEditing": "Continue Editing",
+    "discard": "Discard Changes"
+  },
+  "header": {
+    "searchPlaceholder": "Search devices...",
+    "addButton": "Add Device"
+  },
+  "stats": {
+    "online": "{{count}} online",
+    "offline": "{{count}} offline",
+    "total": "Total: {{count}} devices"
+  },
+  "empty": {
+    "title": "No devices yet",
+    "description": "Start by adding a new SIMONAIR device to begin monitoring.",
+    "searchTitle": "No results",
+    "searchDescription": "Try a different device name, ID, or location.",
+    "action": "Add Device"
+  },
+  "card": {
+    "labels": {
+      "deviceId": "Device ID",
+      "location": "Location",
+      "size": "Aquarium Size",
+      "fish": "Fish",
+      "recentSensorData": "Recent Sensor Data",
+      "status": "Status",
+      "ph": "pH",
+      "tds": "TDS",
+      "temperature": "Temperature",
+      "do": "Dissolved Oxygen",
+      "lastUpdated": "Updated {{time}}",
+      "lastOnline": "Last online: {{time}}",
+      "paired": "Paired {{time}}",
+      "updated": "Updated {{time}}",
+      "notAvailable": "N/A"
+    },
+    "badge": {
+      "online": "Online",
+      "offline": "Offline"
+    },
+    "actions": {
+      "view": "View Details",
+      "edit": "Edit Device",
+      "delete": "Delete Device"
+    },
+    "a11y": {
+      "menu": "Device actions"
+    }
+  },
+  "forms": {
+    "deviceId": {
+      "label": "Device ID",
+      "placeholder": "Enter unique device ID",
+      "help": "Unique ID printed on your device (SMNR-XXXX format)",
+      "locked": "Device ID cannot be changed after creation",
+      "hint": "Enter 4 characters (A–Z, 0–9). Device ID becomes SMNR-XXXX."
+    },
+    "deviceName": {
+      "label": "Device Name",
+      "placeholder": "Example: Living Room Aquarium",
+      "help": "Make it easy to recognize your tank (3–50 characters)"
+    },
+    "location": {
+      "label": "Location",
+      "placeholder": "Example: Living Room, Bedroom",
+      "help": "Where is this tank located?"
+    },
+    "aquariumSize": {
+      "label": "Aquarium Size",
+      "help": "Enter the tank dimensions in centimeters.",
+      "length": "Length (cm)",
+      "width": "Width (cm)",
+      "height": "Height (cm)",
+      "dimensions": "Dimensions",
+      "volume": "Volume"
+    },
+    "glassType": {
+      "label": "Glass Type",
+      "placeholder": "Tempered, acrylic, etc.",
+      "help": "Knowing the glass type helps interpret sensor readings."
+    },
+    "fishCount": {
+      "label": "Fish Count",
+      "placeholder": "Number of fish",
+      "help": "Estimated number of fish in this tank."
+    }
+  },
+  "loading": {
+    "generic": "Loading...",
+    "list": "Loading device list...",
+    "details": "Loading device details...",
+    "saving": "Saving device...",
+    "deleting": "Deleting device..."
+  },
+  "modals": {
+    "add": {
+      "title": "Add New Device",
+      "description": "Pair a new SIMONAIR 4.0 device to your account and start collecting sensor data."
+    },
+    "edit": {
+      "title": "Edit Device",
+      "description": "Update information and settings for {{name}}."
+    },
+    "details": {
+      "description": "Complete information about your aquarium monitoring device.",
+      "loadingTitle": "Loading Device Details...",
+      "loadingDescription": "Please wait while we fetch the device information.",
+      "info": "Device Information",
+      "sensorData": "Sensor Data",
+      "connectionHistory": "Connection History",
+      "settings": "Device Settings",
+      "status": {
+        "title": "Connection Status",
+        "online": "Device is online",
+        "offline": "Device is offline",
+        "lastSeen": "Last Seen",
+        "created": "Created"
+      },
+      "actions": {
+        "edit": "Edit Device",
+        "delete": "Delete Device",
+        "close": "Close"
+      },
+      "error": {
+        "title": "Failed to Load Device",
+        "description": "Unable to load device details. Please try again.",
+        "retry": "Retry"
+      }
+    },
+    "unsaved": {
+      "title": "Unsaved Changes",
+      "description": "You have unsaved changes. Close without saving?"
+    }
+  },
+  "delete": {
+    "title": "Delete Device",
+    "description": "Are you sure you want to delete this device?",
+    "warning": "This action cannot be undone. Historical data will be removed permanently.",
+    "confirm": "Delete Device",
+    "impactTitle": "This action will remove:",
+    "impact": {
+      "config": "All device configuration and settings",
+      "history": "Historical sensor readings and logs",
+      "connections": "Connection history",
+      "calibrations": "Related calibration data"
+    }
+  },
+  "toasts": {
+    "addSuccess": "Device added successfully.",
+    "updateSuccess": "Device updated successfully.",
+    "deleteSuccess": "Device deleted successfully."
+  },
+  "status": {
+    "online": "Online",
+    "offline": "Offline",
+    "offlineMinutes": "Offline ({{value}}m ago)",
+    "offlineHours": "Offline ({{value}}h ago)",
+    "offlineDays": "Offline ({{value}}d ago)"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next"
+  },
+  "dateRange": {
+    "placeholder": "Select period",
+    "presets": {
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "90d": "Last 90 days",
+      "today": "Today",
+      "yesterday": "Yesterday"
+    },
+    "pickerTitle": "Select Date Range",
+    "apply": "Apply",
+    "cancel": "Cancel",
+    "clear": "Reset",
+    "maxRange": "Up to 1 year",
+    "empty": "Select a date range",
+    "invalid": "Invalid date range"
+  },
+  "deviceSelector": {
+    "placeholder": "Select a device...",
+    "searchPlaceholder": "Search devices...",
+    "loading": "Loading devices...",
+    "error": "Failed to load devices list",
+    "retry": "Try Again",
+    "emptyTitle": "No devices available",
+    "emptyDescription": "Add a device first",
+    "noResultsTitle": "No results for \"{{query}}\"",
+    "noResultsDescription": "Try another keyword",
+    "clear": "Clear selection"
+  },
+  "sensorTrends": {
+    "title": "Sensor Trend Charts",
+    "description": "Visualize sensor metrics over time for every device.",
+    "controls": {
+      "granularity": "Granularity",
+      "granularityPlaceholder": "Granularity",
+      "metrics": "Metrics"
+    },
+    "options": {
+      "auto": "Auto",
+      "hourly": "Hourly",
+      "daily": "Daily"
+    },
+    "metrics": {
+      "temperature": "Temperature",
+      "ph": "pH",
+      "tds": "TDS",
+      "do_level": "Dissolved Oxygen"
+    },
+    "error": {
+      "load": "Failed to load chart data. Please try again."
+    },
+    "actions": {
+      "retry": "Try Again"
+    },
+    "empty": {
+      "selectDevice": "Select a device to view charts",
+      "noData": "No data available for this period"
+    },
+    "summary": {
+      "device": "Device",
+      "granularity": "Granularity",
+      "period": "Period"
+    }
+  },
+  "sensorData": {
+    "title": "Sensor Data History",
+    "description": "View and analyze historical sensor readings from your SIMONAIR devices.",
+    "controls": {
+      "granularity": "Granularity",
+      "granularityPlaceholder": "Granularity",
+      "limit": "Limit",
+      "limitPlaceholder": "Limit",
+      "options": {
+        "auto": "Auto",
+        "hourly": "Hourly",
+        "daily": "Daily",
+        "all": "All"
+      }
+    },
+    "table": {
+      "timestamp": "Date/Time",
+      "device": "Device",
+      "ph": "pH",
+      "tds": "TDS",
+      "do": "DO",
+      "temperature": "Temperature",
+      "invalid": "Invalid date",
+      "noTime": "-"
+    },
+    "toasts": {
+      "deviceSelected": "Selected device: {{name}}",
+      "dateRangeLoading": "Loading data for the new date range..."
+    },
+    "errors": {
+      "devices": "Failed to load devices list. Check your connection.",
+      "sensorData": "Failed to load sensor data. Please try again."
+    },
+    "empty": {
+      "selectDevice": "Select a device to view sensor data",
+      "noData": "No sensor data for this device and range"
+    },
+    "summary": {
+      "device": "Device",
+      "rows": "Total rows",
+      "period": "Period"
+    },
+    "export": {
+      "button": "Export Excel",
+      "exporting": "Exporting...",
+      "all": "All Sensor Data",
+      "ph": "pH Sensor Data",
+      "tds": "TDS Sensor Data",
+      "do": "DO Sensor Data",
+      "temperature": "Temperature Sensor Data",
+      "deviceLabel": "Device: {{name}}",
+      "successAll": "Sensor data exported to Excel",
+      "successMetric": "{{metric}} sensor data exported to Excel",
+      "noData": "No data available to export",
+      "failure": "Failed to export data to Excel",
+      "configTitle": "Excel Export Settings",
+      "configDescription": "Choose which data to include in the export:",
+      "includeRaw": "Include raw values",
+      "includeVoltage": "Include voltage data",
+      "includeCalibrated": "Include calibrated data",
+      "note": "Temperature data is always included because it only has one value.",
+      "cancel": "Cancel",
+      "confirm": "Export"
+    }
+  },
+  "mobileMenu": {
+    "title": "Device Management",
+    "subtitle": "Monitor and manage your aquaculture devices and sensors",
+    "cards": {
+      "manage": {
+        "title": "Manage Devices",
+        "description": "Configure and manage your IoT devices and sensors"
+      },
+      "trends": {
+        "title": "Sensor Trends",
+        "description": "View sensor trend charts and analytics"
+      },
+      "data": {
+        "title": "Sensor Data",
+        "description": "Browse detailed sensor data in table format"
+      }
+    }
+  },
+  "errors": {
+    "titles": {
+      "NETWORK_ERROR": "Connection Issue",
+      "TIMEOUT_ERROR": "Timeout",
+      "AUTHORIZATION_ERROR": "Access Denied",
+      "VALIDATION_ERROR": "Invalid Data",
+      "CONFLICT_ERROR": "Data Conflict",
+      "NOT_FOUND_ERROR": "Not Found",
+      "SERVER_ERROR": "Server Error",
+      "UNKNOWN_ERROR": "Unexpected Error"
+    },
+    "actions": {
+      "retry": "Try Again",
+      "checkConnection": "Check Connection",
+      "dismiss": "Close",
+      "contactSupport": "Contact Support"
+    },
+    "meta": {
+      "code": "Error Code",
+      "status": "Status"
+    },
+    "generic": {
+      "loadFailed": "Failed to load data"
+    },
+    "operations": {
+      "create": {
+        "NETWORK_ERROR": "Unable to add device due to network issues. Check your connection.",
+        "VALIDATION_ERROR": "Please review the device information you entered.",
+        "CONFLICT_ERROR": "Device ID is already registered. Use a different device ID.",
+        "AUTHORIZATION_ERROR": "You do not have permission to add devices.",
+        "SERVER_ERROR": "Unable to add device due to server issues. Try again later.",
+        "TIMEOUT_ERROR": "Timeout while adding device. Try again.",
+        "NOT_FOUND_ERROR": "Service not found.",
+        "UNKNOWN_ERROR": "An unknown error occurred while adding the device.",
+        "default": "Failed to add device. Please try again."
+      },
+      "update": {
+        "NETWORK_ERROR": "Unable to update device due to network issues. Check your connection.",
+        "VALIDATION_ERROR": "Please review the device data.",
+        "NOT_FOUND_ERROR": "Device not found. It may have been deleted.",
+        "AUTHORIZATION_ERROR": "You do not have permission to update this device.",
+        "SERVER_ERROR": "Unable to update device due to server issues. Try again later.",
+        "TIMEOUT_ERROR": "Timeout while updating device. Try again.",
+        "CONFLICT_ERROR": "Data conflict while updating the device.",
+        "UNKNOWN_ERROR": "An unknown error occurred while updating the device.",
+        "default": "Failed to update device. Please try again."
+      },
+      "delete": {
+        "NETWORK_ERROR": "Unable to delete device due to network issues. Check your connection.",
+        "NOT_FOUND_ERROR": "Device not found. It may have been deleted.",
+        "AUTHORIZATION_ERROR": "You do not have permission to delete this device.",
+        "SERVER_ERROR": "Unable to delete device due to server issues. Try again later.",
+        "TIMEOUT_ERROR": "Timeout while deleting device. Try again.",
+        "VALIDATION_ERROR": "Invalid data for deletion.",
+        "CONFLICT_ERROR": "Cannot delete device as it is still in use.",
+        "UNKNOWN_ERROR": "An unknown error occurred while deleting the device.",
+        "default": "Failed to delete device. Please try again."
+      },
+      "list": {
+        "NETWORK_ERROR": "Unable to load devices due to network issues. Check your connection.",
+        "AUTHORIZATION_ERROR": "You do not have permission to view devices. Please log in again.",
+        "SERVER_ERROR": "Unable to load devices due to server issues. Try again later.",
+        "TIMEOUT_ERROR": "Timeout while loading devices. Try again.",
+        "VALIDATION_ERROR": "Invalid search parameters.",
+        "NOT_FOUND_ERROR": "No devices found.",
+        "CONFLICT_ERROR": "Conflict while fetching device data.",
+        "UNKNOWN_ERROR": "An unknown error occurred while loading devices.",
+        "default": "Failed to load devices. Please try again."
+      },
+      "detail": {
+        "NETWORK_ERROR": "Unable to load device details due to network issues. Check your connection.",
+        "NOT_FOUND_ERROR": "Device not found or you may not have access.",
+        "AUTHORIZATION_ERROR": "You do not have permission to view this device.",
+        "SERVER_ERROR": "Unable to load device details due to server issues. Try again later.",
+        "TIMEOUT_ERROR": "Timeout while loading device details. Try again.",
+        "VALIDATION_ERROR": "Invalid device ID.",
+        "CONFLICT_ERROR": "Conflict while fetching device details.",
+        "UNKNOWN_ERROR": "An unknown error occurred while loading device details.",
+        "default": "Failed to load device details. Please try again."
+      }
+    }
+  }
+}

@@ -13,7 +13,7 @@ import {
   Server
 } from 'lucide-react';
 import { DeviceError, DeviceErrorType } from '../utils/errorHandling';
-import { DEVICE_MESSAGES, getLocalizedErrorTitle } from '../constants/messages';
+import { useTranslation } from 'react-i18next';
 
 interface ErrorDisplayProps {
   error: DeviceError | Error | null;
@@ -96,6 +96,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
 }) => {
   if (!error) return null;
 
+  const { t } = useTranslation('devices');
   const deviceError = error instanceof DeviceError ? error : null;
   const errorType = deviceError?.type || DeviceErrorType.UNKNOWN_ERROR;
   const ErrorIcon = getErrorIcon(errorType);
@@ -115,7 +116,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
               className={`ml-2 h-6 px-2 ${colors.button}`}
             >
               <RefreshCw className="w-3 h-3 mr-1" />
-              {DEVICE_MESSAGES.TRY_AGAIN}
+              {t('errors.actions.retry')}
             </Button>
           )}
         </AlertDescription>
@@ -132,7 +133,9 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
           </div>
           <div>
             <CardTitle className={`text-lg ${colors.text}`}>
-              {getErrorTitle(errorType)}
+              {t(`errors.titles.${errorType}`, {
+                defaultValue: t('errors.titles.UNKNOWN_ERROR'),
+              })}
             </CardTitle>
             <CardDescription className={colors.text}>
               {error.message}
@@ -151,7 +154,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
               variant="ghost"
             >
               <RefreshCw className="w-4 h-4 mr-2" />
-              {DEVICE_MESSAGES.TRY_AGAIN}
+              {t('errors.actions.retry')}
             </Button>
           )}
           
@@ -163,7 +166,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
               className={colors.button}
             >
               <Wifi className="w-4 h-4 mr-2" />
-              {DEVICE_MESSAGES.CHECK_CONNECTION}
+              {t('errors.actions.checkConnection')}
             </Button>
           )}
           
@@ -174,16 +177,20 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
               variant="ghost"
               className={colors.button}
             >
-              {DEVICE_MESSAGES.DISMISS}
+              {t('errors.actions.dismiss')}
             </Button>
           )}
         </div>
         
         {deviceError && (
           <div className="mt-3 text-xs text-gray-500">
-            <p>Error Code: {errorType}</p>
+            <p>
+              {t('errors.meta.code')}: {errorType}
+            </p>
             {deviceError.statusCode && (
-              <p>Status: {deviceError.statusCode}</p>
+              <p>
+                {t('errors.meta.status')}: {deviceError.statusCode}
+              </p>
             )}
           </div>
         )}
@@ -191,13 +198,6 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
     </Card>
   );
 };
-
-/**
- * Get user-friendly error title (now uses Indonesian)
- */
-function getErrorTitle(errorType: DeviceErrorType): string {
-  return getLocalizedErrorTitle(errorType);
-}
 
 /**
  * Inline error component for forms and small spaces
@@ -230,6 +230,7 @@ interface LoadingErrorProps {
 export const LoadingError: React.FC<LoadingErrorProps> = ({ error, onRetry, loading }) => {
   if (!error) return null;
 
+  const { t } = useTranslation('devices');
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4">
       <div className="text-center max-w-md">
@@ -238,7 +239,7 @@ export const LoadingError: React.FC<LoadingErrorProps> = ({ error, onRetry, load
         </div>
         
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          Gagal Memuat Data
+          {t('errors.generic.loadFailed', { defaultValue: t('errors.operations.list.default') })}
         </h3>
         
         <p className="text-gray-600 mb-6">
@@ -254,12 +255,12 @@ export const LoadingError: React.FC<LoadingErrorProps> = ({ error, onRetry, load
             {loading ? (
               <>
                 <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                Memuat...
+                {t('loading.generic')}
               </>
             ) : (
               <>
                 <RefreshCw className="w-4 h-4 mr-2" />
-                {DEVICE_MESSAGES.TRY_AGAIN}
+                {t('errors.actions.retry')}
               </>
             )}
           </Button>

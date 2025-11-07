@@ -25,6 +25,7 @@ import {
   type ExcelExportConfig,
 } from '../utils/excelExport';
 import type { SensorReading, Device, SensorType } from '../types';
+import { useTranslation } from 'react-i18next';
 
 interface ExcelExportButtonProps {
   data: SensorReading[];
@@ -43,6 +44,7 @@ export const ExcelExportButton: React.FC<ExcelExportButtonProps> = ({
   variant = 'default',
   size = 'default',
 }) => {
+  const { t } = useTranslation('devices');
   const [isExporting, setIsExporting] = useState(false);
   const [exportConfig, setExportConfig] = useState<ExcelExportConfig>({
     includeRawData: true,
@@ -54,14 +56,14 @@ export const ExcelExportButton: React.FC<ExcelExportButtonProps> = ({
 
   // Check if data is available
   const hasData = data && data.length > 0;
-  const deviceName = device?.name || device?.device_id || 'Tidak ada perangkat';
+  const deviceName = device?.name || device?.device_id || t('deviceSelector.placeholder');
 
   /**
    * Handle export with loading state and error handling
    */
   const handleExport = async (exportFunction: () => Promise<void>, successMessage: string) => {
     if (!hasData) {
-      toast.error('Tidak ada data untuk diekspor');
+      toast.error(t('sensorData.export.noData'));
       return;
     }
 
@@ -71,7 +73,7 @@ export const ExcelExportButton: React.FC<ExcelExportButtonProps> = ({
       toast.success(successMessage);
     } catch (error) {
       console.error('Export error:', error);
-      toast.error(error instanceof Error ? error.message : 'Gagal mengekspor data ke Excel');
+      toast.error(error instanceof Error ? error.message : t('sensorData.export.failure'));
     } finally {
       setIsExporting(false);
     }
@@ -83,7 +85,7 @@ export const ExcelExportButton: React.FC<ExcelExportButtonProps> = ({
   const handleExportAll = () => {
     handleExport(
       () => exportToExcel(data, device, { ...exportConfig, dateRange }),
-      'Data sensor berhasil diekspor ke Excel',
+      t('sensorData.export.successAll'),
     );
   };
 
@@ -91,16 +93,10 @@ export const ExcelExportButton: React.FC<ExcelExportButtonProps> = ({
    * Export specific sensor type
    */
   const handleExportSensorType = (sensorType: SensorType) => {
-    const sensorNames = {
-      ph: 'pH',
-      tds: 'TDS',
-      do_level: 'DO Level',
-      temperature: 'Temperature',
-    };
-
+    const metricLabel = t(`sensorTrends.metrics.${sensorType}`);
     handleExport(
       () => exportSensorTypeToExcel(data, sensorType, device, { ...exportConfig, dateRange }),
-      `Data sensor ${sensorNames[sensorType]} berhasil diekspor ke Excel`,
+      t('sensorData.export.successMetric', { metric: metricLabel }),
     );
   };
 
@@ -138,31 +134,31 @@ export const ExcelExportButton: React.FC<ExcelExportButtonProps> = ({
             ) : (
               <Download className="h-4 w-4 mr-2" />
             )}
-            {isExporting ? 'Mengekspor...' : 'Ekspor Excel'}
+            {isExporting ? t('sensorData.export.exporting') : t('sensorData.export.button')}
           </Button>
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuLabel className="text-xs text-muted-foreground">
-            Perangkat: {deviceName}
+            {t('sensorData.export.deviceLabel', { name: deviceName })}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
 
           <DropdownMenuItem onClick={handleExportAll} disabled={isExporting}>
             <FileSpreadsheet className="h-4 w-4 mr-2" />
-            Semua Data Sensor
+            {t('sensorData.export.all')}
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />
 
           <DropdownMenuItem onClick={() => handleExportSensorType('ph')} disabled={isExporting}>
             <div className="h-3 w-3 mr-2 rounded bg-blue-500" />
-            Data pH Sensor
+            {t('sensorData.export.ph')}
           </DropdownMenuItem>
 
           <DropdownMenuItem onClick={() => handleExportSensorType('tds')} disabled={isExporting}>
             <div className="h-3 w-3 mr-2 rounded bg-purple-500" />
-            Data TDS Sensor
+            {t('sensorData.export.tds')}
           </DropdownMenuItem>
 
           <DropdownMenuItem
@@ -170,7 +166,7 @@ export const ExcelExportButton: React.FC<ExcelExportButtonProps> = ({
             disabled={isExporting}
           >
             <div className="h-3 w-3 mr-2 rounded bg-cyan-500" />
-            Data DO Level Sensor
+            {t('sensorData.export.do')}
           </DropdownMenuItem>
 
           <DropdownMenuItem
@@ -178,7 +174,7 @@ export const ExcelExportButton: React.FC<ExcelExportButtonProps> = ({
             disabled={isExporting}
           >
             <div className="h-3 w-3 mr-2 rounded bg-red-500" />
-            Data Temperature Sensor
+            {t('sensorData.export.temperature')}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -193,12 +189,12 @@ export const ExcelExportButton: React.FC<ExcelExportButtonProps> = ({
 
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Konfigurasi Ekspor Excel</DialogTitle>
+            <DialogTitle>{t('sensorData.export.configTitle')}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="text-sm text-muted-foreground">
-              Pilih data yang ingin disertakan dalam ekspor:
+              {t('sensorData.export.configDescription')}
             </div>
           </div>
 
@@ -210,7 +206,7 @@ export const ExcelExportButton: React.FC<ExcelExportButtonProps> = ({
                 onCheckedChange={(checked) => updateConfig('includeRawData', checked as boolean)}
               />
               <Label htmlFor="includeRaw" className="text-sm">
-                Sertakan data Raw Value
+                {t('sensorData.export.includeRaw')}
               </Label>
             </div>
 
@@ -222,28 +218,31 @@ export const ExcelExportButton: React.FC<ExcelExportButtonProps> = ({
                   updateConfig('includeVoltageData', checked as boolean)
                 }
               />
-              <Label htmlFor="includeVoltage" className="text-sm"></Label> Sertakan data Voltage
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="includeCalibrated"
-                  checked={exportConfig.includeCalibratedData}
-                  onCheckedChange={(checked) =>
-                    updateConfig('includeCalibratedData', checked as boolean)
-                  }
-                />
-                <Label htmlFor="includeCalibrated" className="text-sm">
-                  Sertakan data Calibrated
-                </Label>
-              </div>
+              <Label htmlFor="includeVoltage" className="text-sm">
+                {t('sensorData.export.includeVoltage')}
+              </Label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="includeCalibrated"
+                checked={exportConfig.includeCalibratedData}
+                onCheckedChange={(checked) =>
+                  updateConfig('includeCalibratedData', checked as boolean)
+                }
+              />
+              <Label htmlFor="includeCalibrated" className="text-sm">
+                {t('sensorData.export.includeCalibrated')}
+              </Label>
             </div>
 
             <div className="text-xs text-muted-foreground">
-              Data Temperature selalu disertakan karena hanya memiliki satu nilai.
+              {t('sensorData.export.note')}
             </div>
 
             <div className="flex justify-end gap-2 pt-4">
               <Button variant="outline" onClick={() => setIsConfigDialogOpen(false)}>
-                Batal
+                {t('sensorData.export.cancel')}
               </Button>
               <Button onClick={handleExportWithConfig} disabled={isExporting}>
                 {isExporting ? (
@@ -251,7 +250,7 @@ export const ExcelExportButton: React.FC<ExcelExportButtonProps> = ({
                 ) : (
                   <Download className="h-4 w-4 mr-2" />
                 )}
-                Ekspor
+                {t('sensorData.export.confirm')}
               </Button>
             </div>
           </div>

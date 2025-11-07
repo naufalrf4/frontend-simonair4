@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -32,7 +32,9 @@ import type { Device, DateRange, SensorReading } from '../types';
 import type { ColumnDef } from '@tanstack/react-table';
 import { formatSensorValue, formatTDSValue, formatDOValue, formatTemperatureValue } from '../utils/sensorDataFormatters';
 import { format } from 'date-fns';
+import { enUS, id as idLocale } from 'date-fns/locale';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useTranslation } from 'react-i18next';
 
 // Default date range (7 days)
 const getDefaultDateRange = (): DateRange => ({
@@ -41,6 +43,9 @@ const getDefaultDateRange = (): DateRange => ({
 });
 
 export const SensorDataPage: React.FC = () => {
+  const { t, i18n } = useTranslation('devices');
+  const locale = i18n.language === 'id' ? 'id-ID' : 'en-US';
+  const dateFnsLocale = i18n.language === 'id' ? idLocale : enUS;
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
   const [dateRange, setDateRange] = useState<DateRange>(getDefaultDateRange());
   const [limit, setLimit] = useState<number | 'all'>(50);
@@ -78,80 +83,85 @@ export const SensorDataPage: React.FC = () => {
   }, [devices, selectedDevice]);
 
   // Format date like: Monday. 08 Sep 2025 with time below
-  const formatPrettyDateParts = (ts: string | Date) => {
+  const formatPrettyDateParts = useCallback((ts: string | Date) => {
     try {
       const dt = typeof ts === 'string' ? new Date(ts) : ts;
       return {
-        date: format(dt, 'EEEE. dd MMM yyyy'),
-        time: format(dt, 'HH:mm:ss'),
+        date: format(dt, 'EEEE, dd MMM yyyy', { locale: dateFnsLocale }),
+        time: format(dt, 'HH:mm:ss', { locale: dateFnsLocale }),
       };
     } catch {
-      return { date: 'Invalid Date', time: '-' };
+      return { date: t('sensorData.table.invalid'), time: t('sensorData.table.noTime') };
     }
-  };
+  }, [dateFnsLocale, t]);
 
   // Columns for the unified table
-  const columns: ColumnDef<SensorReading>[] = [
-    {
-      accessorKey: 'timestamp',
-      header: 'Date/Time',
-      cell: ({ row }) => {
-        const ts = row.original.timestamp || row.original.time;
-        const f = formatPrettyDateParts(ts);
-        return (
-          <div className="flex flex-col min-w-[140px]">
-            <span className="text-sm font-semibold">{f.date}</span>
-            <span className="text-xs text-muted-foreground leading-tight">{f.time}</span>
-          </div>
-        );
+  const columns: ColumnDef<SensorReading>[] = useMemo(
+    () => [
+      {
+        accessorKey: 'timestamp',
+        header: t('sensorData.table.timestamp'),
+        cell: ({ row }) => {
+          const ts = row.original.timestamp || row.original.time;
+          const f = formatPrettyDateParts(ts);
+          return (
+            <div className="flex flex-col min-w-[140px]">
+              <span className="text-sm font-semibold">{f.date}</span>
+              <span className="text-xs text-muted-foreground leading-tight">{f.time}</span>
+            </div>
+          );
+        },
       },
-    },
-    {
-      id: 'device',
-      header: 'Device',
-      cell: ({ row }) => (
-        <div className="flex flex-col">
-          <span className="text-sm font-medium">{selectedDevice?.name || row.original.device_id}</span>
-          <span className="text-xs text-muted-foreground">{row.original.device_id}</span>
-        </div>
-      ),
-    },
-    {
-      id: 'ph',
-      header: 'pH',
-      cell: ({ row }) => (
-        <span className="font-mono text-sm">{formatSensorValue(row.original.ph?.calibrated, { precision: 2, unit: 'pH' })}</span>
-      ),
-    },
-    {
-      id: 'tds',
-      header: 'TDS',
-      cell: ({ row }) => (
-        <span className="font-mono text-sm">{formatTDSValue(row.original.tds?.calibrated)}</span>
-      ),
-    },
-    {
-      id: 'do',
-      header: 'DO',
-      cell: ({ row }) => (
-        <span className="font-mono text-sm">{formatDOValue(row.original.do_level?.calibrated)}</span>
-      ),
-    },
-    {
-      id: 'temp',
-      header: 'Temp',
-      cell: ({ row }) => (
-        <span className="font-mono text-sm">{formatTemperatureValue(row.original.temperature?.value)}</span>
-      ),
-    },
-  ];
+      {
+        id: 'device',
+        header: t('sensorData.table.device'),
+        cell: ({ row }) => (
+          <div className="flex flex-col">
+            <span className="text-sm font-medium">{selectedDevice?.name || row.original.device_id}</span>
+            <span className="text-xs text-muted-foreground">{row.original.device_id}</span>
+          </div>
+        ),
+      },
+      {
+        id: 'ph',
+        header: t('sensorData.table.ph'),
+        cell: ({ row }) => (
+          <span className="font-mono text-sm">
+            {formatSensorValue(row.original.ph?.calibrated, { precision: 2, unit: 'pH' })}
+          </span>
+        ),
+      },
+      {
+        id: 'tds',
+        header: t('sensorData.table.tds'),
+        cell: ({ row }) => (
+          <span className="font-mono text-sm">{formatTDSValue(row.original.tds?.calibrated)}</span>
+        ),
+      },
+      {
+        id: 'do',
+        header: t('sensorData.table.do'),
+        cell: ({ row }) => (
+          <span className="font-mono text-sm">{formatDOValue(row.original.do_level?.calibrated)}</span>
+        ),
+      },
+      {
+        id: 'temp',
+        header: t('sensorData.table.temperature'),
+        cell: ({ row }) => (
+          <span className="font-mono text-sm">{formatTemperatureValue(row.original.temperature?.value)}</span>
+        ),
+      },
+    ],
+    [formatPrettyDateParts, selectedDevice, t],
+  );
 
   // Handle device selection
   const handleDeviceSelect = (device: Device | null) => {
     setSelectedDevice(device);
     setPage(1);
     if (device) {
-      toast.success(`Selected device: ${device.name}`);
+      toast.success(t('sensorData.toasts.deviceSelected', { name: device.name }));
     }
   };
 
@@ -160,7 +170,7 @@ export const SensorDataPage: React.FC = () => {
     setDateRange(newDateRange);
     setPage(1);
     if (selectedDevice) {
-      toast.info('Loading data for the new date range...');
+      toast.info(t('sensorData.toasts.dateRangeLoading'));
     }
   };
 
@@ -192,7 +202,7 @@ export const SensorDataPage: React.FC = () => {
   );
 
   // Error state component
-  const ErrorDisplay = ({ error, onRetry }: { error: string; onRetry?: () => void }) => (
+  const ErrorDisplay = ({ error, onRetry, retryLabel }: { error: string; onRetry?: () => void; retryLabel?: string }) => (
     <Alert variant="destructive">
       <AlertCircle className="h-4 w-4" />
       <AlertDescription className="flex items-center justify-between">
@@ -202,7 +212,7 @@ export const SensorDataPage: React.FC = () => {
             onClick={onRetry}
             className="text-sm underline hover:no-underline"
           >
-            Try again
+            {retryLabel}
           </button>
         )}
       </AlertDescription>
@@ -227,12 +237,12 @@ export const SensorDataPage: React.FC = () => {
         {isOnline ? (
           <>
             <Wifi className="h-4 w-4 text-green-600" />
-            <span className="text-green-600">Online</span>
+            <span className="text-green-600">{t('card.badge.online')}</span>
           </>
         ) : (
           <>
             <WifiOff className="h-4 w-4 text-red-600" />
-            <span className="text-red-600">Offline</span>
+            <span className="text-red-600">{t('card.badge.offline')}</span>
           </>
         )}
       </div>
@@ -245,8 +255,8 @@ export const SensorDataPage: React.FC = () => {
       <div className="flex flex-col space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Sensor Data History</h1>
-            <p className="text-muted-foreground">View and analyze historical sensor data from your IoT devices</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t('sensorData.title')}</h1>
+            <p className="text-muted-foreground">{t('sensorData.description')}</p>
           </div>
           <div className="flex items-center gap-2">
             <Database className="h-5 w-5 text-muted-foreground" />
@@ -276,31 +286,31 @@ export const SensorDataPage: React.FC = () => {
 
             {/* Granularity Selector */}
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Granularity</span>
+              <span className="text-xs text-muted-foreground">{t('sensorData.controls.granularity')}</span>
               <Select value={aggGranularity} onValueChange={(v) => { setAggGranularity(v as any); setPage(1); }}>
                 <SelectTrigger className="h-8 w-[130px]">
-                  <SelectValue placeholder="Granularity" />
+                  <SelectValue placeholder={t('sensorData.controls.granularityPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="auto">Auto</SelectItem>
-                  <SelectItem value="hourly">Hourly</SelectItem>
-                  <SelectItem value="daily">Daily</SelectItem>
+                  <SelectItem value="auto">{t('sensorData.controls.options.auto')}</SelectItem>
+                  <SelectItem value="hourly">{t('sensorData.controls.options.hourly')}</SelectItem>
+                  <SelectItem value="daily">{t('sensorData.controls.options.daily')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {/* Page Size / Limit Selector */}
             <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">Limit</span>
+              <span className="text-xs text-muted-foreground">{t('sensorData.controls.limit')}</span>
               <Select value={String(limit)} onValueChange={(v) => { setLimit(v === 'all' ? 'all' as any : Number(v)); setPage(1); }}>
                 <SelectTrigger className="h-8 w-[90px]">
-                  <SelectValue placeholder="Limit" />
+                  <SelectValue placeholder={t('sensorData.controls.limitPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="25">25</SelectItem>
                   <SelectItem value="50">50</SelectItem>
                   <SelectItem value="100">100</SelectItem>
-                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="all">{t('sensorData.controls.options.all')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -322,29 +332,31 @@ export const SensorDataPage: React.FC = () => {
       {/* Error States */}
       {devicesError && (
         <ErrorDisplay 
-          error="Failed to load devices list. Please check your internet connection."
+          error={t('sensorData.errors.devices')}
           onRetry={() => window.location.reload()}
+          retryLabel={t('errors.actions.retry')}
         />
       )}
 
       {sensorDataError && selectedDevice && (
         <ErrorDisplay 
-          error="Failed to load sensor data. Please try again."
+          error={t('sensorData.errors.sensorData')}
           onRetry={() => refetchSensorData()}
+          retryLabel={t('errors.actions.retry')}
         />
       )}
 
       {/* Main Content */}
       {!selectedDevice ? (
         <EmptyState 
-          message="Select a device to view sensor data"
+          message={t('sensorData.empty.selectDevice')}
           icon={Database}
         />
       ) : sensorDataLoading ? (
         <LoadingSkeleton />
       ) : !sensorData || sensorData.length === 0 ? (
         <EmptyState 
-          message="No sensor data for the selected device and date range"
+          message={t('sensorData.empty.noData')}
           icon={AlertCircle}
         />
       ) : (
@@ -379,14 +391,14 @@ export const SensorDataPage: React.FC = () => {
         <Card>
           <CardContent className="py-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-4">
-                <span>Device: <strong>{selectedDevice.name}</strong></span>
-                <span>Total rows: <strong>{sensorMeta?.total ?? sensorData.length}</strong></span>
+             <div className="flex items-center gap-4">
+                <span>{t('sensorData.summary.device')}: <strong>{selectedDevice.name}</strong></span>
+                <span>{t('sensorData.summary.rows')}: <strong>{sensorMeta?.total ?? sensorData.length}</strong></span>
               </div>
               <div className="flex items-center gap-4">
                 <span>
-                  Period: <strong>
-                    {dateRange.from.toLocaleDateString('en-US')} - {dateRange.to.toLocaleDateString('en-US')}
+                  {t('sensorData.summary.period')}: <strong>
+                    {dateRange.from.toLocaleDateString(locale)} - {dateRange.to.toLocaleDateString(locale)}
                   </strong>
                 </span>
                 <ConnectionStatus />

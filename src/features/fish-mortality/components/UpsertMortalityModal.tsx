@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import type { MortalityRecord } from '../types'
 import { MortalityService } from '../services/mortalityService'
+import { useTranslation } from 'react-i18next'
 
 type Mode = 'create' | 'edit'
 
@@ -27,6 +28,7 @@ interface FormValues {
 }
 
 export const UpsertMortalityModal: React.FC<UpsertMortalityModalProps> = ({ open, mode, deviceId, item, onClose, onSuccess }) => {
+  const { t } = useTranslation('farming')
   const { register, handleSubmit, reset, formState: { isSubmitting, errors } } = useForm<FormValues>({
     defaultValues: {
       eventDate: '',
@@ -64,7 +66,7 @@ export const UpsertMortalityModal: React.FC<UpsertMortalityModalProps> = ({ open
           cause: values.cause?.trim() || undefined,
           description: values.description?.trim() || undefined,
         })
-        toast.success('Mortality record created')
+        toast.success(t('mortality.toasts.created'))
       } else if (mode === 'edit' && item) {
         await MortalityService.update(item.id, {
           eventDate: values.eventDate,
@@ -72,7 +74,7 @@ export const UpsertMortalityModal: React.FC<UpsertMortalityModalProps> = ({ open
           cause: values.cause?.trim() || '',
           description: values.description?.trim() || '',
         })
-        toast.success('Mortality record updated')
+        toast.success(t('mortality.toasts.updated'))
       }
       onSuccess?.()
       onClose()
@@ -86,37 +88,50 @@ export const UpsertMortalityModal: React.FC<UpsertMortalityModalProps> = ({ open
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {mode === 'create' ? 'Log Fish Mortality' : 'Edit Fish Mortality'}
+            {mode === 'create' ? t('mortality.modal.createTitle') : t('mortality.modal.editTitle')}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-1 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="eventDate">Event Date</Label>
-              <Input id="eventDate" type="date" {...register('eventDate', { required: 'Required' })} />
+              <Label htmlFor="eventDate">{t('mortality.modal.fields.eventDate')}</Label>
+              <Input id="eventDate" type="date" {...register('eventDate', { required: t('mortality.modal.errors.required') })} />
               {errors.eventDate && <p className="text-xs text-red-500">{errors.eventDate.message}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="deadCount">Dead Count</Label>
-              <Input id="deadCount" type="number" min={1} step={1} {...register('deadCount', { required: 'Required', min: { value: 1, message: 'Min 1' } })} />
+              <Label htmlFor="deadCount">{t('mortality.modal.fields.deadCount')}</Label>
+              <Input
+                id="deadCount"
+                type="number"
+                min={1}
+                step={1}
+                {...register('deadCount', {
+                  required: t('mortality.modal.errors.required'),
+                  min: { value: 1, message: t('mortality.modal.errors.minDead') },
+                })}
+              />
               {errors.deadCount && <p className="text-xs text-red-500">{errors.deadCount.message}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="cause">Cause (optional)</Label>
+              <Label htmlFor="cause">{t('mortality.modal.fields.cause')}</Label>
               <Input id="cause" placeholder="e.g., penyakit" {...register('cause')} />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description">Description (optional)</Label>
+              <Label htmlFor="description">{t('mortality.modal.fields.description')}</Label>
               <Input id="description" placeholder="Notes/observations" {...register('description')} />
             </div>
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>Cancel</Button>
-            <Button type="submit" disabled={isSubmitting}>{mode === 'create' ? 'Create' : 'Save Changes'}</Button>
+            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+              {t('mortality.modal.buttons.cancel')}
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {mode === 'create' ? t('mortality.modal.buttons.create') : t('mortality.modal.buttons.save')}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

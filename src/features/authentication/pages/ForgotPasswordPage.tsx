@@ -2,7 +2,7 @@ import { Link } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,16 +24,25 @@ import {
 import { Mail, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '../hooks/useAuth';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
+import { LanguageToggle } from '@/components/common/language-toggle';
 
-const forgotPasswordSchema = z.object({
-  email: z.string().email({ message: 'Invalid email format' }),
-});
-type ForgotPasswordValues = z.infer<typeof forgotPasswordSchema>;
+const createForgotPasswordSchema = (t: TFunction<'auth'>) =>
+  z.object({
+    email: z
+      .string()
+      .min(1, { message: t('auth:validation.emailRequired') })
+      .email({ message: t('auth:validation.emailInvalid') }),
+  });
+type ForgotPasswordValues = z.infer<ReturnType<typeof createForgotPasswordSchema>>;
 
 export function ForgotPasswordPage() {
   const { forgotPassword } = useAuth(); 
   const [emailSent, setEmailSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useTranslation(['auth']);
+  const forgotPasswordSchema = useMemo(() => createForgotPasswordSchema(t), [t]);
 
   const form = useForm<ForgotPasswordValues>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -47,10 +56,10 @@ export function ForgotPasswordPage() {
     try {
       await forgotPassword(values.email);
       setEmailSent(true);
-      toast.success('Password reset link has been sent to your email if registered.');
+      toast.success(t('auth:forgot.toastSuccess'));
     } catch (error) {
       form.setError('root', {
-        message: 'An error occurred, please try again.',
+        message: t('auth:forgot.error.generic'),
       });
     } finally {
       setIsLoading(false);
@@ -59,18 +68,21 @@ export function ForgotPasswordPage() {
 
 
   return (
-    <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto my-4 sm:my-8">
+    <div className="flex flex-col items-center justify-center w-full max-w-md mx-auto my-4 sm:my-8 space-y-3">
+      <div className="flex w-full justify-end">
+        <LanguageToggle variant="compact" />
+      </div>
       <Card className="w-full shadow-2xl border-0 overflow-hidden rounded-2xl bg-white/90 backdrop-blur-xl">
         <div className="h-2 bg-gradient-to-r from-primary via-sky-400 to-primary/80 animate-pulse" />
         <CardHeader className="space-y-4 pb-6 pt-6">
           <div className="flex flex-col items-center gap-2">
             <Mail className="w-10 h-10 text-primary drop-shadow" />
             <CardTitle className="text-2xl font-bold text-center text-primary drop-shadow-md">
-              Forgot Password
+              {t('auth:forgot.title')}
             </CardTitle>
           </div>
           <CardDescription className="text-center text-base font-normal text-muted-foreground">
-            Enter your account email, we will send a password reset link.
+            {t('auth:forgot.subtitle')}
           </CardDescription>
         </CardHeader>
 
@@ -80,10 +92,10 @@ export function ForgotPasswordPage() {
               <div className="flex flex-col items-center gap-2">
                 <ArrowRight className="w-7 h-7 mb-1 text-accent" />
                 <span className="font-semibold text-base">
-                  Check your email for the password reset link.
+                  {t('auth:forgot.confirmationTitle')}
                 </span>
                 <span className="text-sm text-muted-foreground">
-                  Didn't receive the email? Check your spam/junk folder.
+                  {t('auth:forgot.confirmationDescription')}
                 </span>
               </div>
             </div>
@@ -96,7 +108,7 @@ export function ForgotPasswordPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-sm font-semibold text-primary mb-1">
-                        Email
+                        {t('auth:fields.email.label')}
                         <span className="ml-1 text-primary text-base font-bold">*</span>
                       </FormLabel>
                       <div className="relative group">
@@ -107,9 +119,9 @@ export function ForgotPasswordPage() {
                           <Input
                             {...field}
                             type="email"
-                            placeholder="Enter your email"
+                            placeholder={t('auth:fields.email.placeholder')}
                             className="bg-background border-input focus:border-primary focus:ring-2 focus:ring-primary/30 py-5 pl-11 text-base rounded-md outline-none transition-all"
-                            aria-label="Email"
+                            aria-label={t('auth:fields.email.label')}
                             autoComplete="email"
                             autoFocus
                           />
@@ -130,7 +142,7 @@ export function ForgotPasswordPage() {
                   type="submit"
                   className="w-full bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-300 py-5 text-base font-semibold rounded-md shadow-sm hover:shadow mt-2 flex items-center justify-center gap-2 focus:ring-2 focus:ring-primary/30"
                   disabled={isLoading}
-                  aria-label="Send Reset Email"
+                  aria-label={t('auth:forgot.submit.label')}
                 >
                   {isLoading ? (
                     <div className="flex items-center justify-center" aria-hidden="true">
@@ -155,11 +167,11 @@ export function ForgotPasswordPage() {
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         ></path>
                       </svg>
-                      <span>Sending...</span>
+                      <span>{t('auth:forgot.submit.processing')}</span>
                     </div>
                   ) : (
                     <>
-                      <span>Send Reset Email</span>
+                      <span>{t('auth:forgot.submit.label')}</span>
                       <ArrowRight size={20} className="ml-1" />
                     </>
                   )}
@@ -171,12 +183,12 @@ export function ForgotPasswordPage() {
 
         <CardFooter className="flex flex-col items-center gap-2 pb-6 pt-2">
           <span className="text-base text-muted-foreground">
-            Remember password?{' '}
+            {t('auth:forgot.rememberPrompt')}{' '}
             <Link
               to="/login"
               className="text-primary font-semibold hover:underline focus:underline transition-colors"
             >
-              Login here
+              {t('auth:forgot.loginLink')}
             </Link>
           </span>
         </CardFooter>

@@ -1,0 +1,117 @@
+{
+  "header": {
+    "subtitle": "Sistem Monitoring Kualitas Air (SIMONAIR 4.0)"
+  },
+  "greetings": {
+    "morning": "Selamat Pagi",
+    "afternoon": "Selamat Siang",
+    "evening": "Selamat Sore",
+    "night": "Selamat Malam"
+  },
+  "statusBar": {
+    "connection": "Koneksi",
+    "devicesOnline": "Perangkat Online",
+    "lastSeen": "Terakhir Terkoneksi",
+    "connected": "Terhubung",
+    "disconnected": "Terputus",
+    "waiting": "Menunggu..."
+  },
+  "connectionStatus": {
+    "deviceId": "ID: {{id}}"
+  },
+  "offlineWarning": {
+    "title": "Perangkat Offline",
+    "lastSeen": "Terakhir terlihat {{time}}"
+  },
+  "noDevices": {
+    "title": "Belum Ada Perangkat",
+    "description": "Pasangkan perangkat untuk mulai memantau akuarium Anda secara real-time.",
+    "button": "Pasangkan Perangkat"
+  },
+  "deviceCard": {
+    "status": {
+      "online": "Online",
+      "offline": "Offline",
+      "waiting": "Menunggu data",
+      "justNow": "Baru saja",
+      "unknown": "Tidak diketahui"
+    },
+    "buttons": {
+      "calibration": "Kalibrasi",
+      "threshold": "Batas"
+    }
+  },
+  "deviceHeader": {
+    "calibrated": "{{percentage}}% Terkalibrasi",
+    "fishCountLabel": "{{count}} ikan",
+    "actions": {
+      "menuLabel": "Aksi perangkat",
+      "calibrate": "Kalibrasi Sensor",
+      "threshold": "Atur Ambang"
+    }
+  },
+  "sensorCard": {
+    "calibratedOk": "Terkalibrasi",
+    "needsCalibration": "Perlu Kalibrasi",
+    "mobileOk": "OK",
+    "mobileWarn": "Periksa",
+    "lastUpdate": "Diperbarui {{time}}",
+    "deviceOffline": "Perangkat Offline"
+  },
+  "sensors": {
+    "labels": {
+      "ph": "Tingkat pH",
+      "tds": "Total Zat Terlarut",
+      "do": "Oksigen Terlarut",
+      "temperature": "Suhu Air",
+      "generic": "Sensor"
+    }
+  },
+  "sensorStatus": {
+    "good": "Normal",
+    "bad": "Perhatian",
+    "offline": "Offline",
+    "unknown": "Tidak diketahui"
+  },
+  "toasts": {
+    "calibrationSuccess": "Kalibrasi berhasil dikirim",
+    "calibrationError": "Gagal mengirim kalibrasi",
+    "offsetSuccess": "Batas berhasil diperbarui",
+    "offsetError": "Gagal mengirim batas"
+  },
+  "banners": {
+    "initializing": "Menginisialisasi data real-time...",
+    "connecting": "Menyambungkan ke data real-time...",
+    "active": "Data real-time aktif"
+  },
+  "loading": {
+    "auth": "Memverifikasi...",
+    "devices": "Memuat perangkat...",
+    "preparing": "Menyiapkan koneksi...",
+    "sensors": "Memuat data sensor...",
+    "generic": "Memuat..."
+  },
+  "sidebar": {
+    "empty": "Tidak ada menu untuk peran Anda.",
+    "groups": {
+      "devices": "Perangkat",
+      "farming": "Data Budidaya",
+      "admin": "Panel Admin"
+    },
+    "items": {
+      "home": "Beranda",
+      "devicesRoot": "Perangkat",
+      "manageDevices": "Kelola Perangkat",
+      "sensorTrends": "Tren Sensor",
+      "sensorTable": "Tabel Sensor",
+      "farmingRoot": "Budidaya",
+      "growth": "Pertumbuhan",
+      "feeds": "Pakan",
+      "mortality": "Mortalitas",
+      "manualData": "Data Manual",
+      "waterChange": "Ganti Air",
+      "adminRoot": "Admin",
+      "userData": "Data Pengguna"
+    }
+  }
+}

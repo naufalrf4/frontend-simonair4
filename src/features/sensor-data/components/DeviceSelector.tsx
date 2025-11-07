@@ -7,6 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useQuery } from '@tanstack/react-query';
 import { SensorDataService, sensorDataKeys } from '../services/sensorDataService';
 import type { Device } from '../types';
+import { useTranslation } from 'react-i18next';
 
 interface DeviceSelectorProps {
   devices?: Device[];
@@ -27,10 +28,12 @@ interface DeviceSelectorProps {
 export function DeviceSelector({
   selectedDevice,
   onDeviceSelect,
-  placeholder = "Pilih perangkat...",
+  placeholder,
   className,
   disabled = false
 }: DeviceSelectorProps) {
+  const { t } = useTranslation('devices');
+  const resolvedPlaceholder = placeholder ?? t('deviceSelector.placeholder');
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -91,7 +94,7 @@ export function DeviceSelector({
   // Get display text for selected device
   const getSelectedDeviceText = () => {
     if (!selectedDevice) {
-      return placeholder;
+      return resolvedPlaceholder;
     }
     return `${selectedDevice.name} (${selectedDevice.device_id})`;
   };
@@ -129,7 +132,7 @@ export function DeviceSelector({
             <div className="flex items-center border-b px-3 py-2">
               <Search className="h-4 w-4 shrink-0 opacity-50 mr-2" />
               <Input
-                placeholder="Cari perangkat..."
+                placeholder={t('deviceSelector.searchPlaceholder')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="border-0 px-0 py-1 h-auto focus-visible:ring-0 focus-visible:ring-offset-0"
@@ -142,7 +145,7 @@ export function DeviceSelector({
               {isLoading && (
                 <div className="flex items-center justify-center py-6">
                   <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  <span className="text-sm text-muted-foreground">Memuat perangkat...</span>
+                  <span className="text-sm text-muted-foreground">{t('deviceSelector.loading')}</span>
                 </div>
               )}
 
@@ -151,7 +154,7 @@ export function DeviceSelector({
                 <div className="p-4 text-center">
                   <AlertCircle className="h-8 w-8 text-red-500 mx-auto mb-2" />
                   <p className="text-sm text-red-600 mb-3">
-                    {error.message || 'Gagal memuat daftar perangkat'}
+                    {error.message || t('deviceSelector.error')}
                   </p>
                   <Button
                     variant="outline"
@@ -159,7 +162,7 @@ export function DeviceSelector({
                     onClick={() => refetch()}
                     className="text-xs"
                   >
-                    Coba Lagi
+                    {t('deviceSelector.retry')}
                   </Button>
                 </div>
               )}
@@ -169,10 +172,10 @@ export function DeviceSelector({
                 <div className="p-4 text-center">
                   <Monitor className="h-8 w-8 text-gray-400 mx-auto mb-2" />
                   <p className="text-sm text-muted-foreground mb-1">
-                    Tidak ada perangkat tersedia
+                    {t('deviceSelector.emptyTitle')}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Tambahkan perangkat terlebih dahulu
+                    {t('deviceSelector.emptyDescription')}
                   </p>
                 </div>
               )}
@@ -182,10 +185,10 @@ export function DeviceSelector({
                 <div className="p-4 text-center">
                   <Search className="h-8 w-8 text-gray-400 mx-auto mb-2" />
                   <p className="text-sm text-muted-foreground mb-1">
-                    Tidak ada hasil untuk "{searchQuery}"
+                    {t('deviceSelector.noResultsTitle', { query: searchQuery })}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Coba kata kunci lain
+                    {t('deviceSelector.noResultsDescription')}
                   </p>
                 </div>
               )}
@@ -201,9 +204,9 @@ export function DeviceSelector({
                         className="relative flex w-full cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                       >
                         <div className="flex items-center gap-2 min-w-0 flex-1">
-                          <div className="h-4 w-4" /> {/* Spacer for alignment */}
+                          <div className="h-4 w-4" />
                           <span className="text-muted-foreground italic">
-                            Hapus pilihan
+                            {t('deviceSelector.clear')}
                           </span>
                         </div>
                       </button>

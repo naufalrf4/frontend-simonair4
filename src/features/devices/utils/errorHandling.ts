@@ -171,24 +171,6 @@ export function parseApiError(error: unknown): DeviceError {
 }
 
 /**
- * Get operation-specific error message (now uses localized messages)
- * @deprecated Use getLocalizedErrorMessage from constants/messages.ts instead
- */
-export function getOperationErrorMessage(
-  operation: 'CREATE_DEVICE' | 'UPDATE_DEVICE' | 'DELETE_DEVICE' | 'FETCH_DEVICES' | 'FETCH_DEVICE',
-  error: DeviceError
-): string {
-  // Import here to avoid circular dependency
-  try {
-    const { getLocalizedErrorMessage } = require('../constants/messages');
-    return getLocalizedErrorMessage(operation, error.type);
-  } catch (err) {
-    // Fallback if import fails
-    return error.message || 'Terjadi kesalahan tidak dikenal.';
-  }
-}
-
-/**
  * Enhanced retry configuration for different error types
  */
 export const RETRY_CONFIG = {

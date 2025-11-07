@@ -31,7 +31,7 @@ import {
   formatAquariumVolume 
 } from '../../utils/deviceFormatters';
 import type { Device } from '../../types';
-import { DEVICE_MESSAGES } from '../../constants/messages';
+import { useTranslation } from 'react-i18next';
 
 export interface DeviceDetailsModalProps {
   isOpen: boolean;
@@ -48,10 +48,12 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
   onEdit,
   onDelete,
 }) => {
+  const { t, i18n } = useTranslation('devices');
   const { data: device, isLoading, error, refetch } = useDeviceQuery(
     deviceId || '',
     isOpen && !!deviceId
   );
+  const currentLocale = i18n.resolvedLanguage === 'id' ? 'id-ID' : 'en-US';
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
@@ -71,31 +73,20 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
     }
   };
 
-  // Format date in English with WIB suffix for this page
+  // Format date in WIB timezone with current locale
   const formatWIB = (dateString?: string | null) => {
     if (!dateString) return '-';
     try {
       const d = new Date(dateString);
-      const formatter = new Intl.DateTimeFormat('en-US', {
+      const formatter = new Intl.DateTimeFormat(currentLocale, {
         timeZone: 'Asia/Jakarta',
-        weekday: 'long',
         day: '2-digit',
         month: 'long',
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-        hour12: false,
       });
-      // Example: Monday, 08 September 2025 16:00 WIB
-      const parts = formatter.formatToParts(d);
-      const get = (type: string) => parts.find((p) => p.type === type)?.value || '';
-      const weekday = get('weekday');
-      const day = get('day');
-      const month = get('month');
-      const year = get('year');
-      const hour = get('hour');
-      const minute = get('minute');
-      return `${weekday}, ${day} ${month} ${year} ${hour}:${minute} WIB`;
+      return `${formatter.format(d)} WIB`;
     } catch {
       return dateString || '-';
     }
@@ -109,7 +100,7 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
     return (
       <Card>
         <CardHeader>
-          <CardTitle>{DEVICE_MESSAGES.DEVICE_INFO}</CardTitle>
+          <CardTitle>{t('modals.details.info')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -117,7 +108,7 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-muted-foreground" />
                 <div>
-                    <p className="text-sm font-medium">Device Name</p>
+                    <p className="text-sm font-medium">{t('forms.deviceName.label')}</p>
                     <p className="text-sm text-muted-foreground">{device.device_name}</p>
                   </div>
                 </div>
@@ -125,7 +116,7 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
                 <div className="flex items-center gap-2">
                   <Activity className="h-4 w-4 text-muted-foreground" />
                   <div>
-                    <p className="text-sm font-medium">Device ID</p>
+                    <p className="text-sm font-medium">{t('card.labels.deviceId')}</p>
                     <p className="text-sm text-muted-foreground font-mono">{device.device_id}</p>
                   </div>
                 </div>
@@ -134,7 +125,7 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
                   <div>
-                    <p className="text-sm font-medium">Location</p>
+                    <p className="text-sm font-medium">{t('card.labels.location')}</p>
                     <p className="text-sm text-muted-foreground">{device.location}</p>
                   </div>
                 </div>
@@ -146,12 +137,12 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
                 <div className="flex items-center gap-2">
                   <Ruler className="h-4 w-4 text-muted-foreground" />
                   <div>
-                    <p className="text-sm font-medium">Aquarium Size</p>
+                    <p className="text-sm font-medium">{t('card.labels.size')}</p>
                     <p className="text-sm text-muted-foreground">
                       {device.aquarium_size}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Volume: {formatAquariumVolume(aquariumDimensions)}
+                      {t('forms.aquariumSize.volume')}: {formatAquariumVolume(aquariumDimensions)}
                     </p>
                   </div>
                 </div>
@@ -161,7 +152,7 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
                 <div className="flex items-center gap-2">
                   <Fish className="h-4 w-4 text-muted-foreground" />
                   <div>
-                    <p className="text-sm font-medium">Fish Count</p>
+                    <p className="text-sm font-medium">{t('forms.fishCount.label')}</p>
                     <p className="text-sm text-muted-foreground">{device.fish_count}</p>
                   </div>
                 </div>
@@ -171,7 +162,7 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
                 <div className="flex items-center gap-2">
                   <Droplets className="h-4 w-4 text-muted-foreground" />
                   <div>
-                    <p className="text-sm font-medium">Glass Type</p>
+                    <p className="text-sm font-medium">{t('forms.glassType.label')}</p>
                     <p className="text-sm text-muted-foreground">{device.glass_type}</p>
                   </div>
                 </div>
@@ -195,7 +186,7 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
             ) : (
               <WifiOff className="h-5 w-5 text-red-500" />
             )}
-            Connection Status
+            {t('modals.details.status.title')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -207,12 +198,12 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
                   {formatDeviceStatus(device.online, device.last_seen)}
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {device.online ? 'Device is online' : 'Device is offline'}
+                  {device.online ? t('modals.details.status.online') : t('modals.details.status.offline')}
                 </p>
               </div>
             </div>
             <Badge variant={device.online ? 'default' : 'secondary'}>
-              {device.online ? 'Online' : 'Offline'}
+              {device.online ? t('card.badge.online') : t('card.badge.offline')}
             </Badge>
           </div>
           
@@ -220,11 +211,11 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
           
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Last Seen:</span>
+              <span className="text-muted-foreground">{t('modals.details.status.lastSeen')}:</span>
               <span>{formatWIB(device.last_seen)}</span>
             </div>
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Created:</span>
+              <span className="text-muted-foreground">{t('modals.details.status.created')}:</span>
               <span>{formatWIB(device.created_at)}</span>
             </div>
             {/* Removed Last Updated to avoid duplication with Last Seen */}
@@ -239,14 +230,14 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Failed to Load Device</DialogTitle>
+            <DialogTitle>{t('modals.details.error.title')}</DialogTitle>
             <DialogDescription>
-              Unable to load device details. Please try again.
+              {t('modals.details.error.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-center py-8">
             <Button onClick={() => refetch()} variant="outline">
-              Retry
+              {t('modals.details.error.retry')}
             </Button>
           </div>
         </DialogContent>
@@ -260,18 +251,18 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {isLoading ? (
-              'Loading Device Details...'
+              t('modals.details.loadingTitle')
             ) : (
               <>
                 <StatusDot online={device?.online || false} size="sm" />
-                {device?.device_name || 'Device Details'}
+                {device?.device_name || t('modals.details.info')}
               </>
             )}
           </DialogTitle>
           <DialogDescription>
             {isLoading 
-              ? 'Please wait while we fetch the device information.'
-              : 'Complete information about your aquarium monitoring device.'
+              ? t('modals.details.loadingDescription')
+              : t('modals.details.description')
             }
           </DialogDescription>
         </DialogHeader>
@@ -294,33 +285,33 @@ export const DeviceDetailsModal: React.FC<DeviceDetailsModalProps> = ({
         <DialogFooter className="flex-col sm:flex-row gap-2">
           <div className="flex gap-2 w-full sm:w-auto">
             {device && onEdit && (
-              <Button
-                onClick={handleEdit}
-                variant="outline"
-                className="flex-1 sm:flex-none"
-                disabled={isLoading}
-              >
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Device
-              </Button>
-            )}
-            {device && onDelete && (
-              <Button
-                onClick={handleDelete}
-                variant="destructive"
-                className="flex-1 sm:flex-none"
-                disabled={isLoading}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete Device
-              </Button>
-            )}
-          </div>
-          <Button onClick={onClose} variant="secondary" className="w-full sm:w-auto">
-            Close
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
+            <Button
+              onClick={handleEdit}
+              variant="outline"
+              className="flex-1 sm:flex-none"
+              disabled={isLoading}
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              {t('modals.details.actions.edit')}
+            </Button>
+          )}
+          {device && onDelete && (
+            <Button
+              onClick={handleDelete}
+              variant="destructive"
+              className="flex-1 sm:flex-none"
+              disabled={isLoading}
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              {t('modals.details.actions.delete')}
+            </Button>
+          )}
+        </div>
+        <Button onClick={onClose} variant="secondary" className="w-full sm:w-auto">
+          {t('modals.details.actions.close')}
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
+);
 };

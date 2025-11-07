@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import type { CreateManualMeasurementDto, ManualMeasurement, UpdateManualMeasurementDto } from '../types';
+import { useTranslation } from 'react-i18next';
 
 interface ManualMeasurementFormModalProps {
   open: boolean;
@@ -16,6 +17,7 @@ interface ManualMeasurementFormModalProps {
 }
 
 export function ManualMeasurementFormModal({ open, onClose, mode, deviceId, initial, onSubmit }: ManualMeasurementFormModalProps) {
+  const { t } = useTranslation('farming');
   const toWIBLocalInput = (dt: Date | string): string => {
     const d = new Date(dt);
     if (isNaN(d.getTime())) return '';
@@ -109,12 +111,12 @@ export function ManualMeasurementFormModal({ open, onClose, mode, deviceId, init
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="w-full max-w-2xl sm:rounded-lg">
         <DialogHeader>
-          <DialogTitle>{mode === 'create' ? 'Add Manual Measurement' : 'Edit Manual Measurement'}</DialogTitle>
+          <DialogTitle>{mode === 'create' ? t('manual.form.titleCreate') : t('manual.form.titleEdit')}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="timestamp">Timestamp</Label>
+              <Label htmlFor="timestamp">{t('manual.form.fields.timestamp')}</Label>
               <Input
                 id="timestamp"
                 type="datetime-local"
@@ -124,24 +126,24 @@ export function ManualMeasurementFormModal({ open, onClose, mode, deviceId, init
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="temperature">Temperature (°C)</Label>
+              <Label htmlFor="temperature">{t('manual.form.fields.temperature')}</Label>
               <Input id="temperature" type="number" step="0.01" value={temperature} onChange={(e) => setTemperature(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="ph">pH</Label>
+              <Label htmlFor="ph">{t('manual.form.fields.ph')}</Label>
               <Input id="ph" type="number" step="0.01" value={ph} onChange={(e) => setPh(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="tds">TDS</Label>
+              <Label htmlFor="tds">{t('manual.form.fields.tds')}</Label>
               <Input id="tds" type="number" step="0.1" value={tds} onChange={(e) => setTds(e.target.value)} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="do_level">DO</Label>
+              <Label htmlFor="do_level">{t('manual.form.fields.do')}</Label>
               <Input id="do_level" type="number" step="0.01" value={doLevel} onChange={(e) => setDoLevel(e.target.value)} />
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="notes">Notes</Label>
-              <Input id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Optional" />
+              <Label htmlFor="notes">{t('manual.form.fields.notes')}</Label>
+              <Input id="notes" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder={t('manual.form.fields.notes')} />
             </div>
           </div>
 
@@ -149,22 +151,26 @@ export function ManualMeasurementFormModal({ open, onClose, mode, deviceId, init
             <div className="flex items-center gap-2">
               <Switch id="compare" checked={compare} onCheckedChange={setCompare} />
               <Label htmlFor="compare">
-                {mode === 'create' ? 'Compare with sensor after save' : 'Compare after update'}
+                {mode === 'create' ? t('manual.form.compareToggleCreate') : t('manual.form.compareToggleEdit')}
               </Label>
             </div>
             <div className="flex gap-2">
               <Button type="button" variant="outline" onClick={onClose} disabled={submitting}>
-                Cancel
+                {t('manual.form.buttons.cancel')}
               </Button>
               <Button type="submit" disabled={!isValid || submitting}>
-                {submitting ? 'Saving...' : mode === 'create' ? 'Save' : 'Update'}
+                {submitting
+                  ? t('manual.form.buttons.saving')
+                  : mode === 'create'
+                    ? t('manual.form.buttons.save')
+                    : t('manual.form.buttons.update')}
               </Button>
             </div>
           </div>
 
           {!isValid && (
             <p className="text-xs text-red-600">
-              Please provide timestamp and at least one value (temperature, pH, TDS, or DO).
+              {t('manual.form.hint')}
             </p>
           )}
         </form>

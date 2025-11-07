@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Wrench, LineChart, Thermometer } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export const Route = createFileRoute('/_dashboard/_mobile/devices')({
   component: RouteComponent,
@@ -7,43 +8,44 @@ export const Route = createFileRoute('/_dashboard/_mobile/devices')({
 
 const deviceMenus = [
   {
-    title: 'Manage Devices',
+    titleKey: 'mobileMenu.cards.manage.title',
+    descriptionKey: 'mobileMenu.cards.manage.description',
     path: '/devices/manage',
     icon: Wrench,
-    description: 'Configure and manage your IoT devices and sensors',
     iconColor: 'text-blue-400',
     borderColor: 'border-blue-400/30',
-    bgGlow: 'bg-blue-400/5'
+    bgGlow: 'bg-blue-400/5',
   },
   {
-    title: 'Sensor Trends',
+    titleKey: 'mobileMenu.cards.trends.title',
+    descriptionKey: 'mobileMenu.cards.trends.description',
     path: '/devices/sensor-trends',
     icon: LineChart,
-    description: 'View real-time sensor data trends and analytics',
     iconColor: 'text-green-400',
     borderColor: 'border-green-400/30',
-    bgGlow: 'bg-green-400/5'
+    bgGlow: 'bg-green-400/5',
   },
   {
-    title: 'Sensor Data',
+    titleKey: 'mobileMenu.cards.data.title',
+    descriptionKey: 'mobileMenu.cards.data.description',
     path: '/devices/sensor-data',
     icon: Thermometer,
-    description: 'Browse detailed sensor data in table format',
     iconColor: 'text-purple-400',
     borderColor: 'border-purple-400/30',
-    bgGlow: 'bg-purple-400/5'
-  }
+    bgGlow: 'bg-purple-400/5',
+  },
 ]
 
 function RouteComponent() {
+  const { t } = useTranslation('devices')
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 p-4 md:p-6">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-2">
-            Device Management
+            {t('mobileMenu.title')}
           </h1>
-          <p className="text-gray-600/80">Monitor and manage your aquaculture devices and sensors</p>
+          <p className="text-gray-600/80">{t('mobileMenu.subtitle')}</p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -87,10 +89,10 @@ function RouteComponent() {
                     </div>
                     
                     <h3 className="text-xl font-semibold mb-2 text-gray-800 group-hover:text-gray-900 transition-colors duration-300">
-                      {menu.title}
+                      {t(menu.titleKey)}
                     </h3>
                     <p className="text-gray-600/90 text-sm leading-relaxed group-hover:text-gray-700/90 transition-colors duration-300">
-                      {menu.description}
+                      {t(menu.descriptionKey)}
                     </p>
                   </div>
                   

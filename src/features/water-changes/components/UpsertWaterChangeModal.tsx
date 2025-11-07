@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import type { WaterChangeRecord, WaterChangeType, WaterChangeReason } from '../types'
 import { WaterChangesService } from '../services/waterChangesService'
+import { useTranslation } from 'react-i18next'
 
 type Mode = 'create' | 'edit'
 
@@ -28,6 +29,7 @@ interface FormValues {
 }
 
 export const UpsertWaterChangeModal: React.FC<UpsertWaterChangeModalProps> = ({ open, mode, deviceId, item, onClose, onSuccess }) => {
+  const { t } = useTranslation('farming')
   const toWIBLocalInput = (dt: Date | string): string => {
     const d = new Date(dt)
     if (isNaN(d.getTime())) return ''
@@ -84,7 +86,7 @@ export const UpsertWaterChangeModal: React.FC<UpsertWaterChangeModalProps> = ({ 
           reason: values.reason,
           notes: values.notes || undefined,
         })
-        toast.success('Water change logged')
+        toast.success(t('waterChanges.toasts.created'))
       } else if (mode === 'edit' && item) {
         await WaterChangesService.update(item.id, {
           changedAt: changedAtIso!,
@@ -92,7 +94,7 @@ export const UpsertWaterChangeModal: React.FC<UpsertWaterChangeModalProps> = ({ 
           reason: values.reason,
           notes: values.notes,
         })
-        toast.success('Water change updated')
+        toast.success(t('waterChanges.toasts.updated'))
       }
       onSuccess?.()
       onClose()
@@ -109,59 +111,62 @@ export const UpsertWaterChangeModal: React.FC<UpsertWaterChangeModalProps> = ({ 
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {mode === 'create' ? 'Log Water Change' : 'Edit Water Change'}
+            {mode === 'create' ? t('waterChanges.modal.createTitle') : t('waterChanges.modal.editTitle')}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Form */}
           <div className="grid grid-cols-1 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="changedAt">Event Time</Label>
-              <Input id="changedAt" type="datetime-local" {...register('changedAt', { required: 'Required' })} />
+              <Label htmlFor="changedAt">{t('waterChanges.modal.fields.changedAt')}</Label>
+              <Input id="changedAt" type="datetime-local" {...register('changedAt', { required: t('waterChanges.modal.errors.required') })} />
               {errors.changedAt && <p className="text-xs text-red-500">{errors.changedAt.message}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label>Change Type</Label>
+              <Label>{t('waterChanges.modal.fields.changeType')}</Label>
               <Select defaultValue={item?.changeType || 'partial'} onValueChange={(v) => setValue('changeType', v as WaterChangeType)}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue placeholder={t('waterChanges.modal.fields.changeType')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="partial">Partial</SelectItem>
-                  <SelectItem value="full">Full</SelectItem>
+                  <SelectItem value="partial">{t('waterChanges.modal.options.partial')}</SelectItem>
+                  <SelectItem value="full">{t('waterChanges.modal.options.full')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label>Reason</Label>
+              <Label>{t('waterChanges.modal.fields.reason')}</Label>
               <Select defaultValue={item?.reason || 'rutin'} onValueChange={(v) => setValue('reason', v as WaterChangeReason)}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select reason" />
+                  <SelectValue placeholder={t('waterChanges.modal.fields.reason')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="rutin">Rutin</SelectItem>
-                  <SelectItem value="kualitas_air">Kualitas Air</SelectItem>
-                  <SelectItem value="penyakit">Penyakit</SelectItem>
-                  <SelectItem value="lainnya">Lainnya</SelectItem>
+                  <SelectItem value="rutin">{t('waterChanges.modal.options.rutin')}</SelectItem>
+                  <SelectItem value="kualitas_air">{t('waterChanges.modal.options.kualitas_air')}</SelectItem>
+                  <SelectItem value="penyakit">{t('waterChanges.modal.options.penyakit')}</SelectItem>
+                  <SelectItem value="lainnya">{t('waterChanges.modal.options.lainnya')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="notes">Notes</Label>
-              <Input id="notes" placeholder="Optional notes" {...register('notes')} />
+              <Label htmlFor="notes">{t('waterChanges.modal.fields.notes')}</Label>
+              <Input id="notes" placeholder={t('waterChanges.modal.fields.notes')} {...register('notes')} />
             </div>
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>Cancel</Button>
-            <Button type="submit" disabled={isSubmitting}>{mode === 'create' ? 'Create' : 'Save Changes'}</Button>
+            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+              {t('common.buttons.cancel')}
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {mode === 'create' ? t('waterChanges.modal.buttons.create') : t('waterChanges.modal.buttons.save')}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
   )
 }
-

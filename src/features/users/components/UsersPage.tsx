@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/components/ui/data-table';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ import { UserDetailsModal } from './UserDetailsModal';
 import { UserActionsDropdown } from './UserActionsDropdown';
 import { UserStatusBadge, UserAvatar } from './UserStatusBadge';
 import { Users, UserPlus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export const UsersPage: React.FC = () => {
   const [pageIndex, setPageIndex] = useState(0);
@@ -19,15 +20,30 @@ export const UsersPage: React.FC = () => {
   const [search, setSearch] = useState('');
 
   const { data, isLoading } = useUsersListQuery({ page: pageIndex + 1, limit: pageSize, search });
+  const { t, i18n } = useTranslation('admin');
 
   const [openUpsert, setOpenUpsert] = useState<{ open: boolean; mode: 'create' | 'edit'; user?: User | null }>({ open: false, mode: 'create', user: null });
   const [openDelete, setOpenDelete] = useState<{ open: boolean; user: User | null }>({ open: false, user: null });
   const [openDetails, setOpenDetails] = useState<{ open: boolean; user: User | null }>({ open: false, user: null });
 
+  const formatDate = useCallback(
+    (value?: string | Date | null, options?: Intl.DateTimeFormatOptions) => {
+      if (!value) return '-';
+      const date = typeof value === 'string' || value instanceof Date ? new Date(value) : null;
+      if (!date || Number.isNaN(date.getTime())) return '-';
+      return new Intl.DateTimeFormat(i18n.language, options ?? {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      }).format(date);
+    },
+    [i18n.language],
+  );
+
   const columns = useMemo<ColumnDef<User>[]>(() => [
     { 
       accessorKey: 'user', 
-      header: 'User', 
+      header: t('users.table.columns.user'), 
       cell: ({ row }) => (
         <div className="flex items-center gap-3">
           <UserAvatar user={row.original} size="sm" showStatus />
@@ -40,7 +56,7 @@ export const UsersPage: React.FC = () => {
     },
     { 
       accessorKey: 'status', 
-      header: 'Status', 
+      header: t('users.table.columns.status'), 
       cell: ({ row }) => (
         <UserStatusBadge 
           user={row.original} 
@@ -53,20 +69,16 @@ export const UsersPage: React.FC = () => {
     },
     { 
       accessorKey: 'lastLogin', 
-      header: 'Last Activity',
+      header: t('users.table.columns.lastActivity'),
       meta: { hideOnMobile: true },
       cell: ({ row }) => (
         <div className="flex flex-col">
           <span className="text-sm font-medium">
-            {row.original.lastLogin ? 'Logged in' : 'Never'}
+            {row.original.lastLogin ? t('users.table.lastLogin.loggedIn') : t('users.table.lastLogin.never')}
           </span>
           {row.original.lastLogin && (
             <span className="text-xs text-muted-foreground">
-              {new Date(row.original.lastLogin).toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric'
-              })}
+              {formatDate(row.original.lastLogin)}
             </span>
           )}
         </div>
@@ -74,21 +86,17 @@ export const UsersPage: React.FC = () => {
     },
     { 
       accessorKey: 'createdAt', 
-      header: 'Joined',
+      header: t('users.table.columns.joined'),
       meta: { hideOnMobile: true },
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">
-          {new Date(row.original.createdAt).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric'
-          })}
+          {formatDate(row.original.createdAt)}
         </span>
       )
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: t('users.table.columns.actions'),
       size: 50,
       cell: ({ row }) => (
         <UserActionsDropdown
@@ -99,7 +107,7 @@ export const UsersPage: React.FC = () => {
         />
       ),
     },
-  ], []);
+  ], [formatDate, t]);
 
   return (
     <div className="space-y-6">
@@ -110,16 +118,16 @@ export const UsersPage: React.FC = () => {
             <Users className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">User Management</h1>
+            <h1 className="text-2xl font-bold text-foreground">{t('users.header.title')}</h1>
             <p className="text-sm text-muted-foreground">
-              Manage user accounts, roles, and permissions
+              {t('users.header.subtitle')}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <Button onClick={() => setOpenUpsert({ open: true, mode: 'create' })}>
             <UserPlus className="h-4 w-4 mr-2" />
-            Add User
+            {t('users.header.add')}
           </Button>
         </div>
       </div>
@@ -129,20 +137,20 @@ export const UsersPage: React.FC = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Total Users
+              {t('users.stats.total.title')}
             </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{data?.pagination?.total || 0}</div>
-            <p className="text-xs text-muted-foreground">Active accounts</p>
+            <p className="text-xs text-muted-foreground">{t('users.stats.total.subtitle')}</p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Active Users
+              {t('users.stats.active.title')}
             </CardTitle>
             <UserPlus className="h-4 w-4 text-green-600" />
           </CardHeader>
@@ -150,14 +158,14 @@ export const UsersPage: React.FC = () => {
             <div className="text-2xl font-bold text-green-600">
               {data?.data?.filter(u => u.isActive).length || 0}
             </div>
-            <p className="text-xs text-muted-foreground">Currently active</p>
+            <p className="text-xs text-muted-foreground">{t('users.stats.active.subtitle')}</p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Verified
+              {t('users.stats.verified.title')}
             </CardTitle>
             <Badge className="h-4 w-4 text-blue-600" />
           </CardHeader>
@@ -165,14 +173,14 @@ export const UsersPage: React.FC = () => {
             <div className="text-2xl font-bold text-blue-600">
               {data?.data?.filter(u => u.emailVerified).length || 0}
             </div>
-            <p className="text-xs text-muted-foreground">Email verified</p>
+            <p className="text-xs text-muted-foreground">{t('users.stats.verified.subtitle')}</p>
           </CardContent>
         </Card>
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
-              Admins
+              {t('users.stats.admins.title')}
             </CardTitle>
             <Badge className="h-4 w-4 text-purple-600" />
           </CardHeader>
@@ -180,7 +188,7 @@ export const UsersPage: React.FC = () => {
             <div className="text-2xl font-bold text-purple-600">
               {data?.data?.filter(u => u.role === 'admin' || u.role === 'superuser').length || 0}
             </div>
-            <p className="text-xs text-muted-foreground">Administrative roles</p>
+            <p className="text-xs text-muted-foreground">{t('users.stats.admins.subtitle')}</p>
           </CardContent>
         </Card>
       </div>
@@ -188,14 +196,14 @@ export const UsersPage: React.FC = () => {
       {/* Data Table */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Users Directory</CardTitle>
+          <CardTitle className="text-lg font-semibold">{t('users.table.title')}</CardTitle>
         </CardHeader>
         <CardContent>
           <DataTable
             columns={columns}
             data={data?.data || []}
             searchColumn="fullName"
-            searchPlaceholder="Search users by name or email..."
+            searchPlaceholder={t('users.table.searchPlaceholder')}
             searchValue={search}
             onSearchChange={(v) => { setSearch(v); setPageIndex(0); }}
             isLoading={isLoading}

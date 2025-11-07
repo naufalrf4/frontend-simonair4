@@ -10,14 +10,16 @@ export interface SidebarProps {
 
 export type NavigationItem = {
   title: string;
+  titleKey?: string;
   path: string;
   icon: React.ComponentType<{ className?: string }>;
   roles?: UserRole[];
-  children?: Omit<NavigationItem, 'children'>[];
+  children?: Array<Omit<NavigationItem, 'children'>>;
   exact?: boolean;
 };
 
 export type NavigationGroup = {
   groupName?: string;
+  groupNameKey?: string;
   items: NavigationItem[];
 };

@@ -1,0 +1,181 @@
+{
+  "mobile": {
+    "title": "Panel Admin",
+    "subtitle": "Alat administrasi dan pengelolaan sistem",
+    "menus": {
+      "userManagement": {
+        "title": "Manajemen Pengguna",
+        "description": "Kelola akun pengguna, peran, dan izin"
+      }
+    }
+  },
+  "common": {
+    "buttons": {
+      "cancel": "Batal",
+      "close": "Tutup",
+      "addUser": "Tambah Pengguna",
+      "createUser": "Buat Pengguna",
+      "saveChanges": "Simpan Perubahan",
+      "deleteUser": "Hapus Pengguna",
+      "creating": "Sedang membuat...",
+      "saving": "Menyimpan...",
+      "deleting": "Menghapus..."
+    },
+    "status": {
+      "active": "Aktif",
+      "inactive": "Tidak aktif"
+    },
+    "verification": {
+      "verified": "Terverifikasi",
+      "unverified": "Belum verifikasi",
+      "pending": "Menunggu"
+    }
+  },
+  "users": {
+    "header": {
+      "title": "Manajemen Pengguna",
+      "subtitle": "Kelola akun pengguna, peran, dan izin",
+      "add": "Tambah Pengguna"
+    },
+    "stats": {
+      "total": {
+        "title": "Total Pengguna",
+        "subtitle": "Akun aktif"
+      },
+      "active": {
+        "title": "Pengguna Aktif",
+        "subtitle": "Sedang aktif"
+      },
+      "verified": {
+        "title": "Terverifikasi",
+        "subtitle": "Email terverifikasi"
+      },
+      "admins": {
+        "title": "Admin",
+        "subtitle": "Peran administratif"
+      }
+    },
+    "table": {
+      "title": "Direktori Pengguna",
+      "searchPlaceholder": "Cari pengguna berdasarkan nama atau email...",
+      "columns": {
+        "user": "Pengguna",
+        "status": "Status",
+        "lastActivity": "Aktivitas Terakhir",
+        "joined": "Bergabung",
+        "actions": "Aksi"
+      },
+      "lastLogin": {
+        "loggedIn": "Pernah masuk",
+        "never": "Belum pernah"
+      }
+    },
+    "roles": {
+      "user": "Pengguna",
+      "admin": "Admin",
+      "superuser": "Superuser"
+    },
+    "roleSummaries": {
+      "user": "Akses standar",
+      "admin": "Hak administratif",
+      "superuser": "Akses penuh sistem"
+    },
+    "roleHelper": {
+      "user": "Akses pengguna standar dengan hak administratif terbatas",
+      "admin": "Dapat mengelola pengguna dan fitur administratif",
+      "superuser": "Akses penuh ke seluruh fungsi dan pengaturan sistem"
+    },
+    "form": {
+      "fullName": {
+        "label": "Nama Lengkap",
+        "placeholder": "Masukkan nama lengkap",
+        "errors": {
+          "required": "Nama lengkap wajib diisi",
+          "minLength": "Nama minimal 2 karakter"
+        }
+      },
+      "email": {
+        "label": "Alamat Email",
+        "placeholder": "pengguna@contoh.com",
+        "immutable": "Email tidak dapat diubah setelah akun dibuat",
+        "errors": {
+          "required": "Email wajib diisi",
+          "invalid": "Masukkan alamat email yang valid"
+        }
+      },
+      "password": {
+        "label": "Kata Sandi",
+        "placeholder": "Buat kata sandi yang kuat",
+        "hint": "Minimal 8 karakter",
+        "errors": {
+          "required": "Kata sandi wajib diisi",
+          "minLength": "Kata sandi minimal 8 karakter"
+        }
+      },
+      "role": {
+        "label": "Peran Pengguna",
+        "placeholder": "Pilih peran pengguna"
+      },
+      "emailVerified": {
+        "label": "Email terverifikasi",
+        "helper": {
+          "true": "Pengguna dapat mengakses fitur yang membutuhkan email",
+          "false": "Akses mungkin terbatas sampai email diverifikasi"
+        }
+      }
+    },
+    "upsert": {
+      "title": {
+        "create": "Buat Pengguna Baru",
+        "edit": "Ubah Akun Pengguna"
+      },
+      "subtitle": {
+        "create": "Tambahkan pengguna baru dengan peran dan izin yang sesuai.",
+        "edit": "Perbarui informasi dan izin pengguna."
+      },
+      "error": "Terjadi kesalahan saat menyimpan pengguna."
+    },
+    "delete": {
+      "title": "Hapus Akun Pengguna",
+      "warning": "Tindakan ini tidak dapat dibatalkan. Akun dan seluruh data akan dihapus permanen.",
+      "detailsTitle": "Data yang akan dihapus:",
+      "items": [
+        "Akun pengguna dan kredensial masuk",
+        "Profil pengguna dan data pribadi",
+        "Izin serta penugasan peran terkait",
+        "Riwayat aktivitas dan log pengguna"
+      ],
+      "error": "Gagal menghapus pengguna. Silakan coba lagi."
+    },
+    "actions": {
+      "openMenu": "Buka menu",
+      "viewDetails": "Lihat Detail",
+      "editUser": "Ubah Pengguna",
+      "resendVerification": "Kirim ulang verifikasi",
+      "deactivateUser": "Nonaktifkan Pengguna",
+      "activateUser": "Aktifkan Pengguna",
+      "deleteUser": "Hapus Pengguna"
+    },
+    "details": {
+      "title": "Detail Pengguna",
+      "sections": {
+        "role": "Peran & Izin",
+        "email": "Status Email",
+        "activity": "Informasi Aktivitas"
+      },
+      "emailDescription": {
+        "verified": "Alamat email telah diverifikasi dan dikonfirmasi",
+        "unverified": "Verifikasi email masih tertunda - akses mungkin terbatas"
+      },
+      "activity": {
+        "created": "Akun Dibuat:",
+        "lastLogin": "Masuk Terakhir:",
+        "lastUpdated": "Pembaharuan Terakhir:",
+        "status": "Status:",
+        "never": "Belum pernah masuk",
+        "active": "Aktif dan dapat mengakses sistem",
+        "inactive": "Tidak aktif - akses dibatasi"
+      }
+    }
+  }
+}

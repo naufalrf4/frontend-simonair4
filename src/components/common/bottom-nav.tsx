@@ -3,10 +3,12 @@ import { useMemo, useState, useEffect } from 'react';
 import { filterNavigationByRole } from '@/utils/role';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/features/authentication/hooks/useAuth';
+import { useTranslation } from 'react-i18next';
 
 export function BottomNav() {
   const matches = useMatches();
   const { user } = useAuth();
+  const { t } = useTranslation('dashboard');
   const userRole = user?.role || 'user';
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -39,6 +41,9 @@ export function BottomNav() {
   const isActive = (path: string) =>
     matches.some((match) => match.pathname === path);
 
+  const getItemLabel = (title: string, titleKey?: string) =>
+    titleKey ? t(titleKey, { defaultValue: title }) : title;
+
   // RENDER - NO EARLY RETURNS IN THIS COMPONENT
   return (
     <nav className={cn(
@@ -47,6 +52,7 @@ export function BottomNav() {
     )}>
       {filteredNavigation.map((item) => {
         const active = isActive(item.path);
+        const itemLabel = getItemLabel(item.title, item.titleKey);
         const Icon = item.icon;
         
         return (
@@ -59,7 +65,7 @@ export function BottomNav() {
                 ? 'text-primary font-semibold'
                 : 'text-muted-foreground hover:text-primary'
             )}
-            aria-label={item.title}
+            aria-label={itemLabel}
           >
             <span
               className={cn(
@@ -86,7 +92,7 @@ export function BottomNav() {
                 active ? 'text-primary' : 'text-muted-foreground group-hover:text-primary'
               )}
             >
-              {item.title}
+              {itemLabel}
             </span>
             {active && (
               <span className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-primary shadow" />

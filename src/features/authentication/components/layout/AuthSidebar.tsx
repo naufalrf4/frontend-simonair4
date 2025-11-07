@@ -1,7 +1,18 @@
 import { Fish, Thermometer, FlaskConical, Droplets, Activity } from 'lucide-react';
 import FeatureCard from './FeatureCard';
+import { useTranslation } from 'react-i18next';
 
 export default function AuthSidebar() {
+  const { t } = useTranslation('auth');
+  const featureItems = [
+    { icon: <Thermometer className="w-6 h-6 text-accent" />, label: t('auth:sidebar.features.temperature') },
+    { icon: <FlaskConical className="w-6 h-6 text-accent" />, label: t('auth:sidebar.features.ph') },
+    { icon: <Droplets className="w-6 h-6 text-accent" />, label: t('auth:sidebar.features.tds') },
+    { icon: <Fish className="w-6 h-6 text-accent" />, label: t('auth:sidebar.features.do') },
+    { icon: <Activity className="w-6 h-6 text-accent" />, label: t('auth:sidebar.features.logs') },
+  ];
+  const footerText = t('auth:sidebar.footer', { year: new Date().getFullYear() });
+
   return (
     <aside className="hidden md:flex md:w-1/2 bg-gradient-to-br from-[#2291c7] via-[#1c5072]/90 to-[#17385b]/95 flex-col items-center justify-between p-0 relative overflow-hidden z-10">
       <div className="absolute top-8 left-8 flex items-center gap-2">
@@ -21,42 +32,23 @@ export default function AuthSidebar() {
             strokeWidth={1.5}
           />
           <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 text-primary-foreground tracking-tight drop-shadow-md">
-            SIMONAIR 4.0
+            {t('auth:sidebar.title')}
             <span className="text-lg font-semibold block text-primary-foreground/90 mt-2">
-              Sistem Monitoring Kualitas Air
+              {t('auth:sidebar.subtitle')}
             </span>
           </h1>
           <p className="text-primary-foreground/90 text-base sm:text-lg mb-4">
-            Real-time monitoring & management of <b>water quality</b> for your ornamental freshwater
-            fish tanks.
+            {t('auth:sidebar.description')}
           </p>
           <div className="flex flex-wrap justify-center gap-4 mt-6">
-            <FeatureCard
-              icon={<Thermometer className="w-6 h-6 text-accent" />}
-              label="Temperature"
-            />
-            <FeatureCard
-              icon={<FlaskConical className="w-6 h-6 text-accent" />}
-              label="pH"
-            />
-            <FeatureCard
-              icon={<Droplets className="w-6 h-6 text-accent" />}
-              label="TDS"
-            />
-            <FeatureCard
-              icon={<Fish className="w-6 h-6 text-accent" />}
-              label="Dissolved Oxygen"
-            />
-            <FeatureCard
-              icon={<Activity className="w-6 h-6 text-accent" />}
-              label="Live Sensor Logs"
-            />
+            {featureItems.map((feature) => (
+              <FeatureCard key={feature.label} icon={feature.icon} label={feature.label} />
+            ))}
           </div>
         </div>
       </div>
       <footer className="absolute bottom-6 left-0 w-full text-center text-primary-foreground/70 text-xs sm:text-sm tracking-wide z-10">
-        © {new Date().getFullYear()}
-        <span className="font-semibold text-accent"> Simonair 4.0 · </span> All rights reserved.
+        {footerText}
       </footer>
     </aside>
   );

@@ -9,12 +9,14 @@ import { ChevronDown, ChevronUp, Menu, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import BottomNav from './bottom-nav';
 import { useAuth } from '@/features/authentication/hooks/useAuth';
+import { useTranslation } from 'react-i18next';
 
 export function Sidebar({
   isInsideSheet = false,
   onCollapsedChange,
   defaultCollapsed = false,
 }: SidebarProps) {
+  const { t } = useTranslation('dashboard');
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
   const matches = useMatches();
@@ -60,6 +62,12 @@ export function Sidebar({
     });
   }, [matches, filteredNavigation]);
 
+  const getGroupLabel = (groupName?: string, groupNameKey?: string) =>
+    groupNameKey ? t(groupNameKey, { defaultValue: groupName }) : groupName;
+
+  const getItemLabel = (title: string, titleKey?: string) =>
+    titleKey ? t(titleKey, { defaultValue: title }) : title;
+
   // CONDITIONAL RETURNS ONLY AFTER ALL HOOKS ARE CALLED
   if (typeof window !== 'undefined' && window.innerWidth < 768) {
     return <BottomNav />;
@@ -81,7 +89,7 @@ export function Sidebar({
           />
         </div>
         <div className="flex flex-1 items-center justify-center p-4 text-center">
-          <p className="text-muted-foreground">No menu items available for your role.</p>
+          <p className="text-muted-foreground">{t('sidebar.empty')}</p>
         </div>
       </div>
     );
@@ -118,14 +126,15 @@ export function Sidebar({
         <TooltipProvider delayDuration={200}>
           {filteredNavigation.map((group, index) => (
             <div key={index} className="mb-6">
-              {group.groupName && (!collapsed || isInsideSheet) && (
+              {(group.groupName || group.groupNameKey) && (!collapsed || isInsideSheet) && (
                 <h2 className="px-4 mb-2 text-xs uppercase font-semibold tracking-wider text-muted-foreground/80">
-                  {group.groupName}
+                  {getGroupLabel(group.groupName, group.groupNameKey)}
                 </h2>
               )}
               <div className="space-y-1 px-2">
                 {group.items.map((item) => {
                   const Icon = item.icon;
+                  const itemLabel = getItemLabel(item.title, item.titleKey);
                   const isItemExpanded = expandedItems.includes(item.path);
 
                   return (
@@ -150,7 +159,7 @@ export function Sidebar({
                                   </Button>
                                 </TooltipTrigger>
                                 <TooltipContent side="right" className="font-medium">
-                                  {item.title}
+                                  {itemLabel}
                                 </TooltipContent>
                               </Tooltip>
                             ) : (
@@ -166,7 +175,7 @@ export function Sidebar({
                               >
                                 <div className="flex items-center">
                                   {Icon && <Icon className="mr-3 h-5 w-5" />}
-                                  <span className="font-medium">{item.title}</span>
+                                  <span className="font-medium">{itemLabel}</span>
                                 </div>
                                 {isItemExpanded ? (
                                   <ChevronUp className="h-4 w-4 opacity-70" />
@@ -181,6 +190,7 @@ export function Sidebar({
                           >
                             {item.children.map((child) => {
                               const ChildIcon = child.icon;
+                              const childLabel = getItemLabel(child.title, child.titleKey);
                               return collapsed && !isInsideSheet ? (
                                 <Tooltip key={child.path}>
                                   <TooltipTrigger asChild>
@@ -192,12 +202,13 @@ export function Sidebar({
                                           ? 'bg-primary/15 text-primary shadow-sm'
                                           : 'hover:bg-secondary/40 text-muted-foreground hover:text-foreground',
                                       )}
+                                      aria-label={childLabel}
                                     >
                                       {ChildIcon && <ChildIcon className="h-4 w-4" />}
                                     </Link>
                                   </TooltipTrigger>
                                   <TooltipContent side="right" className="font-medium">
-                                    {child.title}
+                                    {childLabel}
                                   </TooltipContent>
                                 </Tooltip>
                               ) : (
@@ -212,7 +223,7 @@ export function Sidebar({
                                   )}
                                 >
                                   {ChildIcon && <ChildIcon className="mr-3 h-4 w-4" />}
-                                  <span>{child.title}</span>
+                                  <span>{childLabel}</span>
                                 </Link>
                               );
                             })}
@@ -236,7 +247,7 @@ export function Sidebar({
                                 </Link>
                               </TooltipTrigger>
                               <TooltipContent side="right" className="font-medium">
-                                {item.title}
+                                {itemLabel}
                               </TooltipContent>
                             </Tooltip>
                           ) : (
@@ -248,11 +259,11 @@ export function Sidebar({
                                   ? 'bg-primary/10 text-primary shadow-sm'
                                   : 'hover:bg-secondary/40 text-muted-foreground hover:text-foreground',
                               )}
-                            >
-                              {Icon && <Icon className="mr-3 h-5 w-5" />}
-                              <span className="font-medium">{item.title}</span>
-                            </Link>
-                          )}
+                              >
+                                {Icon && <Icon className="mr-3 h-5 w-5" />}
+                                <span className="font-medium">{itemLabel}</span>
+                              </Link>
+                            )}
                         </>
                       )}
                     </div>

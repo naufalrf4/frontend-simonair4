@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Users } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export const Route = createFileRoute('/_dashboard/_mobile/admin')({
   component: RouteComponent,
@@ -7,10 +8,10 @@ export const Route = createFileRoute('/_dashboard/_mobile/admin')({
 
 const adminMenus = [
   {
-    title: 'User Management',
+    titleKey: 'mobile.menus.userManagement.title',
     path: '/admin/users',
     icon: Users,
-    description: 'Manage user accounts, roles, and permissions',
+    descriptionKey: 'mobile.menus.userManagement.description',
     iconColor: 'text-violet-400',
     borderColor: 'border-violet-400/30',
     bgGlow: 'bg-violet-400/5'
@@ -18,14 +19,16 @@ const adminMenus = [
 ]
 
 function RouteComponent() {
+  const { t } = useTranslation('admin')
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-violet-50/30 to-purple-50/30 p-4 md:p-6">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-2">
-            Admin Panel
+            {t('mobile.title')}
           </h1>
-          <p className="text-gray-600/80">Administrative tools and system management</p>
+          <p className="text-gray-600/80">{t('mobile.subtitle')}</p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -69,10 +72,10 @@ function RouteComponent() {
                     </div>
                     
                     <h3 className="text-xl font-semibold mb-2 text-gray-800 group-hover:text-gray-900 transition-colors duration-300">
-                      {menu.title}
+                      {t(menu.titleKey)}
                     </h3>
                     <p className="text-gray-600/90 text-sm leading-relaxed group-hover:text-gray-700/90 transition-colors duration-300">
-                      {menu.description}
+                      {t(menu.descriptionKey)}
                     </p>
                   </div>
                   

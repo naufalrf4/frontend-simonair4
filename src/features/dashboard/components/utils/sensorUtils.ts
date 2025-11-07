@@ -10,7 +10,7 @@ export const getSensorConfig = (label: string) => {
         borderColor: 'border-blue-200',
         textColor: 'text-blue-700',
         iconColor: 'text-blue-600',
-        name: 'Tingkat pH'
+        nameKey: 'sensors.labels.ph' as const,
       };
     case 'tds':
       return {
@@ -20,7 +20,7 @@ export const getSensorConfig = (label: string) => {
         borderColor: 'border-yellow-200',
         textColor: 'text-yellow-700',
         iconColor: 'text-yellow-600',
-        name: 'Total Zat Terlarut'
+        nameKey: 'sensors.labels.tds' as const,
       };
     case 'do':
       return {
@@ -30,7 +30,7 @@ export const getSensorConfig = (label: string) => {
         borderColor: 'border-green-200',
         textColor: 'text-green-700',
         iconColor: 'text-green-600',
-        name: 'Oksigen Terlarut'
+        nameKey: 'sensors.labels.do' as const,
       };
     case 'suhu':
     case 'temperature':
@@ -41,7 +41,7 @@ export const getSensorConfig = (label: string) => {
         borderColor: 'border-red-200',
         textColor: 'text-red-700',
         iconColor: 'text-red-600',
-        name: 'Suhu Air'
+        nameKey: 'sensors.labels.temperature' as const,
       };
     default:
       return {
@@ -51,7 +51,7 @@ export const getSensorConfig = (label: string) => {
         borderColor: 'border-gray-200',
         textColor: 'text-gray-700',
         iconColor: 'text-gray-600',
-        name: label
+        name: label,
       };
   }
 };
@@ -62,8 +62,8 @@ export const getStatusConfig = (status: string, isOnline: boolean) => {
       color: 'bg-gray-500',
       textColor: 'text-gray-700',
       icon: AlertTriangle,
-      label: 'Offline',
-      variant: 'secondary' as const
+      labelKey: 'sensorStatus.offline' as const,
+      variant: 'secondary' as const,
     };
   }
 
@@ -73,24 +73,24 @@ export const getStatusConfig = (status: string, isOnline: boolean) => {
         color: 'bg-green-500',
         textColor: 'text-green-500',
         icon: CheckCircle,
-        label: '',
-        variant: 'default' as const
+        labelKey: 'sensorStatus.good' as const,
+        variant: 'default' as const,
       };
     case 'BAD':
       return {
         color: 'bg-red-500',
         textColor: 'text-red-700',
         icon: AlertTriangle,
-        label: '',
-        variant: 'destructive' as const
+        labelKey: 'sensorStatus.bad' as const,
+        variant: 'destructive' as const,
       };
     default:
       return {
         color: 'bg-gray-400',
         textColor: 'text-gray-600',
         icon: Activity,
-        label: 'Tidak Diketahui',
-        variant: 'outline' as const
+        labelKey: 'sensorStatus.unknown' as const,
+        variant: 'outline' as const,
       };
   }
 };

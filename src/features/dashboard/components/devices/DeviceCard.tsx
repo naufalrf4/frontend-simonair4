@@ -9,6 +9,7 @@ import OfflineWarning from '../status/OfflineWarning';
 import { cn } from '@/lib/utils';
 import type { Device } from '../../types';
 import SensorCard from '../sensors/SensorCard';
+import { useTranslation } from 'react-i18next';
 
 interface DeviceCardProps {
   device: Device;
@@ -17,6 +18,14 @@ interface DeviceCardProps {
 }
 
 const DeviceCard: React.FC<DeviceCardProps> = ({ device, onCalibrateClick, onOffsetClick }) => {
+  const { t } = useTranslation('dashboard');
+  const onlineLabel = `${t('deviceCard.status.online')} • ${
+    device.lastData || t('deviceCard.status.justNow')
+  }`;
+  const offlineLabel = `${t('deviceCard.status.offline')} • ${
+    device.lastOnline || t('deviceCard.status.unknown')
+  }`;
+
   return (
     <Card
       className={cn(
@@ -39,9 +48,7 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, onCalibrateClick, onOff
           <div className="text-center space-y-2">
             <h3 className="font-semibold text-base text-gray-800">{device.device_name}</h3>
             <p className="text-xs text-gray-500">
-              {device.online
-                ? `Online • ${device.lastData || 'Just now'}`
-                : `Offline • ${device.lastOnline || 'Unknown'}`}
+              {device.online ? onlineLabel : offlineLabel}
             </p>
             
             {/* Mobile quick action buttons */}
@@ -57,7 +64,7 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, onCalibrateClick, onOff
                 className="h-8 px-3 text-xs"
               >
                 <Wrench className="h-3 w-3 mr-1" />
-                Calibration
+                {t('deviceCard.buttons.calibration')}
               </Button>
               <Button
                 size="sm"
@@ -70,7 +77,7 @@ const DeviceCard: React.FC<DeviceCardProps> = ({ device, onCalibrateClick, onOff
                 className="h-8 px-3 text-xs"
               >
                 <Sliders className="h-3 w-3 mr-1" />
-                Threshold
+                {t('deviceCard.buttons.threshold')}
               </Button>
             </div>
           </div>

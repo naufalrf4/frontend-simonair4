@@ -21,6 +21,7 @@ import {
   Mail,
 } from 'lucide-react';
 import type { User } from '../types';
+import { useTranslation } from 'react-i18next';
 
 interface UserActionsDropdownProps {
   user: User;
@@ -39,6 +40,8 @@ export const UserActionsDropdown: React.FC<UserActionsDropdownProps> = ({
   onToggleStatus,
   onResendVerification,
 }) => {
+  const { t } = useTranslation('admin');
+
   const getRoleIcon = (role: string) => {
     switch (role) {
       case 'superuser':
@@ -65,7 +68,7 @@ export const UserActionsDropdown: React.FC<UserActionsDropdownProps> = ({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
+          <span className="sr-only">{t('users.actions.openMenu')}</span>
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
@@ -83,15 +86,15 @@ export const UserActionsDropdown: React.FC<UserActionsDropdownProps> = ({
           <div className="flex items-center gap-2">
             {getRoleIcon(user.role)}
             <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">
-              {user.role.toUpperCase()}
+              {t(`users.roles.${user.role}`)}
             </Badge>
             {user.emailVerified ? (
               <Badge variant="outline" className="text-xs text-green-600 border-green-200">
-                Verified
+                {t('common.verification.verified')}
               </Badge>
             ) : (
               <Badge variant="outline" className="text-xs text-orange-600 border-orange-200">
-                Unverified
+                {t('common.verification.unverified')}
               </Badge>
             )}
           </div>
@@ -101,12 +104,12 @@ export const UserActionsDropdown: React.FC<UserActionsDropdownProps> = ({
         
         <DropdownMenuItem onClick={() => onViewDetails(user)} className="cursor-pointer">
           <Eye className="mr-2 h-4 w-4" />
-          View Details
+          {t('users.actions.viewDetails')}
         </DropdownMenuItem>
         
         <DropdownMenuItem onClick={() => onEdit(user)} className="cursor-pointer">
           <Pencil className="mr-2 h-4 w-4" />
-          Edit User
+          {t('users.actions.editUser')}
         </DropdownMenuItem>
         
         {!user.emailVerified && onResendVerification && (
@@ -115,7 +118,7 @@ export const UserActionsDropdown: React.FC<UserActionsDropdownProps> = ({
             className="cursor-pointer"
           >
             <Mail className="mr-2 h-4 w-4" />
-            Resend Verification
+            {t('users.actions.resendVerification')}
           </DropdownMenuItem>
         )}
         
@@ -127,12 +130,12 @@ export const UserActionsDropdown: React.FC<UserActionsDropdownProps> = ({
             {user.isActive ? (
               <>
                 <UserX className="mr-2 h-4 w-4" />
-                Deactivate User
+                {t('users.actions.deactivateUser')}
               </>
             ) : (
               <>
                 <UserCheck className="mr-2 h-4 w-4" />
-                Activate User
+                {t('users.actions.activateUser')}
               </>
             )}
           </DropdownMenuItem>
@@ -145,7 +148,7 @@ export const UserActionsDropdown: React.FC<UserActionsDropdownProps> = ({
           className="cursor-pointer text-destructive focus:text-destructive"
         >
           <Trash2 className="mr-2 h-4 w-4" />
-          Delete User
+          {t('users.actions.deleteUser')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

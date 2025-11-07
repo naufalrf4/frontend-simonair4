@@ -11,12 +11,14 @@ import { ManualMeasurementFormModal } from '@/features/manual-measurements/compo
 import { ManualMeasurementCompareModal } from '@/features/manual-measurements/components/ManualMeasurementCompareModal'
 import { useManualMeasurementsListQuery, useCreateManualMeasurementMutation, useUpdateManualMeasurementMutation, useCompareManualMeasurementMutation } from '@/features/manual-measurements/hooks/useManualMeasurements'
 import type { ManualMeasurement } from '@/features/manual-measurements/types'
+import { useTranslation } from 'react-i18next'
 
 export const Route = createFileRoute('/_dashboard/farming/manual-data')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
+  const { t } = useTranslation('farming')
   const [selectedDevice, setSelectedDevice] = useState<{ device_id: string; name: string } | null>(null)
   const deviceId = selectedDevice?.device_id || ''
   const [pageIndex, setPageIndex] = useState(0)
@@ -130,14 +132,14 @@ function RouteComponent() {
             <ClipboardList className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold">Manual Measurements</h1>
-            <p className="text-sm text-muted-foreground">Record and compare manual water quality data</p>
+            <h1 className="text-xl font-semibold">{t('manual.title')}</h1>
+            <p className="text-sm text-muted-foreground">{t('manual.description')}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <Button onClick={handleAdd} disabled={!deviceId}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Manual Measurement
+            {t('manual.buttons.add')}
           </Button>
         </div>
       </div>
@@ -145,20 +147,20 @@ function RouteComponent() {
       {/* Filters */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Filters</CardTitle>
+          <CardTitle className="text-lg font-semibold">{t('manual.cards.filters')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
             <div className="space-y-2">
-              <Label>Device</Label>
+              <Label>{t('common.filters.device')}</Label>
               <DeviceSelector selectedDevice={selectedDevice as any} onDeviceSelect={setSelectedDevice as any} />
             </div>
             <div className="space-y-2">
-              <Label>Start Date</Label>
+              <Label>{t('common.filters.startDate')}</Label>
               <Input type="date" value={startDate} onChange={(e) => { setStartDate(e.target.value); setPageIndex(0) }} />
             </div>
             <div className="space-y-2">
-              <Label>End Date</Label>
+              <Label>{t('common.filters.endDate')}</Label>
               <Input type="date" value={endDate} onChange={(e) => { setEndDate(e.target.value); setPageIndex(0) }} />
             </div>
           </div>
@@ -168,7 +170,7 @@ function RouteComponent() {
       {/* Desktop Table */}
       <Card className="hidden md:block">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Manual Measurement Records</CardTitle>
+          <CardTitle className="text-lg font-semibold">{t('manual.cards.table')}</CardTitle>
         </CardHeader>
         <CardContent>
           <ManualMeasurementsTable

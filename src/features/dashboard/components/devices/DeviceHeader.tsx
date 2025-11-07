@@ -11,6 +11,7 @@ import {
 import StatusDot from '../status/StatusDot';
 import { getCalibrationStatus } from '../utils/statusUtils';
 import type { Device } from '../../types';
+import { useTranslation } from 'react-i18next';
 
 interface DeviceHeaderProps {
   device: Device;
@@ -19,7 +20,11 @@ interface DeviceHeaderProps {
 }
 
 const DeviceHeader: React.FC<DeviceHeaderProps> = ({ device, onCalibrateClick, onOffsetClick }) => {
+  const { t } = useTranslation('dashboard');
   const calibrationStatus = getCalibrationStatus(device.sensors);
+  const fishCountLabel = t('deviceHeader.fishCountLabel', {
+    count: device.fish_count || 0,
+  });
 
   return (
     <div className="flex items-start justify-between mb-4">
@@ -38,7 +43,7 @@ const DeviceHeader: React.FC<DeviceHeaderProps> = ({ device, onCalibrateClick, o
                 variant={calibrationStatus.percentage === 100 ? "default" : "secondary"}
                 className="text-xs font-medium px-3 py-1 rounded-full shadow-sm"
               >
-                {calibrationStatus.percentage}% Calibrated
+                {t('deviceHeader.calibrated', { percentage: calibrationStatus.percentage })}
               </Badge>
             )}
           </div>
@@ -47,7 +52,9 @@ const DeviceHeader: React.FC<DeviceHeaderProps> = ({ device, onCalibrateClick, o
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-1 text-sm text-gray-600">
           <Fish className="h-5 w-5 text-blue-500" />
-          <span className="font-medium">{device.fish_count || 'N/A'}</span>
+          <span className="font-medium" title={fishCountLabel}>
+            {device.fish_count ?? '–'}
+          </span>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -55,7 +62,7 @@ const DeviceHeader: React.FC<DeviceHeaderProps> = ({ device, onCalibrateClick, o
               variant="ghost" 
               size="sm" 
               className="h-9 w-9 p-0 hover:bg-white/80 transition-colors duration-200 rounded-lg shadow-sm"
-              aria-label="Aksi perangkat"
+              aria-label={t('deviceHeader.actions.menuLabel')}
             >
               <MoreVertical className="h-4 w-4 text-gray-600" />
             </Button>
@@ -66,14 +73,14 @@ const DeviceHeader: React.FC<DeviceHeaderProps> = ({ device, onCalibrateClick, o
               disabled={!device.online}
             >
               <Wrench className="h-4 w-4 text-blue-600 mr-2" />
-              <span>Calibrate Sensor</span>
+              <span>{t('deviceHeader.actions.calibrate')}</span>
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={onOffsetClick}
               disabled={!device.online}
             >
               <Sliders className="h-4 w-4 text-purple-600 mr-2" />
-              <span>Set Threshold</span>
+              <span>{t('deviceHeader.actions.threshold')}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

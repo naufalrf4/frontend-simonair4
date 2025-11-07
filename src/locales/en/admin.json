@@ -1,0 +1,181 @@
+{
+  "mobile": {
+    "title": "Admin Panel",
+    "subtitle": "Administrative tools and system management",
+    "menus": {
+      "userManagement": {
+        "title": "User Management",
+        "description": "Manage user accounts, roles, and permissions"
+      }
+    }
+  },
+  "common": {
+    "buttons": {
+      "cancel": "Cancel",
+      "close": "Close",
+      "addUser": "Add User",
+      "createUser": "Create User",
+      "saveChanges": "Save Changes",
+      "deleteUser": "Delete User",
+      "creating": "Creating...",
+      "saving": "Saving...",
+      "deleting": "Deleting..."
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "verification": {
+      "verified": "Verified",
+      "unverified": "Unverified",
+      "pending": "Pending"
+    }
+  },
+  "users": {
+    "header": {
+      "title": "User Management",
+      "subtitle": "Manage user accounts, roles, and permissions",
+      "add": "Add User"
+    },
+    "stats": {
+      "total": {
+        "title": "Total Users",
+        "subtitle": "Active accounts"
+      },
+      "active": {
+        "title": "Active Users",
+        "subtitle": "Currently active"
+      },
+      "verified": {
+        "title": "Verified",
+        "subtitle": "Email verified"
+      },
+      "admins": {
+        "title": "Admins",
+        "subtitle": "Administrative roles"
+      }
+    },
+    "table": {
+      "title": "Users Directory",
+      "searchPlaceholder": "Search users by name or email...",
+      "columns": {
+        "user": "User",
+        "status": "Status",
+        "lastActivity": "Last Activity",
+        "joined": "Joined",
+        "actions": "Actions"
+      },
+      "lastLogin": {
+        "loggedIn": "Logged in",
+        "never": "Never"
+      }
+    },
+    "roles": {
+      "user": "User",
+      "admin": "Admin",
+      "superuser": "Superuser"
+    },
+    "roleSummaries": {
+      "user": "Standard access",
+      "admin": "Administrative privileges",
+      "superuser": "Full system access"
+    },
+    "roleHelper": {
+      "user": "Standard user access with limited administrative privileges",
+      "admin": "Can manage users and access administrative features",
+      "superuser": "Full access to all system functions and settings"
+    },
+    "form": {
+      "fullName": {
+        "label": "Full Name",
+        "placeholder": "Enter full name",
+        "errors": {
+          "required": "Full name is required",
+          "minLength": "Name must be at least 2 characters"
+        }
+      },
+      "email": {
+        "label": "Email Address",
+        "placeholder": "user@example.com",
+        "immutable": "Email cannot be changed after account creation",
+        "errors": {
+          "required": "Email is required",
+          "invalid": "Please enter a valid email address"
+        }
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Create a strong password",
+        "hint": "Minimum 8 characters required",
+        "errors": {
+          "required": "Password is required",
+          "minLength": "Password must be at least 8 characters long"
+        }
+      },
+      "role": {
+        "label": "User Role",
+        "placeholder": "Select user role"
+      },
+      "emailVerified": {
+        "label": "Email verified",
+        "helper": {
+          "true": "User can access all email-dependent features",
+          "false": "User may have limited access until email is verified"
+        }
+      }
+    },
+    "upsert": {
+      "title": {
+        "create": "Create New User",
+        "edit": "Edit User Account"
+      },
+      "subtitle": {
+        "create": "Add a new user to the system with appropriate role and permissions.",
+        "edit": "Update user information and permissions."
+      },
+      "error": "An error occurred while saving the user."
+    },
+    "delete": {
+      "title": "Delete User Account",
+      "warning": "This action cannot be undone. The user account and all associated data will be permanently removed from the system.",
+      "detailsTitle": "What will be deleted:",
+      "items": [
+        "User account and login credentials",
+        "User profile and personal information",
+        "Associated permissions and role assignments",
+        "User activity history and logs"
+      ],
+      "error": "Failed to delete user. Please try again."
+    },
+    "actions": {
+      "openMenu": "Open menu",
+      "viewDetails": "View Details",
+      "editUser": "Edit User",
+      "resendVerification": "Resend Verification",
+      "deactivateUser": "Deactivate User",
+      "activateUser": "Activate User",
+      "deleteUser": "Delete User"
+    },
+    "details": {
+      "title": "User Details",
+      "sections": {
+        "role": "Role & Permissions",
+        "email": "Email Status",
+        "activity": "Activity Information"
+      },
+      "emailDescription": {
+        "verified": "Email address has been verified and confirmed",
+        "unverified": "Email verification is pending - user may have limited access"
+      },
+      "activity": {
+        "created": "Account Created:",
+        "lastLogin": "Last Login:",
+        "lastUpdated": "Last Updated:",
+        "status": "Status:",
+        "never": "Never logged in",
+        "active": "Active and can access the system",
+        "inactive": "Inactive - access restricted"
+      }
+    }
+  }
+}

@@ -1,4 +1,18 @@
 import type { DeviceFormData, CreateDeviceData, UpdateDeviceData } from '../types';
+import i18n from '@/i18n/config';
+
+const localeMap: Record<string, string> = {
+  id: 'id-ID',
+  en: 'en-US',
+};
+
+const getLocale = (): string => {
+  const lang = i18n.resolvedLanguage || i18n.language || 'en';
+  return localeMap[lang] || 'en-US';
+};
+
+const tDevices = (key: string, options?: Record<string, unknown>) =>
+  i18n.t(`devices:${key}`, options);
 
 // Aquarium size formatting utilities
 export const formatAquariumSize = (dimensions: {
@@ -93,7 +107,7 @@ export const formatDeviceForForm = (device: any): DeviceFormData => {
 // Display formatting utilities
 export const formatDeviceStatus = (isOnline: boolean, lastSeen?: string | null): string => {
   if (isOnline) {
-    return 'Online';
+    return tDevices('status.online');
   }
 
   if (lastSeen) {
@@ -102,17 +116,19 @@ export const formatDeviceStatus = (isOnline: boolean, lastSeen?: string | null):
     const diffInMinutes = Math.floor((now.getTime() - lastSeenDate.getTime()) / (1000 * 60));
 
     if (diffInMinutes < 60) {
-      return `Offline (${diffInMinutes}m ago)`;
-    } else if (diffInMinutes < 1440) {
-      const hours = Math.floor(diffInMinutes / 60);
-      return `Offline (${hours}h ago)`;
-    } else {
-      const days = Math.floor(diffInMinutes / 1440);
-      return `Offline (${days}d ago)`;
+      return tDevices('status.offlineMinutes', { value: diffInMinutes });
     }
+
+    if (diffInMinutes < 1440) {
+      const hours = Math.floor(diffInMinutes / 60);
+      return tDevices('status.offlineHours', { value: hours });
+    }
+
+    const days = Math.floor(diffInMinutes / 1440);
+    return tDevices('status.offlineDays', { value: days });
   }
 
-  return 'Offline';
+  return tDevices('status.offline');
 };
 
 export const formatSensorValue = (
@@ -121,17 +137,29 @@ export const formatSensorValue = (
   decimals: number = 1,
 ): string => {
   if (value === undefined || value === null) {
-    return 'N/A';
+    return tDevices('card.labels.notAvailable');
   }
-  return `${value.toFixed(decimals)} ${unit}`;
+  const formatter = new Intl.NumberFormat(getLocale(), {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+  const formatted = formatter.format(value);
+  return unit ? `${formatted} ${unit}` : formatted;
 };
 
 export const formatTimestamp = (timestamp: string): string => {
   try {
     const date = new Date(timestamp);
-    return date.toLocaleString();
+    return new Intl.DateTimeFormat(getLocale(), {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    }).format(date);
   } catch (error) {
-    return 'Invalid date';
+    return '';
   }
 };
 

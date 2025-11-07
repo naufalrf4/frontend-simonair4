@@ -1,4 +1,4 @@
-import { StrictMode } from 'react';
+import { StrictMode, Suspense } from 'react';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -7,6 +7,7 @@ import { routeTree } from './routeTree.gen';
 import { NotFoundPage } from './components/common/not-found-page';
 import { ErrorPage } from './components/common/error-page';
 import './styles.css';
+import '@/i18n/config';
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -41,7 +42,9 @@ function Root() {
   return (
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} context={{ queryClient }} />
+        <Suspense fallback={null}>
+          <RouterProvider router={router} context={{ queryClient }} />
+        </Suspense>
       </QueryClientProvider>
     </StrictMode>
   );

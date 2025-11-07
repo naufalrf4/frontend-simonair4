@@ -1,8 +1,12 @@
 import React from 'react';
 import { Waves, Fish, Sparkles } from 'lucide-react';
-import { getGreeting } from '../utils/dashboardUtils';
+import { getGreetingKey } from '../utils/dashboardUtils';
+import { useTranslation } from 'react-i18next';
 
 const DashboardHeader: React.FC = () => {
+  const { t } = useTranslation('dashboard');
+  const greeting = t(getGreetingKey());
+
   return (
     <div className="block md:hidden text-center py-6 relative">
       <div className="flex items-center justify-center gap-4 mb-4 relative">
@@ -16,13 +20,13 @@ const DashboardHeader: React.FC = () => {
 
       <h1 className="text-3xl font-bold mb-3 tracking-tight">
         <span className="bg-gradient-to-r from-blue-600 via-cyan-600 to-emerald-600 bg-clip-text text-transparent">
-          {getGreeting()}
+          {greeting}
         </span>
         <span className="text-gray-700 ml-2">🌊</span>
       </h1>
 
       <p className="text-base text-gray-600 mx-auto leading-snug font-medium max-w-xs">
-        Sistem Monitoring Kualitas Air (SIMONAIR 4.0)
+        {t('header.subtitle')}
       </p>
     </div>
   );

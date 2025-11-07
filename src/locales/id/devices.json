@@ -1,0 +1,411 @@
+{
+  "page": {
+    "title": "Manajemen Perangkat",
+    "subtitle": "Kelola, pantau, dan konfigurasikan perangkat SIMONAIR Anda"
+  },
+  "ownership": {
+    "label": "Pemilik",
+    "placeholder": "Pilih pemilik",
+    "loading": "Memuat pengguna...",
+    "help": "Admin dapat memindahkan kepemilikan perangkat."
+  },
+  "buttons": {
+    "add": "Tambah Perangkat",
+    "save": "Simpan Perubahan",
+    "saveNew": "Tambah Perangkat",
+    "cancel": "Batal",
+    "close": "Tutup",
+    "continueEditing": "Lanjutkan Mengedit",
+    "discard": "Buang Perubahan"
+  },
+  "header": {
+    "searchPlaceholder": "Cari perangkat...",
+    "addButton": "Tambah Perangkat"
+  },
+  "stats": {
+    "online": "{{count}} online",
+    "offline": "{{count}} offline",
+    "total": "Total: {{count}} perangkat"
+  },
+  "empty": {
+    "title": "Belum ada perangkat",
+    "description": "Mulai dengan menambahkan perangkat SIMONAIR untuk memulai pemantauan.",
+    "searchTitle": "Tidak ada hasil",
+    "searchDescription": "Coba nama perangkat, ID, atau lokasi yang lain.",
+    "action": "Tambah Perangkat"
+  },
+  "card": {
+    "labels": {
+      "deviceId": "ID Perangkat",
+      "location": "Lokasi",
+      "size": "Ukuran Akuarium",
+      "fish": "Ikan",
+      "recentSensorData": "Data Sensor Terbaru",
+      "status": "Status",
+      "ph": "pH",
+      "tds": "TDS",
+      "temperature": "Suhu",
+      "do": "Oksigen Terlarut",
+      "lastUpdated": "Diperbarui {{time}}",
+      "lastOnline": "Terakhir online: {{time}}",
+      "paired": "Dipadukan {{time}}",
+      "updated": "Diperbarui {{time}}",
+      "notAvailable": "Tidak tersedia"
+    },
+    "badge": {
+      "online": "Online",
+      "offline": "Offline"
+    },
+    "actions": {
+      "view": "Lihat Detail",
+      "edit": "Ubah Perangkat",
+      "delete": "Hapus Perangkat"
+    },
+    "a11y": {
+      "menu": "Aksi perangkat"
+    }
+  },
+  "forms": {
+    "deviceId": {
+      "label": "ID Perangkat",
+      "placeholder": "Masukkan ID unik",
+      "help": "ID unik yang tercetak pada perangkat (format SMNR-XXXX)",
+      "locked": "ID perangkat tidak dapat diubah setelah dibuat",
+      "hint": "Masukkan 4 karakter (A–Z, 0–9). ID perangkat akan menjadi SMNR-XXXX."
+    },
+    "deviceName": {
+      "label": "Nama Perangkat",
+      "placeholder": "Contoh: Akuarium Ruang Tamu",
+      "help": "Buat nama yang mudah diingat (3–50 karakter)"
+    },
+    "location": {
+      "label": "Lokasi",
+      "placeholder": "Contoh: Ruang Tamu, Kamar Tidur",
+      "help": "Lokasi penempatan akuarium"
+    },
+    "aquariumSize": {
+      "label": "Ukuran Akuarium",
+      "help": "Masukkan ukuran tangki dalam sentimeter.",
+      "length": "Panjang (cm)",
+      "width": "Lebar (cm)",
+      "height": "Tinggi (cm)",
+      "dimensions": "Dimensi",
+      "volume": "Volume"
+    },
+    "glassType": {
+      "label": "Jenis Kaca",
+      "placeholder": "Tempered, akrilik, dll.",
+      "help": "Jenis kaca membantu interpretasi pembacaan sensor."
+    },
+    "fishCount": {
+      "label": "Jumlah Ikan",
+      "placeholder": "Jumlah ikan",
+      "help": "Perkiraan jumlah ikan dalam akuarium."
+    }
+  },
+  "loading": {
+    "generic": "Memuat...",
+    "list": "Memuat daftar perangkat...",
+    "details": "Memuat detail perangkat...",
+    "saving": "Menyimpan perangkat...",
+    "deleting": "Menghapus perangkat..."
+  },
+  "modals": {
+    "add": {
+      "title": "Tambah Perangkat Baru",
+      "description": "Pasangkan perangkat SIMONAIR 4.0 baru ke akun Anda dan mulai kumpulkan data."
+    },
+    "edit": {
+      "title": "Ubah Perangkat",
+      "description": "Perbarui informasi dan pengaturan untuk {{name}}."
+    },
+    "details": {
+      "description": "Informasi lengkap mengenai perangkat pemantau akuarium Anda.",
+      "loadingTitle": "Memuat Detail Perangkat...",
+      "loadingDescription": "Mohon tunggu, kami sedang mengambil data perangkat.",
+      "info": "Informasi Perangkat",
+      "sensorData": "Data Sensor",
+      "connectionHistory": "Riwayat Koneksi",
+      "settings": "Pengaturan Perangkat",
+      "status": {
+        "title": "Status Koneksi",
+        "online": "Perangkat sedang online",
+        "offline": "Perangkat sedang offline",
+        "lastSeen": "Terakhir terlihat",
+        "created": "Dibuat"
+      },
+      "actions": {
+        "edit": "Ubah Perangkat",
+        "delete": "Hapus Perangkat",
+        "close": "Tutup"
+      },
+      "error": {
+        "title": "Gagal Memuat Perangkat",
+        "description": "Tidak dapat memuat detail perangkat. Silakan coba lagi.",
+        "retry": "Coba Lagi"
+      }
+    },
+    "unsaved": {
+      "title": "Perubahan Belum Disimpan",
+      "description": "Anda memiliki perubahan yang belum disimpan. Tutup tanpa menyimpan?"
+    }
+  },
+  "delete": {
+    "title": "Hapus Perangkat",
+    "description": "Yakin ingin menghapus perangkat ini?",
+    "warning": "Tindakan ini tidak dapat dibatalkan. Semua data historis akan dihapus permanen.",
+    "confirm": "Hapus Perangkat",
+    "impactTitle": "Tindakan ini akan menghapus:",
+    "impact": {
+      "config": "Semua konfigurasi dan pengaturan perangkat",
+      "history": "Data dan log sensor historis",
+      "connections": "Riwayat koneksi",
+      "calibrations": "Data kalibrasi terkait"
+    }
+  },
+  "toasts": {
+    "addSuccess": "Perangkat berhasil ditambahkan.",
+    "updateSuccess": "Perangkat berhasil diperbarui.",
+    "deleteSuccess": "Perangkat berhasil dihapus."
+  },
+  "status": {
+    "online": "Online",
+    "offline": "Offline",
+    "offlineMinutes": "Offline ({{value}}m lalu)",
+    "offlineHours": "Offline ({{value}}j lalu)",
+    "offlineDays": "Offline ({{value}}h lalu)"
+  },
+  "pagination": {
+    "previous": "Sebelumnya",
+    "next": "Berikutnya"
+  },
+  "dateRange": {
+    "placeholder": "Pilih periode",
+    "presets": {
+      "7d": "7 hari terakhir",
+      "30d": "30 hari terakhir",
+      "90d": "90 hari terakhir",
+      "today": "Hari ini",
+      "yesterday": "Kemarin"
+    },
+    "pickerTitle": "Pilih Rentang Tanggal",
+    "apply": "Terapkan",
+    "cancel": "Batal",
+    "clear": "Atur ulang",
+    "maxRange": "Maksimal 1 tahun",
+    "empty": "Pilih rentang tanggal",
+    "invalid": "Rentang tanggal tidak valid"
+  },
+  "deviceSelector": {
+    "placeholder": "Pilih perangkat...",
+    "searchPlaceholder": "Cari perangkat...",
+    "loading": "Memuat perangkat...",
+    "error": "Gagal memuat daftar perangkat",
+    "retry": "Coba Lagi",
+    "emptyTitle": "Tidak ada perangkat tersedia",
+    "emptyDescription": "Tambahkan perangkat terlebih dahulu",
+    "noResultsTitle": "Tidak ada hasil untuk \"{{query}}\"",
+    "noResultsDescription": "Coba kata kunci lain",
+    "clear": "Hapus pilihan"
+  },
+  "sensorTrends": {
+    "title": "Grafik Tren Sensor",
+    "description": "Visualisasikan tren metrik sensor dari setiap perangkat.",
+    "controls": {
+      "granularity": "Granularitas",
+      "granularityPlaceholder": "Granularitas",
+      "metrics": "Metrik"
+    },
+    "options": {
+      "auto": "Otomatis",
+      "hourly": "Per jam",
+      "daily": "Harian"
+    },
+    "metrics": {
+      "temperature": "Suhu",
+      "ph": "pH",
+      "tds": "TDS",
+      "do_level": "Oksigen Terlarut"
+    },
+    "error": {
+      "load": "Gagal memuat data grafik. Silakan coba lagi."
+    },
+    "actions": {
+      "retry": "Coba Lagi"
+    },
+    "empty": {
+      "selectDevice": "Pilih perangkat untuk melihat grafik",
+      "noData": "Tidak ada data untuk periode ini"
+    },
+    "summary": {
+      "device": "Perangkat",
+      "granularity": "Granularitas",
+      "period": "Periode"
+    }
+  },
+  "sensorData": {
+    "title": "Riwayat Data Sensor",
+    "description": "Lihat dan analisis data sensor historis dari perangkat SIMONAIR Anda.",
+    "controls": {
+      "granularity": "Granularitas",
+      "granularityPlaceholder": "Granularitas",
+      "limit": "Batas",
+      "limitPlaceholder": "Batas",
+      "options": {
+        "auto": "Otomatis",
+        "hourly": "Per jam",
+        "daily": "Harian",
+        "all": "Semua"
+      }
+    },
+    "table": {
+      "timestamp": "Tanggal/Waktu",
+      "device": "Perangkat",
+      "ph": "pH",
+      "tds": "TDS",
+      "do": "DO",
+      "temperature": "Suhu",
+      "invalid": "Tanggal tidak valid",
+      "noTime": "-"
+    },
+    "toasts": {
+      "deviceSelected": "Perangkat dipilih: {{name}}",
+      "dateRangeLoading": "Memuat data untuk rentang tanggal baru..."
+    },
+    "errors": {
+      "devices": "Gagal memuat daftar perangkat. Periksa koneksi Anda.",
+      "sensorData": "Gagal memuat data sensor. Silakan coba lagi."
+    },
+    "empty": {
+      "selectDevice": "Pilih perangkat untuk melihat data sensor",
+      "noData": "Tidak ada data sensor untuk perangkat dan rentang ini"
+    },
+    "summary": {
+      "device": "Perangkat",
+      "rows": "Total baris",
+      "period": "Periode"
+    },
+    "export": {
+      "button": "Ekspor Excel",
+      "exporting": "Sedang mengekspor...",
+      "all": "Semua Data Sensor",
+      "ph": "Data Sensor pH",
+      "tds": "Data Sensor TDS",
+      "do": "Data Sensor DO",
+      "temperature": "Data Sensor Suhu",
+      "deviceLabel": "Perangkat: {{name}}",
+      "successAll": "Data sensor berhasil diekspor ke Excel",
+      "successMetric": "Data sensor {{metric}} berhasil diekspor ke Excel",
+      "noData": "Tidak ada data untuk diekspor",
+      "failure": "Gagal mengekspor data ke Excel",
+      "configTitle": "Pengaturan Ekspor Excel",
+      "configDescription": "Pilih data yang ingin disertakan dalam ekspor:",
+      "includeRaw": "Sertakan nilai mentah",
+      "includeVoltage": "Sertakan data tegangan",
+      "includeCalibrated": "Sertakan data kalibrasi",
+      "note": "Data suhu selalu disertakan karena hanya memiliki satu nilai.",
+      "cancel": "Batal",
+      "confirm": "Ekspor"
+    }
+  },
+  "mobileMenu": {
+    "title": "Manajemen Perangkat",
+    "subtitle": "Pantau dan kelola perangkat serta sensor budidaya Anda",
+    "cards": {
+      "manage": {
+        "title": "Kelola Perangkat",
+        "description": "Konfigurasi dan atur perangkat IoT serta sensornya"
+      },
+      "trends": {
+        "title": "Tren Sensor",
+        "description": "Lihat grafik tren sensor dan analitik"
+      },
+      "data": {
+        "title": "Data Sensor",
+        "description": "Jelajahi data sensor secara detail dalam tabel"
+      }
+    }
+  },
+  "errors": {
+    "titles": {
+      "NETWORK_ERROR": "Gangguan Koneksi",
+      "TIMEOUT_ERROR": "Waktu Habis",
+      "AUTHORIZATION_ERROR": "Akses Ditolak",
+      "VALIDATION_ERROR": "Data Tidak Valid",
+      "CONFLICT_ERROR": "Konflik Data",
+      "NOT_FOUND_ERROR": "Tidak Ditemukan",
+      "SERVER_ERROR": "Galat Server",
+      "UNKNOWN_ERROR": "Galat Tidak Dikenal"
+    },
+    "actions": {
+      "retry": "Coba Lagi",
+      "checkConnection": "Periksa Koneksi",
+      "dismiss": "Tutup",
+      "contactSupport": "Hubungi Dukungan"
+    },
+    "meta": {
+      "code": "Kode Error",
+      "status": "Status"
+    },
+    "generic": {
+      "loadFailed": "Gagal memuat data"
+    },
+    "operations": {
+      "create": {
+        "NETWORK_ERROR": "Tidak dapat menambah perangkat karena masalah jaringan. Periksa koneksi Anda.",
+        "VALIDATION_ERROR": "Silakan periksa kembali informasi perangkat yang diisi.",
+        "CONFLICT_ERROR": "ID perangkat sudah terdaftar. Gunakan ID lain.",
+        "AUTHORIZATION_ERROR": "Anda tidak memiliki izin untuk menambah perangkat.",
+        "SERVER_ERROR": "Server bermasalah saat menambah perangkat. Coba lagi nanti.",
+        "TIMEOUT_ERROR": "Waktu habis saat menambah perangkat. Coba ulangi.",
+        "NOT_FOUND_ERROR": "Layanan tidak ditemukan.",
+        "UNKNOWN_ERROR": "Terjadi galat tidak dikenal saat menambah perangkat.",
+        "default": "Gagal menambah perangkat. Silakan coba lagi."
+      },
+      "update": {
+        "NETWORK_ERROR": "Tidak dapat memperbarui perangkat karena masalah jaringan.",
+        "VALIDATION_ERROR": "Periksa kembali data perangkat.",
+        "NOT_FOUND_ERROR": "Perangkat tidak ditemukan. Mungkin sudah dihapus.",
+        "AUTHORIZATION_ERROR": "Anda tidak memiliki izin untuk memperbarui perangkat ini.",
+        "SERVER_ERROR": "Server bermasalah saat memperbarui perangkat. Coba lagi nanti.",
+        "TIMEOUT_ERROR": "Waktu habis saat memperbarui perangkat.",
+        "CONFLICT_ERROR": "Terjadi konflik data saat memperbarui perangkat.",
+        "UNKNOWN_ERROR": "Terjadi galat tidak dikenal saat memperbarui perangkat.",
+        "default": "Gagal memperbarui perangkat. Silakan coba lagi."
+      },
+      "delete": {
+        "NETWORK_ERROR": "Tidak dapat menghapus perangkat karena masalah jaringan.",
+        "NOT_FOUND_ERROR": "Perangkat tidak ditemukan. Mungkin sudah dihapus.",
+        "AUTHORIZATION_ERROR": "Anda tidak memiliki izin untuk menghapus perangkat ini.",
+        "SERVER_ERROR": "Server bermasalah saat menghapus perangkat. Coba lagi nanti.",
+        "TIMEOUT_ERROR": "Waktu habis saat menghapus perangkat.",
+        "VALIDATION_ERROR": "Data tidak valid untuk penghapusan.",
+        "CONFLICT_ERROR": "Perangkat masih digunakan sehingga tidak bisa dihapus.",
+        "UNKNOWN_ERROR": "Terjadi galat tidak dikenal saat menghapus perangkat.",
+        "default": "Gagal menghapus perangkat. Silakan coba lagi."
+      },
+      "list": {
+        "NETWORK_ERROR": "Tidak dapat memuat daftar perangkat karena masalah jaringan.",
+        "AUTHORIZATION_ERROR": "Anda tidak memiliki izin untuk melihat perangkat. Silakan masuk kembali.",
+        "SERVER_ERROR": "Server bermasalah saat memuat perangkat. Coba lagi nanti.",
+        "TIMEOUT_ERROR": "Waktu habis saat memuat perangkat.",
+        "VALIDATION_ERROR": "Parameter pencarian tidak valid.",
+        "NOT_FOUND_ERROR": "Tidak ada perangkat yang ditemukan.",
+        "CONFLICT_ERROR": "Terjadi konflik saat mengambil data perangkat.",
+        "UNKNOWN_ERROR": "Terjadi galat tidak dikenal saat memuat perangkat.",
+        "default": "Gagal memuat perangkat. Silakan coba lagi."
+      },
+      "detail": {
+        "NETWORK_ERROR": "Tidak dapat memuat detail perangkat karena masalah jaringan.",
+        "NOT_FOUND_ERROR": "Perangkat tidak ditemukan atau Anda tidak memiliki akses.",
+        "AUTHORIZATION_ERROR": "Anda tidak memiliki izin untuk melihat perangkat ini.",
+        "SERVER_ERROR": "Server bermasalah saat memuat detail perangkat.",
+        "TIMEOUT_ERROR": "Waktu habis saat memuat detail perangkat.",
+        "VALIDATION_ERROR": "ID perangkat tidak valid.",
+        "CONFLICT_ERROR": "Terjadi konflik saat mengambil detail perangkat.",
+        "UNKNOWN_ERROR": "Terjadi galat tidak dikenal saat memuat detail perangkat.",
+        "default": "Gagal memuat detail perangkat. Silakan coba lagi."
+      }
+    }
+  }
+}

@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { User } from '../types';
+import { useTranslation } from 'react-i18next';
 
 interface UserStatusBadgeProps {
   user: User;
@@ -27,6 +28,8 @@ export const UserStatusBadge: React.FC<UserStatusBadgeProps> = ({
   showVerificationStatus = true,
   showActivityStatus = true,
 }) => {
+  const { t } = useTranslation('admin');
+
   const getRoleIcon = (role: string) => {
     switch (role) {
       case 'superuser':
@@ -55,7 +58,7 @@ export const UserStatusBadge: React.FC<UserStatusBadgeProps> = ({
         {showRole && (
           <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs px-1.5 py-0.5">
             {getRoleIcon(user.role)}
-            <span className="ml-1 hidden sm:inline">{user.role}</span>
+            <span className="ml-1 hidden sm:inline">{t(`users.roles.${user.role}`)}</span>
           </Badge>
         )}
         {showVerificationStatus && (
@@ -85,7 +88,7 @@ export const UserStatusBadge: React.FC<UserStatusBadgeProps> = ({
       {showRole && (
         <Badge variant={getRoleBadgeVariant(user.role)} className="text-xs">
           {getRoleIcon(user.role)}
-          <span className="ml-1">{user.role.toUpperCase()}</span>
+          <span className="ml-1">{t(`users.roles.${user.role}`)}</span>
         </Badge>
       )}
       {showVerificationStatus && (
@@ -101,12 +104,12 @@ export const UserStatusBadge: React.FC<UserStatusBadgeProps> = ({
           {user.emailVerified ? (
             <>
               <CheckCircle className="h-3 w-3 mr-1" />
-              Verified
+              {t('common.verification.verified')}
             </>
           ) : (
             <>
               <Clock className="h-3 w-3 mr-1" />
-              Pending
+              {t('common.verification.pending')}
             </>
           )}
         </Badge>
@@ -124,12 +127,12 @@ export const UserStatusBadge: React.FC<UserStatusBadgeProps> = ({
           {user.isActive ? (
             <>
               <Activity className="h-3 w-3 mr-1" />
-              Active
+              {t('common.status.active')}
             </>
           ) : (
             <>
               <XCircle className="h-3 w-3 mr-1" />
-              Inactive
+              {t('common.status.inactive')}
             </>
           )}
         </Badge>

@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useForm } from 'react-hook-form';
 import { useCreateFeedMutation, useUpdateFeedMutation } from '../hooks/useFeedMutations';
 import type { FeedRecord, FeedType } from '../types';
+import { useTranslation } from 'react-i18next';
 
 type Mode = 'create' | 'edit';
 
@@ -29,6 +30,7 @@ interface FormValues {
 }
 
 export const UpsertFeedModal: React.FC<UpsertFeedModalProps> = ({ open, mode, deviceId, feed, onClose, onSuccess }) => {
+  const { t } = useTranslation('farming');
   const toWIBLocalInput = (dt: Date | string): string => {
     const d = new Date(dt);
     if (isNaN(d.getTime())) return '';
@@ -88,7 +90,7 @@ export const UpsertFeedModal: React.FC<UpsertFeedModalProps> = ({ open, mode, de
           feedType: values.feedType,
           feedAmountKg: Number(values.feedAmountKg),
         });
-        toast.success('Feed record created');
+        toast.success(t('feeds.toasts.created'));
       } else if (mode === 'edit' && feed) {
         await updateMutation.mutateAsync({ id: feed.id, data: {
           feedName: values.feedName,
@@ -97,7 +99,7 @@ export const UpsertFeedModal: React.FC<UpsertFeedModalProps> = ({ open, mode, de
           // @ts-ignore - extend shape to include fedAt
           fedAt: fedAtIso,
         }});
-        toast.success('Feed record updated');
+        toast.success(t('feeds.toasts.updated'));
       }
       onSuccess?.();
       onClose();
@@ -111,54 +113,72 @@ export const UpsertFeedModal: React.FC<UpsertFeedModalProps> = ({ open, mode, de
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {mode === 'create' ? 'Add Feed Record' : 'Edit Feed Record'}
+            {mode === 'create' ? t('feeds.modal.createTitle') : t('feeds.modal.editTitle')}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {(createMutation.error || updateMutation.error) && (
             <Alert variant="destructive">
               <AlertDescription>
-                {(createMutation.error as any)?.message || (updateMutation.error as any)?.message || 'Failed to save feed record.'}
+                {(createMutation.error as any)?.message || (updateMutation.error as any)?.message || t('feeds.modal.errorMessage')}
               </AlertDescription>
             </Alert>
           )}
 
           <div className="grid grid-cols-1 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="feedName">Feed Name</Label>
-              <Input id="feedName" placeholder="e.g. Premium Pellets" {...register('feedName', { required: 'Feed name is required', minLength: { value: 2, message: 'Min length 2' } })} />
+              <Label htmlFor="feedName">{t('feeds.modal.fields.feedName')}</Label>
+              <Input
+                id="feedName"
+                placeholder="e.g. Premium Pellets"
+                {...register('feedName', {
+                  required: t('feeds.modal.errors.feedName'),
+                  minLength: { value: 2, message: t('feeds.modal.errors.feedNameLength') },
+                })}
+              />
               {errors.feedName && <p className="text-xs text-red-500">{errors.feedName.message}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label>Feed Type</Label>
+              <Label>{t('feeds.modal.fields.feedType')}</Label>
               <Select defaultValue={feed?.feedType || 'natural'} onValueChange={(v) => setValue('feedType', v as FeedType)}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue placeholder={t('feeds.modal.fields.typePlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="natural">Natural</SelectItem>
-                  <SelectItem value="artificial">Artificial</SelectItem>
+                  <SelectItem value="natural">{t('feeds.modal.options.natural')}</SelectItem>
+                  <SelectItem value="artificial">{t('feeds.modal.options.artificial')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="feedAmountKg">Amount (kg)</Label>
-              <Input id="feedAmountKg" type="number" step="0.01" min="0" {...register('feedAmountKg', { required: 'Amount is required', min: { value: 0, message: 'Must be >= 0' } })} />
+              <Label htmlFor="feedAmountKg">{t('feeds.modal.fields.feedAmount')}</Label>
+              <Input
+                id="feedAmountKg"
+                type="number"
+                step="0.01"
+                min="0"
+                {...register('feedAmountKg', {
+                  required: t('feeds.modal.errors.amount'),
+                  min: { value: 0, message: t('feeds.modal.errors.amountMin') },
+                })}
+              />
               {errors.feedAmountKg && <p className="text-xs text-red-500">{errors.feedAmountKg.message}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="fedAt">Event Time</Label>
+              <Label htmlFor="fedAt">{t('feeds.modal.fields.eventTime')}</Label>
               <Input id="fedAt" type="datetime-local" {...register('fedAt')} />
             </div>
           </div>
 
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting || createMutation.isPending || updateMutation.isPending}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting || createMutation.isPending || updateMutation.isPending}>
+              {t('feeds.modal.buttons.cancel')}
+            </Button>
             <Button type="submit" disabled={isSubmitting || createMutation.isPending || updateMutation.isPending}>
-              {mode === 'create' ? 'Create' : 'Save Changes'}
+              {mode === 'create' ? t('feeds.modal.buttons.create') : t('feeds.modal.buttons.save')}
             </Button>
           </DialogFooter>
         </form>

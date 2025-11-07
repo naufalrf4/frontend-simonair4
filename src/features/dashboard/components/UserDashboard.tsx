@@ -21,6 +21,7 @@ import { useWebSocket, type SensorUpdateData } from '../hooks/useWebSocket';
 import { useAuth } from '@/features/authentication/hooks/useAuth';
 import { apiClient } from '@/utils/apiClient';
 import type { UserRole } from '@/features/users/types';
+import { useTranslation } from 'react-i18next';
 
 interface CalibrationModalState {
   open: boolean;
@@ -36,6 +37,7 @@ interface OffsetModalState {
 const UserDashboard: React.FC = () => {
   const { user, isAuthenticated, isLoading: authLoading, accessToken } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation('dashboard');
 
   const [devices, setDevices] = useState<Record<string, Device>>({});
   const [lastUpdate, setLastUpdate] = useState<string>('');
@@ -101,11 +103,11 @@ const UserDashboard: React.FC = () => {
           device_id: device.device_id,
           device_name: device.device_name,
           nama: device.device_name,
-          status: 'Waiting for Data',
+          status: 'waiting',
           fish_count: device.fish_count || 0,
-          location: device.location || 'Unknown',
-          aquarium_size: device.aquarium_size || 'Unknown',
-          glass_type: device.glass_type || 'Unknown',
+          location: device.location || '',
+          aquarium_size: device.aquarium_size || '',
+          glass_type: device.glass_type || '',
           online: baseOnline,
           lastSeenIso,
           lastOnline: formattedLastOnline,
@@ -260,10 +262,10 @@ const UserDashboard: React.FC = () => {
     try {
       // console.log('Submitting calibration data:', calibrationData);
       await apiClient.post(`/devices/${calibrationModal.deviceId}/calibrations`, calibrationData);
-      toast.success('Calibration submitted successfully');
+      toast.success(t('toasts.calibrationSuccess'));
     } catch (error) {
       // console.error('Failed to submit calibration:', error);
-      toast.error('Failed to submit calibration');
+      toast.error(t('toasts.calibrationError'));
       throw error;
     }
   };
@@ -271,10 +273,10 @@ const UserDashboard: React.FC = () => {
   const handleOffsetSubmit = async (thresholds: any) => {
     try {
       await apiClient.post(`/devices/${offsetModal.deviceId}/thresholds`, thresholds);
-      toast.success('Offset submitted successfully');
+      toast.success(t('toasts.offsetSuccess'));
     } catch (error) {
       // console.error('Failed to submit offset:', error);
-      toast.error('Failed to submit offset');
+      toast.error(t('toasts.offsetError'));
       throw error;
     }
   };
@@ -293,15 +295,15 @@ const UserDashboard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-white to-cyan-50/30 flex items-center justify-center">
+      <div className="min-h-screen from-blue-50/30 via-white to-cyan-50/30 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">
-            {!user ? 'Authenticating...' :
-             devicesLoading ? 'Loading devices...' :
-             hasDevices && !accessToken ? 'Preparing connection...' :
-             hasDevices && !hasInitialData ? 'Loading sensor data...' :
-             'Loading...'}
+            {!user ? t('loading.auth') :
+             devicesLoading ? t('loading.devices') :
+             hasDevices && !accessToken ? t('loading.preparing') :
+             hasDevices && !hasInitialData ? t('loading.sensors') :
+             t('loading.generic')}
           </p>
         </div>
       </div>
@@ -309,7 +311,7 @@ const UserDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-white to-cyan-50/30">
+    <div className="min-h-screen from-blue-50/30 via-white to-cyan-50/30">
       <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 px-3 sm:px-6 py-4 sm:py-6 pb-28 sm:pb-8">
         <DashboardHeader />
 
@@ -339,7 +341,7 @@ const UserDashboard: React.FC = () => {
           <div className="fixed bottom-4 right-4 bg-blue-100 border border-blue-300 rounded-lg p-3 shadow-lg">
             <div className="flex items-center gap-2">
               <div className="animate-pulse rounded-full h-4 w-4 bg-blue-600"></div>
-              <span className="text-sm text-blue-800">Initializing real-time data...</span>
+              <span className="text-sm text-blue-800">{t('banners.initializing')}</span>
             </div>
           </div>
         )}
@@ -348,7 +350,7 @@ const UserDashboard: React.FC = () => {
           <div className="fixed bottom-4 right-4 bg-yellow-100 border border-yellow-300 rounded-lg p-3 shadow-lg">
             <div className="flex items-center gap-2">
               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-yellow-600"></div>
-              <span className="text-sm text-yellow-800">Connecting to real-time data...</span>
+              <span className="text-sm text-yellow-800">{t('banners.connecting')}</span>
             </div>
           </div>
         )}
@@ -357,7 +359,7 @@ const UserDashboard: React.FC = () => {
           <div className="fixed bottom-4 right-4 bg-green-100 border green-300 rounded-lg p-3 shadow-lg">
             <div className="flex items-center gap-2">
               <div className="rounded-full h-4 w-4 bg-green-600"></div>
-              <span className="text-sm text-green-800">Real-time data active</span>
+              <span className="text-sm text-green-800">{t('banners.active')}</span>
             </div>
           </div>
         )}

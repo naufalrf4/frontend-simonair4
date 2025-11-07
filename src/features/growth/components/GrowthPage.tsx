@@ -12,6 +12,7 @@ import { useGrowthList, useCreateGrowth, useUpdateGrowth } from '../hooks/useGro
 import type { FishGrowth, GrowthListParams, ConditionIndicator } from '../types';
 import { DeviceSelector } from '@/features/sensor-data/components/DeviceSelector';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 function toDateInputValue(d?: Date): string {
   const date = d ?? new Date();
@@ -21,15 +22,15 @@ function toDateInputValue(d?: Date): string {
   return `${yyyy}-${mm}-${dd}`;
 }
 
-function formatLongDate(iso?: string | null): string {
+function formatLongDate(iso?: string | null, locale: string = 'en-US'): string {
   if (!iso) return '-';
   try {
     const d = new Date(iso);
     if (isNaN(d.getTime())) return '-';
-    const weekday = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(d);
-    const day = new Intl.DateTimeFormat('en-US', { day: '2-digit' }).format(d);
-    const month = new Intl.DateTimeFormat('en-US', { month: 'short' }).format(d);
-    const year = new Intl.DateTimeFormat('en-US', { year: 'numeric' }).format(d);
+    const weekday = new Intl.DateTimeFormat(locale, { weekday: 'long' }).format(d);
+    const day = new Intl.DateTimeFormat(locale, { day: '2-digit' }).format(d);
+    const month = new Intl.DateTimeFormat(locale, { month: 'short' }).format(d);
+    const year = new Intl.DateTimeFormat(locale, { year: 'numeric' }).format(d);
     return `${weekday}, ${day} ${month} ${year}`;
   } catch {
     return '-';
@@ -37,6 +38,8 @@ function formatLongDate(iso?: string | null): string {
 }
 
 export const GrowthPage: React.FC = () => {
+  const { t, i18n } = useTranslation('farming');
+  const locale = i18n.language === 'id' ? 'id-ID' : 'en-US';
   const [device, setDevice] = useState<{ device_id: string; name?: string } | null>(null);
   const [pageIndex, setPageIndex] = useState(0);
   const [pageSize] = useState(10);
@@ -62,42 +65,52 @@ export const GrowthPage: React.FC = () => {
   const columns = useMemo<ColumnDef<FishGrowth>[]>(() => [
     {
       accessorKey: 'measurement_date',
-      header: 'Measured At',
-      cell: ({ row }) => <span className="text-sm font-medium">{formatLongDate(row.original.measurement_date)}</span>,
+      header: t('growth.table.measuredAt'),
+      cell: ({ row }) => (
+        <span className="text-sm font-medium">
+          {formatLongDate(row.original.measurement_date, locale)}
+        </span>
+      ),
     },
     {
       accessorKey: 'weight_gram',
-      header: 'Weight (g)',
+      header: t('growth.table.weight'),
       meta: { hideOnMobile: true },
       cell: ({ row }) => row.original.weight_gram ?? '-',
     },
     {
       accessorKey: 'length_cm',
-      header: 'Length (cm)',
+      header: t('growth.table.length'),
       meta: { hideOnMobile: true },
       cell: ({ row }) => row.original.length_cm ?? '-',
     },
     {
       accessorKey: 'condition_indicator',
-      header: 'Condition',
+      header: t('growth.table.condition'),
       cell: ({ row }) => row.original.condition_indicator ?? '-',
     },
     {
       accessorKey: 'notes',
-      header: 'Notes',
+      header: t('growth.table.notes'),
       meta: { hideOnMobile: true },
-      cell: ({ row }) => <span className="truncate block max-w-[200px]" title={row.original.notes ?? ''}>{row.original.notes ?? '-'}</span>,
+      cell: ({ row }) => (
+        <span className="truncate block max-w-[200px]" title={row.original.notes ?? ''}>
+          {row.original.notes ?? '-'}
+        </span>
+      ),
     },
     {
       id: 'actions',
-      header: 'Actions',
+      header: t('common.table.actions'),
       cell: ({ row }) => (
         <div className="flex gap-2">
-          <Button size="sm" variant="outline" onClick={() => { setEditing(row.original); setOpenForm(true); }}>Edit</Button>
+          <Button size="sm" variant="outline" onClick={() => { setEditing(row.original); setOpenForm(true); }}>
+            {t('common.buttons.edit')}
+          </Button>
         </div>
       ),
     },
-  ], []);
+  ], [locale, t]);
 
   const [formState, setFormState] = useState<{ measurement_date: string; weight_gram: string; length_cm: string; notes: string; condition_indicator: ConditionIndicator }>({
     measurement_date: '', weight_gram: '', length_cm: '', notes: '', condition_indicator: 'Good'
@@ -138,7 +151,7 @@ export const GrowthPage: React.FC = () => {
       if ((editing.notes ?? '') !== formState.notes) dto.notes = formState.notes;
       if ((editing.condition_indicator as any) !== formState.condition_indicator) dto.condition_indicator = formState.condition_indicator;
       await updateMutation.mutateAsync({ id: editing.id, dto });
-      toast.success('Measurement updated');
+      toast.success(t('growth.toasts.updated'));
     } else {
       // For create: send provided fields
       dto.measurement_date = formState.measurement_date;
@@ -147,7 +160,7 @@ export const GrowthPage: React.FC = () => {
       if (formState.notes) dto.notes = formState.notes;
       dto.condition_indicator = formState.condition_indicator;
       await createMutation.mutateAsync({ deviceId: device.device_id, dto });
-      toast.success('Measurement created');
+      toast.success(t('growth.toasts.created'));
     }
     setOpenForm(false);
     setEditing(null);
@@ -161,34 +174,34 @@ export const GrowthPage: React.FC = () => {
             <Database className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <h1 className="text-xl font-semibold">Fish Growth</h1>
-            <p className="text-sm text-muted-foreground">Manage and analyze growth measurements per device</p>
+            <h1 className="text-xl font-semibold">{t('growth.title')}</h1>
+            <p className="text-sm text-muted-foreground">{t('growth.description')}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <Button onClick={() => { setEditing(null); setOpenForm(true); }} disabled={!device}>
             <Plus className="h-4 w-4 mr-2" />
-            Add Measurement
+            {t('growth.buttons.add')}
           </Button>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Filters</CardTitle>
+          <CardTitle className="text-lg font-semibold">{t('growth.cards.filters')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3 md:gap-4 items-end">
             <div className="md:col-span-2">
-              <Label>Device</Label>
+              <Label>{t('common.filters.device')}</Label>
               <DeviceSelector selectedDevice={device as any} onDeviceSelect={(d: any) => { setDevice(d); setPageIndex(0); }} />
             </div>
             <div>
-              <Label>Start</Label>
+              <Label>{t('growth.filters.start')}</Label>
               <Input type="date" value={start} onChange={(e) => { setStart(e.target.value); setPageIndex(0); }} />
             </div>
             <div>
-              <Label>End</Label>
+              <Label>{t('growth.filters.end')}</Label>
               <Input type="date" value={end} onChange={(e) => { setEnd(e.target.value); setPageIndex(0); }} />
             </div>
           </div>
@@ -197,7 +210,7 @@ export const GrowthPage: React.FC = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Measurements</CardTitle>
+          <CardTitle className="text-lg font-semibold">{t('growth.cards.table')}</CardTitle>
         </CardHeader>
         <CardContent>
           <DataTable
@@ -218,47 +231,51 @@ export const GrowthPage: React.FC = () => {
       <Dialog open={openForm} onOpenChange={(o) => { if (!o) { setOpenForm(false); setEditing(null); } }}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editing ? 'Edit Measurement' : 'Add Measurement'}</DialogTitle>
+            <DialogTitle>{editing ? t('growth.form.titleEdit') : t('growth.form.titleCreate')}</DialogTitle>
           </DialogHeader>
           <form className="grid grid-cols-1 gap-3" onSubmit={handleSubmitForm}>
             <div>
-              <Label>Measurement Date</Label>
+              <Label>{t('growth.form.measurementDate')}</Label>
               <Input type="date" value={formState.measurement_date} onChange={(e) => setFormState((s) => ({ ...s, measurement_date: e.target.value }))} required />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Weight (g)</Label>
+                <Label>{t('growth.form.weight')}</Label>
                 <Input type="number" inputMode="decimal" value={formState.weight_gram} onChange={(e) => setFormState((s) => ({ ...s, weight_gram: e.target.value }))} />
               </div>
               <div>
-                <Label>Length (cm)</Label>
+                <Label>{t('growth.form.length')}</Label>
                 <Input type="number" inputMode="decimal" value={formState.length_cm} onChange={(e) => setFormState((s) => ({ ...s, length_cm: e.target.value }))} />
               </div>
             </div>
             <div>
-              <Label>Notes</Label>
-              <Input value={formState.notes} onChange={(e) => setFormState((s) => ({ ...s, notes: e.target.value }))} placeholder="Optional" />
+              <Label>{t('growth.form.notes')}</Label>
+              <Input value={formState.notes} onChange={(e) => setFormState((s) => ({ ...s, notes: e.target.value }))} placeholder={t('growth.form.notes')} />
             </div>
             <div>
-              <Label>Condition</Label>
+              <Label>{t('growth.form.condition')}</Label>
               <Select
                 value={formState.condition_indicator}
                 onValueChange={(v) => setFormState((s) => ({ ...s, condition_indicator: v as ConditionIndicator }))}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Select condition" />
+                  <SelectValue placeholder={t('growth.form.conditionPlaceholder')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Excellent">Excellent</SelectItem>
-                  <SelectItem value="Good">Good</SelectItem>
-                  <SelectItem value="Poor">Poor</SelectItem>
+                  <SelectItem value="Excellent">{t('growth.form.conditionOptions.excellent')}</SelectItem>
+                  <SelectItem value="Good">{t('growth.form.conditionOptions.good')}</SelectItem>
+                  <SelectItem value="Poor">{t('growth.form.conditionOptions.poor')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-            <p className="text-xs text-muted-foreground">Provide at least one of Weight or Length.</p>
+            <p className="text-xs text-muted-foreground">{t('growth.form.hint')}</p>
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => { setOpenForm(false); setEditing(null); }}>Cancel</Button>
-              <Button type="submit">{editing ? 'Update' : 'Save'}</Button>
+              <Button type="button" variant="outline" onClick={() => { setOpenForm(false); setEditing(null); }}>
+                {t('growth.buttons.cancel')}
+              </Button>
+              <Button type="submit">
+                {editing ? t('growth.buttons.update') : t('growth.buttons.save')}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

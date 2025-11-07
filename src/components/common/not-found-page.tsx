@@ -8,9 +8,11 @@ import {
 } from "@/components/ui/card";
 import { useNavigate } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export function NotFoundPage() {
   const navigate = useNavigate();
+  const { t } = useTranslation("common");
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background/50">
@@ -34,14 +36,13 @@ export function NotFoundPage() {
             </svg>
           </div>
           <CardTitle className="text-3xl font-bold tracking-tight">
-            404 - Halaman Tidak Ditemukan
+            {t("notFound.title")}
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-4">
           <div className="bg-muted/70 p-4 rounded-md">
             <p className="text-sm font-medium text-muted-foreground text-center">
-              Halaman yang Anda minta tidak ditemukan atau Anda tidak memiliki
-              izin untuk melihatnya.
+              {t("notFound.description")}
             </p>
           </div>
         </CardContent>
@@ -54,7 +55,7 @@ export function NotFoundPage() {
           >
             <div className="flex items-center gap-2">
               <ArrowLeft className="h-4 w-4" />
-              <span>Kembali</span>
+              <span>{t("actions.back")}</span>
             </div>
           </Button>
         </CardFooter>

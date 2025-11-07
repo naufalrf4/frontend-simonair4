@@ -1,0 +1,344 @@
+{
+  "common": {
+    "filters": {
+      "title": "Filter",
+      "device": "Perangkat",
+      "start": "Mulai",
+      "end": "Selesai",
+      "startDate": "Tanggal Mulai",
+      "endDate": "Tanggal Selesai",
+      "startDateTime": "Mulai",
+      "endDateTime": "Selesai",
+      "cause": "Penyebab",
+      "clear": "Bersihkan",
+      "timezone": "Zona waktu: WIB (UTC+7)"
+    },
+    "table": {
+      "actions": "Aksi"
+    },
+    "buttons": {
+      "add": "Tambah",
+      "edit": "Ubah",
+      "save": "Simpan",
+      "update": "Perbarui",
+      "cancel": "Batal",
+      "delete": "Hapus",
+      "log": "Catat",
+      "compare": "Bandingkan",
+      "run": "Jalankan"
+    },
+    "labels": {
+      "device": "Perangkat",
+      "notes": "Catatan",
+      "cause": "Penyebab",
+      "description": "Deskripsi",
+      "reason": "Alasan"
+    },
+    "statuses": {
+      "yes": "Ya",
+      "no": "Tidak",
+      "available": "Ketersediaan"
+    },
+    "messages": {
+      "requireValue": "Isi setidaknya satu nilai pengukuran.",
+      "noData": "Belum ada data untuk filter ini."
+    },
+    "confirm": {
+      "delete": "Yakin ingin menghapus data ini?"
+    }
+  },
+  "growth": {
+    "title": "Pertumbuhan Ikan",
+    "description": "Kelola dan analisis pengukuran pertumbuhan per perangkat",
+    "buttons": {
+      "add": "Tambah Pengukuran",
+      "save": "Simpan",
+      "update": "Perbarui",
+      "cancel": "Batal"
+    },
+    "cards": {
+      "filters": "Filter",
+      "table": "Daftar Pengukuran"
+    },
+    "filters": {
+      "start": "Mulai",
+      "end": "Selesai"
+    },
+    "table": {
+      "measuredAt": "Waktu Ukur",
+      "weight": "Berat (g)",
+      "length": "Panjang (cm)",
+      "condition": "Kondisi",
+      "notes": "Catatan",
+      "actions": "Aksi"
+    },
+    "form": {
+      "titleCreate": "Tambah Pengukuran",
+      "titleEdit": "Ubah Pengukuran",
+      "measurementDate": "Tanggal Pengukuran",
+      "weight": "Berat (g)",
+      "length": "Panjang (cm)",
+      "notes": "Catatan",
+      "condition": "Kondisi",
+      "conditionPlaceholder": "Pilih kondisi",
+      "conditionOptions": {
+        "excellent": "Sangat Baik",
+        "good": "Baik",
+        "poor": "Kurang Baik"
+      },
+      "hint": "Isi minimal salah satu nilai berat atau panjang."
+    },
+    "toasts": {
+      "created": "Pengukuran berhasil disimpan",
+      "updated": "Pengukuran berhasil diperbarui"
+    }
+  },
+  "feeds": {
+    "title": "Data Pakan",
+    "description": "Kelola dan tinjau catatan pemberian pakan per perangkat",
+    "buttons": {
+      "add": "Tambah Catatan Pakan",
+      "edit": "Ubah",
+      "clear": "Bersihkan"
+    },
+    "cards": {
+      "filters": "Filter",
+      "table": "Catatan Pakan"
+    },
+    "filters": {
+      "start": "Mulai",
+      "end": "Selesai",
+      "timezone": "Zona waktu: WIB (UTC+7)"
+    },
+    "table": {
+      "eventTime": "Waktu Pemberian",
+      "feedName": "Nama Pakan",
+      "type": "Jenis",
+      "amount": "Jumlah (kg)",
+      "actions": "Aksi"
+    },
+    "modal": {
+      "createTitle": "Tambah Catatan Pakan",
+      "editTitle": "Ubah Catatan Pakan",
+      "fields": {
+        "feedName": "Nama Pakan",
+        "feedType": "Jenis Pakan",
+        "feedAmount": "Jumlah (kg)",
+        "eventTime": "Waktu Pemberian",
+        "typePlaceholder": "Pilih jenis"
+      },
+      "options": {
+        "natural": "Alami",
+        "artificial": "Buatan"
+      },
+      "errors": {
+        "feedName": "Nama pakan wajib diisi",
+        "feedNameLength": "Minimal 2 karakter",
+        "amount": "Jumlah wajib diisi",
+        "amountMin": "Harus lebih besar atau sama dengan 0"
+      },
+      "buttons": {
+        "cancel": "Batal",
+        "create": "Simpan",
+        "save": "Simpan Perubahan"
+      },
+      "errorMessage": "Gagal menyimpan catatan pakan."
+    },
+    "toasts": {
+      "created": "Catatan pakan berhasil dibuat",
+      "updated": "Catatan pakan berhasil diperbarui"
+    }
+  },
+  "mortality": {
+    "title": "Kematian Ikan",
+    "description": "Catat dan tinjau kejadian kematian ikan",
+    "buttons": {
+      "log": "Catat Kematian",
+      "clear": "Bersihkan"
+    },
+    "cards": {
+      "filters": "Filter",
+      "table": "Catatan Kematian"
+    },
+    "table": {
+      "date": "Tanggal Kejadian",
+      "dead": "Jumlah Mati",
+      "cause": "Penyebab",
+      "description": "Deskripsi",
+      "reportedBy": "Dilaporkan Oleh",
+      "actions": "Aksi"
+    },
+    "modal": {
+      "createTitle": "Catat Kematian Ikan",
+      "editTitle": "Ubah Catatan Kematian",
+      "fields": {
+        "eventDate": "Tanggal Kejadian",
+        "deadCount": "Jumlah Mati",
+        "cause": "Penyebab (opsional)",
+        "description": "Deskripsi (opsional)"
+      },
+      "errors": {
+        "required": "Wajib diisi",
+        "minDead": "Minimal 1 ikan"
+      },
+      "buttons": {
+        "cancel": "Batal",
+        "create": "Simpan",
+        "save": "Simpan Perubahan"
+      }
+    },
+    "confirm": {
+      "delete": "Hapus catatan kematian ini?"
+    },
+    "toasts": {
+      "created": "Catatan kematian berhasil dibuat",
+      "updated": "Catatan kematian berhasil diperbarui",
+      "deleted": "Catatan kematian dihapus",
+      "deleteFailed": "Gagal menghapus catatan"
+    }
+  },
+  "manual": {
+    "title": "Pengukuran Manual",
+    "description": "Catat dan bandingkan data kualitas air secara manual",
+    "buttons": {
+      "add": "Tambah Pengukuran Manual"
+    },
+    "cards": {
+      "filters": "Filter",
+      "table": "Catatan Pengukuran Manual"
+    },
+    "filters": {
+      "startDate": "Tanggal Mulai",
+      "endDate": "Tanggal Selesai"
+    },
+    "table": {
+      "timestamp": "Waktu",
+      "temperature": "Suhu (°C)",
+      "ph": "pH",
+      "tds": "TDS",
+      "do": "DO",
+      "notes": "Catatan",
+      "compare": "Perbandingan",
+      "actions": "Aksi"
+    },
+    "form": {
+      "titleCreate": "Tambah Pengukuran Manual",
+      "titleEdit": "Ubah Pengukuran Manual",
+      "fields": {
+        "timestamp": "Waktu",
+        "temperature": "Suhu (°C)",
+        "ph": "pH",
+        "tds": "TDS",
+        "do": "DO",
+        "notes": "Catatan"
+      },
+      "compareToggleCreate": "Bandingkan dengan sensor setelah disimpan",
+      "compareToggleEdit": "Bandingkan setelah diperbarui",
+      "hint": "Isi waktu dan minimal satu nilai (suhu, pH, TDS, atau DO).",
+      "buttons": {
+        "cancel": "Batal",
+        "save": "Simpan",
+        "update": "Perbarui",
+        "saving": "Menyimpan..."
+      }
+    },
+    "compare": {
+      "title": "Bandingkan Manual vs Sensor",
+      "description": "Perangkat {{device}} • Manual pada {{time}}",
+      "timeWindow": "Rentang waktu (menit)",
+      "run": "Jalankan Perbandingan",
+      "empty": "Belum ada hasil perbandingan. Tentukan rentang waktu lalu jalankan.",
+      "manualValues": "Nilai Manual",
+      "sensorValues": "Nilai Sensor",
+      "accuracy": "Akurasi",
+      "delta": {
+        "temperature": "Δ Suhu",
+        "ph": "Δ pH",
+        "tds": "Δ TDS",
+        "do": "Δ DO"
+      },
+      "flags": "Catatan"
+    }
+  },
+  "waterChanges": {
+    "title": "Penggantian Air",
+    "description": "Catat dan kelola jadwal penggantian air",
+    "buttons": {
+      "log": "Catat Penggantian Air",
+      "clear": "Bersihkan"
+    },
+    "cards": {
+      "filters": "Filter",
+      "table": "Catatan Penggantian Air"
+    },
+    "table": {
+      "changedAt": "Waktu Ganti",
+      "device": "Perangkat",
+      "type": "Jenis",
+      "reason": "Alasan",
+      "notes": "Catatan",
+      "actions": "Aksi"
+    },
+    "modal": {
+      "createTitle": "Catat Penggantian Air",
+      "editTitle": "Ubah Catatan Penggantian Air",
+      "fields": {
+        "changedAt": "Waktu Kejadian",
+        "changeType": "Jenis Penggantian",
+        "reason": "Alasan",
+        "notes": "Catatan"
+      },
+      "errors": {
+        "required": "Wajib diisi"
+      },
+      "options": {
+        "partial": "Sebagian",
+        "full": "Total",
+        "rutin": "Rutin",
+        "kualitas_air": "Kualitas Air",
+        "penyakit": "Penyakit",
+        "lainnya": "Lainnya"
+      },
+      "buttons": {
+        "cancel": "Batal",
+        "create": "Simpan",
+        "save": "Simpan Perubahan"
+      }
+    },
+    "confirm": {
+      "delete": "Hapus catatan penggantian air ini?"
+    },
+    "toasts": {
+      "created": "Catatan penggantian air dibuat",
+      "updated": "Catatan penggantian air diperbarui",
+      "deleted": "Catatan penggantian air dihapus",
+      "deleteFailed": "Gagal menghapus catatan"
+    }
+  },
+  "mobileMenu": {
+    "title": "Manajemen Budidaya",
+    "subtitle": "Kelola data dan operasional akuakultur secara menyeluruh",
+    "cards": {
+      "growth": {
+        "title": "Pertumbuhan Ikan",
+        "description": "Pantau perkembangan dan kesehatan ikan"
+      },
+      "feeds": {
+        "title": "Manajemen Pakan",
+        "description": "Atur jadwal pemberian pakan dan konsumsi"
+      },
+      "mortality": {
+        "title": "Kematian Ikan",
+        "description": "Pantau kejadian kematian dan kesehatan ikan"
+      },
+      "manual": {
+        "title": "Input Data Manual",
+        "description": "Catat observasi dan data budidaya secara manual"
+      },
+      "waterChanges": {
+        "title": "Penggantian Air",
+        "description": "Jadwalkan dan pantau pengelolaan kualitas air"
+      }
+    }
+  }
+}

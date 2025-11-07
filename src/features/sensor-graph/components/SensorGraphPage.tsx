@@ -14,6 +14,7 @@ import type { Device, DateRange } from '@/features/sensor-data/types';
 import { useSensorSeriesQuery } from '../hooks/useSensorSeriesQuery';
 import type { SeriesGranularity, SeriesMetric } from '../services/sensorSeriesService';
 import { LineChart } from './LineChart';
+import { useTranslation } from 'react-i18next';
 
 const getDefaultDateRange = (): DateRange => ({
   from: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
@@ -28,6 +29,8 @@ const METRIC_COLORS: Record<SeriesMetric, string> = {
 };
 
 export const SensorGraphPage: React.FC = () => {
+  const { t, i18n } = useTranslation('devices');
+  const locale = i18n.language === 'id' ? 'id-ID' : 'en-US';
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
   const [dateRange, setDateRange] = useState<DateRange>(getDefaultDateRange());
   const [granularity, setGranularity] = useState<SeriesGranularity | 'auto'>('auto');
@@ -71,12 +74,12 @@ export const SensorGraphPage: React.FC = () => {
         {isOnline ? (
           <>
             <Wifi className="h-4 w-4 text-green-600" />
-            <span className="text-green-600">Online</span>
+            <span className="text-green-600">{t('card.badge.online')}</span>
           </>
         ) : (
           <>
             <WifiOff className="h-4 w-4 text-red-600" />
-            <span className="text-red-600">Offline</span>
+            <span className="text-red-600">{t('card.badge.offline')}</span>
           </>
         )}
       </div>
@@ -93,8 +96,8 @@ export const SensorGraphPage: React.FC = () => {
       <div className="flex flex-col space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Grafik Tren Sensor</h1>
-            <p className="text-muted-foreground">Visualisasikan tren metrik sensor berdasarkan waktu</p>
+            <h1 className="text-3xl font-bold tracking-tight">{t('sensorTrends.title')}</h1>
+            <p className="text-muted-foreground">{t('sensorTrends.description')}</p>
           </div>
           <div className="flex items-center gap-2">
             <LineChartIcon className="h-5 w-5 text-muted-foreground" />
@@ -117,12 +120,12 @@ export const SensorGraphPage: React.FC = () => {
 
             <Select value={granularity} onValueChange={(v) => setGranularity(v as any)}>
               <SelectTrigger className="w-[160px]">
-                <SelectValue placeholder="Granularity" />
+                <SelectValue placeholder={t('sensorTrends.controls.granularityPlaceholder')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="auto">Auto</SelectItem>
-                <SelectItem value="hourly">Hourly</SelectItem>
-                <SelectItem value="daily">Daily</SelectItem>
+                <SelectItem value="auto">{t('sensorTrends.options.auto')}</SelectItem>
+                <SelectItem value="hourly">{t('sensorTrends.options.hourly')}</SelectItem>
+                <SelectItem value="daily">{t('sensorTrends.options.daily')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -134,7 +137,7 @@ export const SensorGraphPage: React.FC = () => {
                 <Checkbox checked={activeMetrics.includes(m)} onCheckedChange={() => toggleMetric(m)} />
                 <span className="flex items-center gap-2">
                   <span className="inline-block h-3 w-3 rounded" style={{ backgroundColor: METRIC_COLORS[m] }} />
-                  {m}
+                  {t(`sensorTrends.metrics.${m}`)}
                 </span>
               </label>
             ))}
@@ -147,9 +150,9 @@ export const SensorGraphPage: React.FC = () => {
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="flex items-center justify-between">
-            <span>Gagal memuat grafik. Silakan coba lagi.</span>
+            <span>{t('sensorTrends.error.load')}</span>
             <Button variant="outline" size="sm" onClick={() => refetch()}>
-              Coba lagi
+              {t('sensorTrends.actions.retry')}
             </Button>
           </AlertDescription>
         </Alert>
@@ -160,7 +163,7 @@ export const SensorGraphPage: React.FC = () => {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Database className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">Pilih perangkat untuk melihat grafik</p>
+            <p className="text-muted-foreground">{t('sensorTrends.empty.selectDevice')}</p>
           </CardContent>
         </Card>
       ) : isLoading ? (
@@ -174,7 +177,7 @@ export const SensorGraphPage: React.FC = () => {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">Tidak ada data untuk rentang waktu ini</p>
+            <p className="text-muted-foreground">{t('sensorTrends.empty.noData')}</p>
           </CardContent>
         </Card>
       ) : (
@@ -193,16 +196,20 @@ export const SensorGraphPage: React.FC = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-4">
                 <span>
-                  Perangkat: <strong>{selectedDevice.name}</strong>
+                  {t('sensorTrends.summary.device')}: <strong>{selectedDevice.name}</strong>
                 </span>
                 <span>
-                  Granularity: <strong>{seriesRes.metadata.effectiveGranularity || granularity}</strong>
+                  {t('sensorTrends.summary.granularity')}: <strong>
+                    {t(`sensorTrends.options.${seriesRes.metadata.effectiveGranularity || granularity}`, {
+                      defaultValue: seriesRes.metadata.effectiveGranularity || granularity,
+                    })}
+                  </strong>
                 </span>
               </div>
               <div className="flex items-center gap-4">
                 <span>
-                  Periode: <strong>
-                    {dateRange.from.toLocaleDateString('id-ID')} - {dateRange.to.toLocaleDateString('id-ID')}
+                  {t('sensorTrends.summary.period')}: <strong>
+                    {dateRange.from.toLocaleDateString(locale)} - {dateRange.to.toLocaleDateString(locale)}
                   </strong>
                 </span>
                 <ConnectionStatus />
@@ -214,4 +221,3 @@ export const SensorGraphPage: React.FC = () => {
     </div>
   );
 };
-

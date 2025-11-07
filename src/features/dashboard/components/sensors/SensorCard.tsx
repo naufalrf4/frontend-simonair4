@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getSensorConfig, getStatusConfig } from '../utils/sensorUtils';
+import { useTranslation } from 'react-i18next';
 
 interface SensorCardProps {
   sensor: {
@@ -21,11 +22,14 @@ interface SensorCardProps {
 }
 
 const SensorCard: React.FC<SensorCardProps> = ({ sensor, isOnline, lastUpdate }) => {
+  const { t } = useTranslation('dashboard');
   const config = getSensorConfig(sensor.label);
   const statusConfig = getStatusConfig(sensor.status, isOnline);
   const StatusIcon = statusConfig.icon;
   const SensorIcon = config.icon;
   const showDetails = sensor.voltage !== undefined || sensor.calibrated !== undefined;
+  const sensorName = config.nameKey ? t(config.nameKey) : config.name || sensor.label;
+  const statusLabel = statusConfig.labelKey ? t(statusConfig.labelKey) : '';
 
   return (
     <Card
@@ -65,7 +69,7 @@ const SensorCard: React.FC<SensorCardProps> = ({ sensor, isOnline, lastUpdate })
               className="text-[10px] px-2 py-0.5 h-4 flex items-center gap-1"
             >
               <StatusIcon className="h-2.5 w-2.5" />
-              {statusConfig.label}
+              {statusLabel}
             </Badge>
           </div>
           
@@ -79,7 +83,7 @@ const SensorCard: React.FC<SensorCardProps> = ({ sensor, isOnline, lastUpdate })
                   )}
                 />
                 <span className="text-[10px] text-gray-600">
-                  {sensor.calibrated_ok ? 'OK' : '!'}
+                  {sensor.calibrated_ok ? t('sensorCard.mobileOk') : t('sensorCard.mobileWarn')}
                 </span>
               </div>
             </div>
@@ -101,7 +105,7 @@ const SensorCard: React.FC<SensorCardProps> = ({ sensor, isOnline, lastUpdate })
                 <h3 className="font-semibold text-sm text-gray-800 leading-tight">
                   {sensor.label}
                 </h3>
-                <p className="text-xs text-gray-500 truncate max-w-[100px]">{config.name}</p>
+                <p className="text-xs text-gray-500 truncate max-w-[100px]">{sensorName}</p>
               </div>
             </div>
 
@@ -110,7 +114,7 @@ const SensorCard: React.FC<SensorCardProps> = ({ sensor, isOnline, lastUpdate })
               className="text-xs px-2 py-1 flex items-center gap-1"
             >
               <StatusIcon className="h-3 w-3" />
-              {statusConfig.label}
+              {statusLabel}
             </Badge>
           </div>
 
@@ -142,7 +146,7 @@ const SensorCard: React.FC<SensorCardProps> = ({ sensor, isOnline, lastUpdate })
                   )}
                 />
                 <span className="text-xs text-gray-600">
-                  {sensor.calibrated_ok ? 'Calibrated' : 'Need Calibration'}
+                  {sensor.calibrated_ok ? t('sensorCard.calibratedOk') : t('sensorCard.needsCalibration')}
                 </span>
               </div>
             </div>
@@ -151,7 +155,7 @@ const SensorCard: React.FC<SensorCardProps> = ({ sensor, isOnline, lastUpdate })
           {lastUpdate && isOnline && (
             <div className="flex items-center gap-1 pt-1 text-xs text-gray-500">
               <Clock className="h-3 w-3" />
-              <span>Update {lastUpdate}</span>
+              <span>{t('sensorCard.lastUpdate', { time: lastUpdate })}</span>
             </div>
           )}
         </div>
@@ -159,8 +163,8 @@ const SensorCard: React.FC<SensorCardProps> = ({ sensor, isOnline, lastUpdate })
         {!isOnline && (
           <div className="absolute inset-0 bg-gray-900/10 flex items-center justify-center">
             <div className="bg-white/90 px-1 py-0.5 sm:px-3 sm:py-1 rounded-full text-[8px] sm:text-xs font-medium text-gray-600 shadow-sm">
-              <span className="sm:hidden">OFF</span>
-              <span className="hidden sm:inline">Device Offline</span>
+              <span className="sm:hidden">{t('sensorCard.mobileWarn')}</span>
+              <span className="hidden sm:inline">{t('sensorCard.deviceOffline')}</span>
             </div>
           </div>
         )}

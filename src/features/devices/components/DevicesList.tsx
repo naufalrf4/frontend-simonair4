@@ -15,7 +15,7 @@ import { Search, Plus, Wifi, WifiOff } from 'lucide-react';
 import { DeviceCard } from './DeviceCard';
 import { useDebounce } from '@/hooks/useDebounce';
 import type { Device, PaginationState } from '../types';
-import { DEVICE_MESSAGES } from '../constants/messages';
+import { useTranslation } from 'react-i18next';
 
 export interface DevicesListProps {
   devices: Device[];
@@ -46,6 +46,7 @@ export const DevicesList: React.FC<DevicesListProps> = ({
   onViewDetails,
   className,
 }) => {
+  const { t } = useTranslation('devices');
   // Debounce search input to avoid excessive API calls
   const debouncedSearchValue = useDebounce(searchValue, 300);
 
@@ -143,20 +144,20 @@ export const DevicesList: React.FC<DevicesListProps> = ({
         </div>
         
         <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          {hasSearch ? DEVICE_MESSAGES.EMPTY_SEARCH_TITLE : DEVICE_MESSAGES.EMPTY_STATE_TITLE}
+          {hasSearch ? t('empty.searchTitle') : t('empty.title')}
         </h3>
         
         <p className="text-gray-600 mb-6 max-w-md mx-auto">
           {hasSearch 
-            ? DEVICE_MESSAGES.EMPTY_SEARCH_DESCRIPTION
-            : DEVICE_MESSAGES.EMPTY_STATE_DESCRIPTION
+            ? t('empty.searchDescription')
+            : t('empty.description')
           }
         </p>
         
         {!hasSearch && (
           <Button onClick={onAddDevice} className="inline-flex items-center">
             <Plus className="w-4 h-4 mr-2" />
-            {DEVICE_MESSAGES.ADD_DEVICE}
+            {t('empty.action')}
           </Button>
         )}
       </div>
@@ -172,14 +173,14 @@ export const DevicesList: React.FC<DevicesListProps> = ({
       <div className="flex items-center gap-6 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <Wifi className="w-4 h-4 text-emerald-600" />
-          <span>{onlineCount} {DEVICE_MESSAGES.STATUS_ONLINE.toLowerCase()}</span>
+          <span>{t('stats.online', { count: onlineCount })}</span>
         </div>
         <div className="flex items-center gap-2">
           <WifiOff className="w-4 h-4 text-red-600" />
-          <span>{offlineCount} {DEVICE_MESSAGES.STATUS_OFFLINE.toLowerCase()}</span>
+          <span>{t('stats.offline', { count: offlineCount })}</span>
         </div>
         <div>
-          Total: {pagination.total} devices
+          {t('stats.total', { count: pagination.total })}
         </div>
       </div>
     );
@@ -193,7 +194,7 @@ export const DevicesList: React.FC<DevicesListProps> = ({
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
-              placeholder={DEVICE_MESSAGES.SEARCH_PLACEHOLDER}
+              placeholder={t('header.searchPlaceholder')}
               value={searchValue}
               onChange={(e) => onSearchChange(e.target.value)}
               className="pl-10"
@@ -203,7 +204,7 @@ export const DevicesList: React.FC<DevicesListProps> = ({
         
         <Button onClick={onAddDevice} className="inline-flex items-center">
           <Plus className="w-4 h-4 mr-2" />
-          {DEVICE_MESSAGES.ADD_DEVICE}
+          {t('header.addButton')}
         </Button>
       </div>
 

@@ -1,0 +1,43 @@
+{
+  "language": {
+    "label": "Bahasa",
+    "options": {
+      "id": "Indonesia",
+      "en": "Inggris"
+    }
+  },
+  "navbar": {
+    "currentTitleFallback": "Dasbor",
+    "settings": "Pengaturan",
+    "logout": "Keluar",
+    "loggingOut": "Sedang keluar..."
+  },
+  "actions": {
+    "back": "Kembali",
+    "goHome": "Ke Beranda",
+    "reload": "Muat Ulang",
+    "tryAgain": "Coba Lagi"
+  },
+  "notFound": {
+    "title": "404 - Halaman Tidak Ditemukan",
+    "description": "Halaman yang Anda minta tidak tersedia atau Anda tidak memiliki izin untuk mengaksesnya.",
+    "button": "Kembali"
+  },
+  "errorPage": {
+    "title": "Terjadi kesalahan",
+    "suggestionsIntro": "Anda dapat mencoba hal berikut:",
+    "suggestions": [
+      "Segarkan halaman",
+      "Periksa koneksi internet Anda",
+      "Coba lagi dalam beberapa menit",
+      "Hubungi dukungan jika masalah berlanjut"
+    ],
+    "technicalDetails": "Detail teknis",
+    "messages": {
+      "network": "Kami mengalami kesulitan terhubung ke server. Periksa koneksi internet Anda dan coba lagi.",
+      "timeout": "Permintaan membutuhkan waktu terlalu lama. Silakan coba kembali ketika server lebih senggang.",
+      "permission": "Anda tidak memiliki izin untuk mengakses resource ini. Silakan masuk atau hubungi administrator.",
+      "generic": "Terjadi kesalahan yang tidak terduga. Tim kami telah diberi tahu dan sedang memperbaikinya."
+    }
+  }
+}

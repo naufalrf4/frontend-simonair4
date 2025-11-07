@@ -1,0 +1,43 @@
+{
+  "language": {
+    "label": "Language",
+    "options": {
+      "id": "Indonesian",
+      "en": "English"
+    }
+  },
+  "navbar": {
+    "currentTitleFallback": "Dashboard",
+    "settings": "Settings",
+    "logout": "Log Out",
+    "loggingOut": "Logging out..."
+  },
+  "actions": {
+    "back": "Go Back",
+    "goHome": "Go Home",
+    "reload": "Reload Page",
+    "tryAgain": "Try Again"
+  },
+  "notFound": {
+    "title": "404 - Page Not Found",
+    "description": "The page you requested does not exist or you do not have permission to view it.",
+    "button": "Back"
+  },
+  "errorPage": {
+    "title": "Something went wrong",
+    "suggestionsIntro": "You can try the following:",
+    "suggestions": [
+      "Refresh the page",
+      "Check your internet connection",
+      "Try again in a few minutes",
+      "Contact support if the problem persists"
+    ],
+    "technicalDetails": "Technical details",
+    "messages": {
+      "network": "We're having trouble connecting to our servers. Please check your internet connection and try again.",
+      "timeout": "The request took too long to complete. Please try again later when the server might be less busy.",
+      "permission": "You don't have permission to access this resource. Please log in or contact an administrator.",
+      "generic": "We've encountered an unexpected error. Our team has been notified and we're working to fix it."
+    }
+  }
+}

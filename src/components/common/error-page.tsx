@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useTranslation } from "react-i18next";
 
 interface ErrorPageProps {
   error: Error;
@@ -14,7 +15,8 @@ interface ErrorPageProps {
 }
 
 export function ErrorPage({ error, reset }: ErrorPageProps) {
-  const friendlyMessage = getFriendlyErrorMessage(error);
+  const { t } = useTranslation("common");
+  const friendlyMessage = getFriendlyErrorMessage(error, t);
 
   // Simple navigation that works regardless of router context
   const goHome = () => {
@@ -24,6 +26,10 @@ export function ErrorPage({ error, reset }: ErrorPageProps) {
   const reload = () => {
     window.location.reload();
   };
+
+  const suggestions = t('errorPage.suggestions', {
+    returnObjects: true,
+  }) as string[];
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background/50">
@@ -46,7 +52,7 @@ export function ErrorPage({ error, reset }: ErrorPageProps) {
             </svg>
           </div>
           <CardTitle className="text-3xl font-bold tracking-tight">
-            Something went wrong
+            {t("errorPage.title")}
           </CardTitle>
           <CardDescription className="mt-3 text-base">
             {friendlyMessage}
@@ -58,7 +64,7 @@ export function ErrorPage({ error, reset }: ErrorPageProps) {
             {process.env.NODE_ENV === "development" && (
               <details className="mt-2">
                 <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Technical details
+                  {t("errorPage.technicalDetails")}
                 </summary>
                 <pre className="mt-2 text-xs whitespace-pre-wrap overflow-x-auto">
                   {error.stack}
@@ -68,27 +74,26 @@ export function ErrorPage({ error, reset }: ErrorPageProps) {
           </div>
           <div className="mt-6 space-y-2">
             <p className="text-sm font-medium text-muted-foreground">
-              You can try the following:
+              {t("errorPage.suggestionsIntro")}
             </p>
             <ul className="list-disc list-inside space-y-1.5 text-sm text-muted-foreground">
-              <li>Refresh the page</li>
-              <li>Check your internet connection</li>
-              <li>Try again in a few minutes</li>
-              <li>Contact support if the problem persists</li>
+              {suggestions.map((suggestion) => (
+                <li key={suggestion}>{suggestion}</li>
+              ))}
             </ul>
           </div>
         </CardContent>
         <CardFooter className="flex flex-wrap justify-center gap-4 pt-2 pb-6">
           {reset && (
             <Button onClick={() => reset()} className="min-w-[120px]">
-              Try Again
+              {t("actions.tryAgain")}
             </Button>
           )}
           <Button onClick={goHome} variant="outline" className="min-w-[120px]">
-            Go Home
+            {t("actions.goHome")}
           </Button>
           <Button onClick={reload} variant="secondary" className="min-w-[120px]">
-            Reload Page
+            {t("actions.reload")}
           </Button>
         </CardFooter>
       </Card>
@@ -96,21 +101,24 @@ export function ErrorPage({ error, reset }: ErrorPageProps) {
   );
 }
 
-function getFriendlyErrorMessage(error: Error): string {
+function getFriendlyErrorMessage(
+  error: Error,
+  t: ReturnType<typeof useTranslation>["t"],
+): string {
   if (error.message.includes("fetch") || error.message.includes("network")) {
-    return "We're having trouble connecting to our servers. Please check your internet connection and try again.";
+    return t("errorPage.messages.network");
   }
 
   if (error.message.includes("timeout")) {
-    return "The request took too long to complete. Please try again later when the server might be less busy.";
+    return t("errorPage.messages.timeout");
   }
 
   if (
     error.message.includes("permission") ||
     error.message.includes("denied")
   ) {
-    return "You don't have permission to access this resource. Please log in or contact an administrator.";
+    return t("errorPage.messages.permission");
   }
 
-  return "We've encountered an unexpected error. Our team has been notified and we're working to fix it.";
+  return t("errorPage.messages.generic");
 }

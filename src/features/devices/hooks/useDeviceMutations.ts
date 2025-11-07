@@ -2,15 +2,17 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { DevicesService, deviceKeys } from '../services/devicesService';
 import type { DeviceFormData, Device } from '../types';
-import { DeviceError, parseApiError } from '../utils/errorHandling';
+import { DeviceError, DeviceErrorType, parseApiError } from '../utils/errorHandling';
 import { formatDeviceForCreate, formatDeviceForUpdate } from '../utils/deviceFormatters';
-import { DEVICE_MESSAGES, getLocalizedErrorMessage } from '../constants/messages';
+import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 
 /**
  * Hook for creating a new device
  */
 export function useCreateDeviceMutation() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation('devices');
 
   return useMutation({
     mutationFn: (data: DeviceFormData) => {
@@ -24,11 +26,11 @@ export function useCreateDeviceMutation() {
       // Add the new device to existing cache if possible
       queryClient.setQueryData(deviceKeys.detail(newDevice.device_id), newDevice);
       
-      toast.success(DEVICE_MESSAGES.DEVICE_ADDED_SUCCESS);
+      toast.success(t('toasts.addSuccess'));
     },
     onError: (error: any) => {
       const deviceError = error instanceof DeviceError ? error : parseApiError(error);
-      const message = getLocalizedErrorMessage('CREATE_DEVICE', deviceError.type);
+      const message = getDeviceErrorMessage(t, 'CREATE_DEVICE', deviceError.type);
       
       console.error('Device creation failed:', deviceError);
       toast.error(message);
@@ -41,6 +43,7 @@ export function useCreateDeviceMutation() {
  */
 export function useUpdateDeviceMutation() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation('devices');
 
   return useMutation({
     mutationFn: ({ deviceId, data }: { deviceId: string; data: DeviceFormData }) => {
@@ -80,7 +83,7 @@ export function useUpdateDeviceMutation() {
       // Invalidate devices list to ensure consistency
       queryClient.invalidateQueries({ queryKey: deviceKeys.lists() });
       
-      toast.success(DEVICE_MESSAGES.DEVICE_UPDATED_SUCCESS);
+      toast.success(t('toasts.updateSuccess'));
     },
     onError: (error: any, { deviceId }, context) => {
       // Rollback optimistic update
@@ -89,7 +92,7 @@ export function useUpdateDeviceMutation() {
       }
       
       const deviceError = error instanceof DeviceError ? error : parseApiError(error);
-      const message = getLocalizedErrorMessage('UPDATE_DEVICE', deviceError.type);
+      const message = getDeviceErrorMessage(t, 'UPDATE_DEVICE', deviceError.type);
       
       console.error('Device update failed:', deviceError);
       toast.error(message);
@@ -106,6 +109,7 @@ export function useUpdateDeviceMutation() {
  */
 export function useDeleteDeviceMutation() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation('devices');
 
   return useMutation({
     mutationFn: (deviceId: string) => DevicesService.deleteDevice(deviceId),
@@ -139,7 +143,7 @@ export function useDeleteDeviceMutation() {
       // Invalidate devices list to ensure pagination is correct
       queryClient.invalidateQueries({ queryKey: deviceKeys.lists() });
       
-      toast.success(DEVICE_MESSAGES.DEVICE_DELETED_SUCCESS);
+      toast.success(t('toasts.deleteSuccess'));
     },
     onError: (error: any, _, context) => {
       // Rollback optimistic updates
@@ -150,7 +154,7 @@ export function useDeleteDeviceMutation() {
       }
       
       const deviceError = error instanceof DeviceError ? error : parseApiError(error);
-      const message = getLocalizedErrorMessage('DELETE_DEVICE', deviceError.type);
+      const message = getDeviceErrorMessage(t, 'DELETE_DEVICE', deviceError.type);
       
       console.error('Device deletion failed:', deviceError);
       toast.error(message);
@@ -159,5 +163,24 @@ export function useDeleteDeviceMutation() {
       // Always refetch devices list after delete operation
       queryClient.invalidateQueries({ queryKey: deviceKeys.lists() });
     },
+  });
+}
+
+const operationKeyMap = {
+  CREATE_DEVICE: 'create',
+  UPDATE_DEVICE: 'update',
+  DELETE_DEVICE: 'delete',
+  FETCH_DEVICES: 'list',
+  FETCH_DEVICE: 'detail',
+} as const;
+
+function getDeviceErrorMessage(
+  t: TFunction<'devices'>,
+  operation: keyof typeof operationKeyMap,
+  errorType: DeviceErrorType
+): string {
+  const baseKey = `errors.operations.${operationKeyMap[operation]}`;
+  return t(`${baseKey}.${errorType}`, {
+    defaultValue: t(`${baseKey}.default`),
   });
 }

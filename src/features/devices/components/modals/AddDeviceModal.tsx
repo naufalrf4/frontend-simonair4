@@ -8,9 +8,9 @@ import {
 } from '@/components/ui/dialog';
 import { DeviceForm } from '../forms/DeviceForm';
 import { useCreateDeviceMutation } from '../../hooks/useDeviceMutations';
-import { DEVICE_MESSAGES } from '../../constants/messages';
 import type { DeviceFormData } from '../../types';
 import { Plus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export interface AddDeviceModalProps {
   isOpen: boolean;
@@ -24,6 +24,7 @@ export const AddDeviceModal: React.FC<AddDeviceModalProps> = ({
   onSuccess,
 }) => {
   const createDeviceMutation = useCreateDeviceMutation();
+  const { t } = useTranslation('devices');
 
   const handleSubmit = async (data: DeviceFormData) => {
     try {
@@ -53,10 +54,10 @@ export const AddDeviceModal: React.FC<AddDeviceModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Plus className="h-5 w-5" />
-            {DEVICE_MESSAGES.ADD_DEVICE_TITLE}
+            {t('modals.add.title')}
           </DialogTitle>
           <DialogDescription>
-            {DEVICE_MESSAGES.ADD_DEVICE_DESCRIPTION}
+            {t('modals.add.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -64,7 +65,9 @@ export const AddDeviceModal: React.FC<AddDeviceModalProps> = ({
           onSubmit={handleSubmit}
           onCancel={handleCancel}
           isLoading={createDeviceMutation.isPending}
-          submitLabel={createDeviceMutation.isPending ? DEVICE_MESSAGES.SAVING_DEVICE : DEVICE_MESSAGES.ADD_DEVICE}
+          submitLabel={
+            createDeviceMutation.isPending ? t('buttons.save') : t('buttons.saveNew')
+          }
           submitIcon={<Plus className="mr-2 h-4 w-4" />}
           showCancel={true}
           className="mt-4"

@@ -3,6 +3,7 @@ import { DataTable } from '@/components/ui/data-table';
 import type { ColumnDef } from '@tanstack/react-table';
 import type { ManualMeasurement } from '../types';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from 'react-i18next';
 
 interface ManualMeasurementsTableProps {
   data: ManualMeasurement[];
@@ -25,45 +26,49 @@ export function ManualMeasurementsTable({
   onEdit,
   onCompare,
 }: ManualMeasurementsTableProps) {
+  const { t, i18n } = useTranslation('farming');
+  const locale = i18n.language === 'id' ? 'id-ID' : 'en-US';
   const columns = useMemo<ColumnDef<ManualMeasurement>[]>(
     () => [
       {
         accessorKey: 'measurement_timestamp',
-        header: 'Timestamp',
+        header: t('manual.table.timestamp'),
         cell: ({ row }) => {
           const ts = row.original.measurement_timestamp;
           const d = ts ? new Date(ts) : null;
           return (
             <div className="min-w-[160px]">
-              <div className="font-medium">{d ? d.toLocaleString() : '-'}</div>
-              <div className="text-xs text-muted-foreground">{row.original.created_at ? new Date(row.original.created_at).toLocaleString() : ''}</div>
+              <div className="font-medium">{d ? d.toLocaleString(locale) : '-'}</div>
+              <div className="text-xs text-muted-foreground">
+                {row.original.created_at ? new Date(row.original.created_at).toLocaleString(locale) : ''}
+              </div>
             </div>
           );
         },
       },
       {
         accessorKey: 'temperature',
-        header: 'Temp (°C)',
+        header: t('manual.table.temperature'),
         cell: ({ row }) => (row.original.temperature ?? '-') as any,
       },
       {
         accessorKey: 'ph',
-        header: 'pH',
+        header: t('manual.table.ph'),
         cell: ({ row }) => (row.original.ph ?? '-') as any,
       },
       {
         accessorKey: 'tds',
-        header: 'TDS',
+        header: t('manual.table.tds'),
         cell: ({ row }) => (row.original.tds ?? '-') as any,
       },
       {
         accessorKey: 'do_level',
-        header: 'DO',
+        header: t('manual.table.do'),
         cell: ({ row }) => (row.original.do_level ?? '-') as any,
       },
       {
         accessorKey: 'notes',
-        header: 'Notes',
+        header: t('manual.table.notes'),
         cell: ({ row }) => (
           <div className="max-w-[240px] truncate" title={row.original.notes ?? ''}>
             {row.original.notes ?? '-'}
@@ -72,7 +77,7 @@ export function ManualMeasurementsTable({
       },
       {
         id: 'comparison',
-        header: 'Compare',
+        header: t('manual.table.compare'),
         cell: ({ row }) => {
           const comp = row.original.comparison;
           if (!comp) return <span className="text-muted-foreground">-</span>;
@@ -92,20 +97,20 @@ export function ManualMeasurementsTable({
       },
       {
         id: 'actions',
-        header: 'Actions',
+        header: t('common.table.actions'),
         cell: ({ row }) => (
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={() => onCompare(row.original)}>
-              Compare
+              {t('common.buttons.compare')}
             </Button>
             <Button variant="secondary" size="sm" onClick={() => onEdit(row.original)}>
-              Edit
+              {t('common.buttons.edit')}
             </Button>
           </div>
         ),
       },
     ],
-    [onEdit, onCompare],
+    [locale, onCompare, onEdit, t],
   );
 
   return (

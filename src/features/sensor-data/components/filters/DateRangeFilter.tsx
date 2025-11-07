@@ -5,9 +5,10 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CalendarIcon, X } from 'lucide-react';
 import { format, subDays, startOfDay, endOfDay } from 'date-fns';
-import { id } from 'date-fns/locale';
+import { enUS, id as idLocale } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import type { DateRange } from '../../types';
+import { useTranslation } from 'react-i18next';
 
 interface DateRangeFilterProps {
   dateRange: DateRange;
@@ -18,45 +19,45 @@ interface DateRangeFilterProps {
 // Preset date ranges
 const DATE_PRESETS = [
   {
-    label: '7 hari terakhir',
+    labelKey: 'dateRange.presets.7d',
     value: '7d',
     getRange: () => ({
       from: startOfDay(subDays(new Date(), 6)),
-      to: endOfDay(new Date())
-    })
+      to: endOfDay(new Date()),
+    }),
   },
   {
-    label: '30 hari terakhir',
+    labelKey: 'dateRange.presets.30d',
     value: '30d',
     getRange: () => ({
       from: startOfDay(subDays(new Date(), 29)),
-      to: endOfDay(new Date())
-    })
+      to: endOfDay(new Date()),
+    }),
   },
   {
-    label: '90 hari terakhir',
+    labelKey: 'dateRange.presets.90d',
     value: '90d',
     getRange: () => ({
       from: startOfDay(subDays(new Date(), 89)),
-      to: endOfDay(new Date())
-    })
+      to: endOfDay(new Date()),
+    }),
   },
   {
-    label: 'Hari ini',
+    labelKey: 'dateRange.presets.today',
     value: 'today',
     getRange: () => ({
       from: startOfDay(new Date()),
-      to: endOfDay(new Date())
-    })
+      to: endOfDay(new Date()),
+    }),
   },
   {
-    label: 'Kemarin',
+    labelKey: 'dateRange.presets.yesterday',
     value: 'yesterday',
     getRange: () => ({
       from: startOfDay(subDays(new Date(), 1)),
-      to: endOfDay(subDays(new Date(), 1))
-    })
-  }
+      to: endOfDay(subDays(new Date(), 1)),
+    }),
+  },
 ];
 
 export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
@@ -64,6 +65,8 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
   onDateRangeChange,
   className = ''
 }) => {
+  const { t, i18n } = useTranslation('devices');
+  const locale = i18n.language === 'id' ? idLocale : enUS;
   const [isOpen, setIsOpen] = React.useState(false);
   const [selectedPreset, setSelectedPreset] = React.useState<string>('');
 
@@ -71,11 +74,11 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
   const formatDateRange = (range: DateRange): string => {
     try {
       if (!range.from || !range.to) {
-        return 'Pilih rentang tanggal';
+        return t('dateRange.empty');
       }
       
-      const fromStr = format(range.from, 'dd MMM yyyy', { locale: id });
-      const toStr = format(range.to, 'dd MMM yyyy', { locale: id });
+      const fromStr = format(range.from, 'dd MMM yyyy', { locale });
+      const toStr = format(range.to, 'dd MMM yyyy', { locale });
       
       if (format(range.from, 'yyyy-MM-dd') === format(range.to, 'yyyy-MM-dd')) {
         return fromStr;
@@ -83,7 +86,7 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
       
       return `${fromStr} - ${toStr}`;
     } catch (error) {
-      return 'Rentang tanggal tidak valid';
+      return t('dateRange.invalid');
     }
   };
 
@@ -134,12 +137,12 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
       {/* Preset selector */}
       <Select value={selectedPreset} onValueChange={handlePresetSelect}>
         <SelectTrigger className="w-[160px]">
-          <SelectValue placeholder="Pilih periode" />
+          <SelectValue placeholder={t('dateRange.placeholder')} />
         </SelectTrigger>
         <SelectContent>
           {DATE_PRESETS.map(preset => (
             <SelectItem key={preset.value} value={preset.value}>
-              {preset.label}
+              {t(preset.labelKey)}
             </SelectItem>
           ))}
         </SelectContent>
@@ -161,7 +164,7 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
           <div className="p-3">
-            <div className="text-sm font-medium mb-2">Pilih Rentang Tanggal</div>
+            <div className="text-sm font-medium mb-2">{t('dateRange.pickerTitle')}</div>
             <Calendar
               initialFocus
               mode="range"
@@ -172,12 +175,12 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
               }}
               onSelect={handleDateSelect}
               numberOfMonths={2}
-              locale={id}
+              locale={locale}
               disabled={(date) => date > new Date()}
             />
             <div className="flex justify-between items-center mt-3 pt-3 border-t">
               <div className="text-xs text-muted-foreground">
-                Maksimal 1 tahun
+                {t('dateRange.maxRange')}
               </div>
               <div className="flex gap-2">
                 <Button
@@ -185,13 +188,13 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
                   size="sm"
                   onClick={() => setIsOpen(false)}
                 >
-                  Batal
+                  {t('dateRange.cancel')}
                 </Button>
                 <Button
                   size="sm"
                   onClick={() => setIsOpen(false)}
                 >
-                  Terapkan
+                  {t('dateRange.apply')}
                 </Button>
               </div>
             </div>
@@ -205,6 +208,7 @@ export const DateRangeFilter: React.FC<DateRangeFilterProps> = ({
         size="sm"
         onClick={handleClear}
         className="px-2"
+        aria-label={t('dateRange.clear')}
       >
         <X className="h-4 w-4" />
       </Button>

@@ -1,9 +1,11 @@
-export const getGreeting = (): string => {
+import i18n from '@/i18n/config';
+
+export const getGreetingKey = (): string => {
   const hour = new Date().getHours();
-  if (hour < 10) return 'Good Morning';
-  if (hour < 15) return 'Good Afternoon';
-  if (hour < 18) return 'Good Evening';
-  return 'Good Night';
+  if (hour < 10) return 'greetings.morning';
+  if (hour < 15) return 'greetings.afternoon';
+  if (hour < 18) return 'greetings.evening';
+  return 'greetings.night';
 };
 
 export interface Sensor {
@@ -148,6 +150,16 @@ export const parseSensorData = (payload: any): Sensor[] => {
 
 export const ONLINE_THRESHOLD_MS = 5 * 60 * 1000;
 
+const localeMap: Record<string, string> = {
+  id: 'id-ID',
+  en: 'en-US',
+};
+
+const resolveLocale = (): string => {
+  const lang = i18n.resolvedLanguage || i18n.language || 'en';
+  return localeMap[lang] || 'en-US';
+};
+
 const normalizeIso = (value?: string): string | null => {
   if (!value) return null;
   const date = new Date(value);
@@ -155,17 +167,26 @@ const normalizeIso = (value?: string): string | null => {
   return date.toISOString();
 };
 
-export const formatIndonesianDate = (dateString: string | Date): string => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    timeZoneName: 'short'
-  });
+export const formatLocalizedDate = (
+  dateInput: string | Date,
+  options?: Intl.DateTimeFormatOptions,
+): string => {
+  const date = new Date(dateInput);
+  if (Number.isNaN(date.getTime())) return '';
+
+  const formatOptions =
+    options ??
+    ({
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZoneName: 'short',
+    } satisfies Intl.DateTimeFormatOptions);
+
+  return new Intl.DateTimeFormat(resolveLocale(), formatOptions).format(date);
 };
 
 export const updateDeviceData = (
@@ -241,12 +262,11 @@ export const updateDeviceData = (
 
   const latestIso =
     normalizeIso(data.timestamp) || normalizeIso(data.time) || new Date().toISOString();
-  setLastUpdate(formatIndonesianDate(latestIso));
+  setLastUpdate(formatLocalizedDate(latestIso));
 };
 
-export const formatIndonesianTime = (dateString: string | Date): string => {
-  const date = new Date(dateString);
-  return date.toLocaleTimeString('en-US', {
+export const formatLocalizedTime = (dateInput: string | Date): string => {
+  return formatLocalizedDate(dateInput, {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
@@ -254,12 +274,19 @@ export const formatIndonesianTime = (dateString: string | Date): string => {
 };
 
 export const determineDeviceStatus = (sensors: Sensor[]): string => {
-  if (sensors.length === 0) return 'No Data';
+  if (sensors.length === 0) return 'waiting';
 
   const badSensors = sensors.filter((s) => s.status === 'BAD').length;
   const goodSensors = sensors.filter((s) => s.status === 'GOOD').length;
   
-  if (badSensors > 0) return 'Problematic';
-  if (goodSensors > 0) return 'Normal';
-  return 'No Data';
+  if (badSensors > 0) return 'problem';
+  if (goodSensors > 0) return 'normal';
+  return 'waiting';
 };
+
+// Backward compatibility helpers (legacy function names still referenced elsewhere)
+export const formatIndonesianDate = (dateInput: string | Date): string =>
+  formatLocalizedDate(dateInput);
+
+export const formatIndonesianTime = (dateInput: string | Date): string =>
+  formatLocalizedTime(dateInput);

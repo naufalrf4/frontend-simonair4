@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { Fish, Database, AlertTriangle, ChefHat, Calendar } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
 export const Route = createFileRoute('/_dashboard/_mobile/farming')({
   component: RouteComponent,
@@ -7,46 +8,46 @@ export const Route = createFileRoute('/_dashboard/_mobile/farming')({
 
 const farmingMenus = [
   {
-    title: 'Fish Growth',
+    titleKey: 'mobileMenu.cards.growth.title',
+    descriptionKey: 'mobileMenu.cards.growth.description',
     path: '/farming/fish-growth',
     icon: Fish,
-    description: 'Track and monitor fish growth progress and health metrics',
     iconColor: 'text-teal-400',
     borderColor: 'border-teal-400/30',
     bgGlow: 'bg-teal-400/5'
   },
   {
-    title: 'Feed Management',
+    titleKey: 'mobileMenu.cards.feeds.title',
+    descriptionKey: 'mobileMenu.cards.feeds.description',
     path: '/farming/feeds',
     icon: Database,
-    description: 'Manage feeding schedules and monitor feed consumption',
     iconColor: 'text-orange-400',
     borderColor: 'border-orange-400/30',
     bgGlow: 'bg-orange-400/5'
   },
   {
-    title: 'Fish Mortality',
+    titleKey: 'mobileMenu.cards.mortality.title',
+    descriptionKey: 'mobileMenu.cards.mortality.description',
     path: '/farming/fish-mortality',
     icon: AlertTriangle,
-    description: 'Monitor fish mortality rates and health incidents',
     iconColor: 'text-red-400',
     borderColor: 'border-red-400/30',
     bgGlow: 'bg-red-400/5'
   },
   {
-    title: 'Manual Data Entry',
+    titleKey: 'mobileMenu.cards.manual.title',
+    descriptionKey: 'mobileMenu.cards.manual.description',
     path: '/farming/manual-data',
     icon: ChefHat,
-    description: 'Record manual observations and farm data entries',
     iconColor: 'text-indigo-400',
     borderColor: 'border-indigo-400/30',
     bgGlow: 'bg-indigo-400/5'
   },
   {
-    title: 'Water Change',
+    titleKey: 'mobileMenu.cards.waterChanges.title',
+    descriptionKey: 'mobileMenu.cards.waterChanges.description',
     path: '/farming/water-change',
     icon: Calendar,
-    description: 'Schedule and track water quality management tasks',
     iconColor: 'text-cyan-400',
     borderColor: 'border-cyan-400/30',
     bgGlow: 'bg-cyan-400/5'
@@ -54,14 +55,15 @@ const farmingMenus = [
 ]
 
 function RouteComponent() {
+  const { t } = useTranslation('farming')
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50/30 to-teal-50/30 p-4 md:p-6">
       <div className="max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-2">
-            Farming Management
+            {t('mobileMenu.title')}
           </h1>
-          <p className="text-gray-600/80">Comprehensive aquaculture farming data and operations management</p>
+          <p className="text-gray-600/80">{t('mobileMenu.subtitle')}</p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -105,10 +107,10 @@ function RouteComponent() {
                     </div>
                     
                     <h3 className="text-xl font-semibold mb-2 text-gray-800 group-hover:text-gray-900 transition-colors duration-300">
-                      {menu.title}
+                      {t(menu.titleKey)}
                     </h3>
                     <p className="text-gray-600/90 text-sm leading-relaxed group-hover:text-gray-700/90 transition-colors duration-300">
-                      {menu.description}
+                      {t(menu.descriptionKey)}
                     </p>
                   </div>
                   

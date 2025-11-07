@@ -15,8 +15,8 @@ import {
 import { AquariumSizeInput } from './AquariumSizeInput';
 import type { DeviceFormData } from '../../types';
 import { deviceFormSchema } from '../../utils/deviceValidation';
-import { DEVICE_MESSAGES } from '../../constants/messages';
 import { Fingerprint, User, MapPin, Ruler, Fish, EqualApproximately } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export interface DeviceFormProps {
   onSubmit: (data: DeviceFormData) => void | Promise<void>;
@@ -37,7 +37,7 @@ export const DeviceForm: React.FC<DeviceFormProps> = ({
   onCancel,
   initialData,
   isLoading = false,
-  submitLabel = DEVICE_MESSAGES.SAVE_CHANGES,
+  submitLabel,
   submitIcon,
   showCancel = true,
   disabled = false,
@@ -45,6 +45,8 @@ export const DeviceForm: React.FC<DeviceFormProps> = ({
   disableDeviceId = false,
   onChange,
 }) => {
+  const { t } = useTranslation('devices');
+  const resolvedSubmitLabel = submitLabel ?? t('buttons.save');
   const form = useForm<DeviceFormData>({
     resolver: zodResolver(deviceFormSchema),
     defaultValues: {
@@ -98,13 +100,13 @@ export const DeviceForm: React.FC<DeviceFormProps> = ({
               <FormItem>
                 <FormLabel className="flex items-center gap-2">
                   <Fingerprint className="h-4 w-4" />
-                  {DEVICE_MESSAGES.DEVICE_ID_LABEL} *
+                  {t('forms.deviceId.label')} *
                 </FormLabel>
                 <FormControl>
                   {disableDeviceId ? (
                     <Input
                       {...field}
-                      placeholder={DEVICE_MESSAGES.DEVICE_ID_PLACEHOLDER}
+                      placeholder={t('forms.deviceId.placeholder')}
                       disabled={true}
                     />
                   ) : (
@@ -127,9 +129,7 @@ export const DeviceForm: React.FC<DeviceFormProps> = ({
                   )}
                 </FormControl>
                 <FormDescription>
-                  {disableDeviceId
-                    ? DEVICE_MESSAGES.DEVICE_ID_LOCKED
-                    : 'Enter 4 characters (A–Z, 0–9). Device ID will be SMNR-XXXX'}
+                  {disableDeviceId ? t('forms.deviceId.locked') : t('forms.deviceId.hint')}
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -144,16 +144,16 @@ export const DeviceForm: React.FC<DeviceFormProps> = ({
               <FormItem>
                 <FormLabel className="flex items-center gap-2">
                   <User className="h-4 w-4" />
-                  {DEVICE_MESSAGES.DEVICE_NAME_LABEL} *
+                  {t('forms.deviceName.label')} *
                 </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
-                    placeholder={DEVICE_MESSAGES.DEVICE_NAME_PLACEHOLDER}
+                    placeholder={t('forms.deviceName.placeholder')}
                     disabled={disabled || isLoading}
                   />
                 </FormControl>
-                <FormDescription>{DEVICE_MESSAGES.DEVICE_NAME_HELP}</FormDescription>
+                <FormDescription>{t('forms.deviceName.help')}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -167,16 +167,16 @@ export const DeviceForm: React.FC<DeviceFormProps> = ({
               <FormItem>
                 <FormLabel className="flex items-center gap-2">
                   <MapPin className="h-4 w-4" />
-                  {DEVICE_MESSAGES.LOCATION_LABEL} *
+                  {t('forms.location.label')} *
                 </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
-                    placeholder={DEVICE_MESSAGES.LOCATION_PLACEHOLDER}
+                    placeholder={t('forms.location.placeholder')}
                     disabled={disabled || isLoading}
                   />
                 </FormControl>
-                <FormDescription>{DEVICE_MESSAGES.LOCATION_HELP}</FormDescription>
+                <FormDescription>{t('forms.location.help')}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -190,7 +190,7 @@ export const DeviceForm: React.FC<DeviceFormProps> = ({
             label={
               <span className="flex items-center gap-2">
                 <Ruler className="h-4 w-4" />
-                {DEVICE_MESSAGES.AQUARIUM_SIZE_LABEL}
+                {t('forms.aquariumSize.label')}
               </span>
             }
           />
@@ -203,16 +203,16 @@ export const DeviceForm: React.FC<DeviceFormProps> = ({
               <FormItem>
                 <FormLabel className="flex items-center gap-2">
                   <EqualApproximately className="h-4 w-4" />
-                  {DEVICE_MESSAGES.GLASS_TYPE_LABEL}
+                  {t('forms.glassType.label')}
                 </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
-                    placeholder={DEVICE_MESSAGES.GLASS_TYPE_PLACEHOLDER}
+                    placeholder={t('forms.glassType.placeholder')}
                     disabled={disabled || isLoading}
                   />
                 </FormControl>
-                <FormDescription>{DEVICE_MESSAGES.GLASS_TYPE_HELP}</FormDescription>
+                <FormDescription>{t('forms.glassType.help')}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -226,19 +226,19 @@ export const DeviceForm: React.FC<DeviceFormProps> = ({
               <FormItem>
                 <FormLabel className="flex items-center gap-2">
                   <Fish className="h-4 w-4" />
-                  {DEVICE_MESSAGES.FISH_COUNT_LABEL}
+                  {t('forms.fishCount.label')}
                 </FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     type="number"
                     min="0"
-                    placeholder={DEVICE_MESSAGES.FISH_COUNT_PLACEHOLDER}
+                    placeholder={t('forms.fishCount.placeholder')}
                     disabled={disabled || isLoading}
                     onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : 0)}
                   />
                 </FormControl>
-                <FormDescription>{DEVICE_MESSAGES.FISH_COUNT_HELP}</FormDescription>
+                <FormDescription>{t('forms.fishCount.help')}</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -249,12 +249,12 @@ export const DeviceForm: React.FC<DeviceFormProps> = ({
         <div className="flex justify-end space-x-3 pt-6 border-t mt-6">
           {showCancel && (
             <Button type="button" variant="outline" onClick={handleCancel} disabled={isLoading}>
-              {DEVICE_MESSAGES.CANCEL}
+              {t('buttons.cancel')}
             </Button>
           )}
           <Button type="submit" disabled={disabled || isLoading}>
             {submitIcon}
-            {submitLabel}
+            {resolvedSubmitLabel}
           </Button>
         </div>
       </form>

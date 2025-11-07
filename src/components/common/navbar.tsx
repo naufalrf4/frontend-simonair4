@@ -19,6 +19,8 @@ import { filterNavigationByRole } from '@/utils/role';
 import { useNavigate } from '@tanstack/react-router';
 import type { UserRole } from '@/features/users/types';
 import { useAuth } from '@/features/authentication/hooks/useAuth';
+import { useTranslation } from 'react-i18next';
+import { LanguageToggle } from './language-toggle';
 
 function getInitials(name?: string): string {
   if (!name) return 'U';
@@ -35,6 +37,7 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const matches = useMatches();
   const navigate = useNavigate();
+  const { t } = useTranslation('common');
 
   const userRole = user?.role?.toLowerCase() as UserRole | undefined;
   const roleConfig = userRole ? roleConfigs[userRole] || { title: userRole } : { title: '' };
@@ -48,8 +51,8 @@ export function Navbar() {
   const currentPath = matches[matches.length - 1]?.pathname || '/';
   const currentTitle = useMemo(() => {
     const item = filteredNavigation.find((nav) => nav.path === currentPath);
-    return item?.title || 'Dashboard';
-  }, [currentPath, filteredNavigation]);
+    return item?.title || t('navbar.currentTitleFallback');
+  }, [currentPath, filteredNavigation, t]);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10);
@@ -108,7 +111,7 @@ export function Navbar() {
           >
             <div>
               <Settings className="mr-3 h-4 w-4" />
-              <span className="font-medium">Settings</span>
+              <span className="font-medium">{t('navbar.settings')}</span>
             </div>
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -119,12 +122,12 @@ export function Navbar() {
             {!user ? (
               <>
                 <Loader2 className="mr-3 h-4 w-4 animate-spin" />
-                <span className="font-medium">Logging out...</span>
+                <span className="font-medium">{t('navbar.loggingOut')}</span>
               </>
             ) : (
               <>
                 <LogOut className="mr-3 h-4 w-4" />
-                <span className="font-medium">Keluar</span>
+                <span className="font-medium">{t('navbar.logout')}</span>
               </>
             )}
           </DropdownMenuItem>
@@ -146,6 +149,7 @@ export function Navbar() {
             <span className="text-lg font-semibold text-primary">{currentTitle}</span>
           </div>
           <div className="flex items-center gap-4">
+            <LanguageToggle />
             <Notifications />
             {userDropdown}
           </div>
@@ -166,7 +170,8 @@ export function Navbar() {
               <span className="text-lg font-semibold text-primary">{currentTitle}</span>
             </div>
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
+            <LanguageToggle />
             <Notifications />
           </div>
         </div>
